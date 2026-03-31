@@ -262,14 +262,37 @@ WSGraph >> numberOfNodes: anObject [
 ]
 
 { #category : 'optimization' }
-WSGraph >> optimizeAllPaths [
-	"Optimize all the paths"
+WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
+	"Optimize all the paths, decide if you allow exit changing"
 
-	self optimizePathsWithPathIDs: (self topology allPathIDs)
+	self optimizePathsWithPathIDs: (self topology allPathIDs) allowExitsModification: aBoolean 
 ]
 
 { #category : 'optimization' }
-WSGraph >> optimizePathsWithPathIDs: pathIDs [
+WSGraph >> optimizePathsWithExitModification: pathIDs [
+	"Optimize all the paths which pathID is in pathIDs"
+
+	pathIDs keysAndValuesDo: [ :classes :eachPathID |
+		| generatedPath optimalPath |
+		
+		generatedPath := self paths at: eachPathID.
+		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
+		
+		optimalPath size < generatedPath length ifTrue: [
+			self substitute: generatedPath with: optimalPath ] ]
+]
+
+{ #category : 'optimization' }
+WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
+	"Optimize all the paths which pathID is in pathIDs"
+
+	aBoolean 
+		ifTrue: [ self optimizePathsWithExitModification: pathIDs ] 
+		ifFalse: [ self optimizePathsWithoutExitModification: pathIDs ]. 
+]
+
+{ #category : 'optimization' }
+WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 
 	pathIDs do: [ :eachPathID | 
@@ -280,11 +303,7 @@ WSGraph >> optimizePathsWithPathIDs: pathIDs [
 		optimalPath size < generatedPath length ifTrue: [ 
 			self substitute: generatedPath with: optimalPath.
 		].
-	 ].
-	
-"	classesPathIDs keysAndValuesDo: [ :key :value |
-		self findOptimalPathWithID: value andClasses: key.
-	]."
+	 ]
 ]
 
 { #category : 'accessing' }

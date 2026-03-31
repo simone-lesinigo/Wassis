@@ -99,7 +99,7 @@ WSSolver >> run [
 	
 	self reifyWFCPaths.
 	self topology visualizer createVisualizationFor: self.
-	self graph optimizeAllPaths.
+	self graph optimizeAllPathsAllowingExitModifications: true.
 	WS2DRectangularGridVisualizer  new createVisualizationFor: self.
 ]
 

@@ -1,0 +1,24 @@
+"
+Please describe the package using the class comment of the included manifest class. The manifest class also includes other additional metadata for the package. These meta data are used by other tools such as the SmalllintManifestChecker and the critics Browser
+"
+Class {
+	#name : 'ManifestWassis',
+	#superclass : 'PackageManifest',
+	#category : 'Wassis-Manifest',
+	#package : 'Wassis',
+	#tag : 'Manifest'
+}
+
+{ #category : 'code-critics' }
+ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:44:00.417506+02:00') )
+]
+
+{ #category : 'code-critics' }
+ManifestWassis class >> ruleModifiesCollectionRuleV1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:43:57.955716+02:00') )
+]
