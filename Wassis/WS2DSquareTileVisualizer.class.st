@@ -12,7 +12,7 @@ Class {
 { #category : 'filesPath' }
 WS2DSquareTileVisualizer class >> folderPath [
 
-	^ '/Users/Simo/Desktop/WFC/tiles/rectangularGrid/png' asFileReference 
+	^ '/Users/Simo/Desktop/Wassis/tiles/rectangularGrid/png' asFileReference 
 ]
 
 { #category : 'visualization' }

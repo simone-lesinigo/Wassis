@@ -9,6 +9,12 @@ Class {
 	#tag : 'Core'
 }
 
+{ #category : 'serializing' }
+WSAdaptive2DGridSolver class >> savePath [
+
+    ^ '/Users/Simo/Desktop/Wassis/solution-', DateAndTime nowAsString, '.fuel'
+]
+
 { #category : 'instance creation' }
 WSAdaptive2DGridSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	
@@ -50,7 +56,17 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 WSAdaptive2DGridSolver >> run [
 
 	"self createGraphVisualization."
-   [ self solveWithIncreasingSize ] forkNamed: 'WaveFunctionCollapse'.
+   [ 
+		self solveWithIncreasingSize.
+		self save.
+	
+	] forkNamed: 'WaveFunctionCollapse'.
+]
+
+{ #category : 'actions' }
+WSAdaptive2DGridSolver >> save [
+
+	self serializeToFileNamed: self class savePath
 ]
 
 { #category : 'resolving' }
@@ -79,5 +95,5 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
 
    solver run.
 
-	self solutionFound: true.
+	self solutionFound: true
 ]
