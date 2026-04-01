@@ -223,12 +223,20 @@ WS2DRectangularGridTopology >> createTileEdgesFrom: anOrderedCollection [
 	"For the rectangular grid topology, it creates the edges for a tile in the order up, left, right, down"
 	
 	^ (Dictionary new
+		at: (self class) upSymbol put: (OrderedCollection with:  anOrderedCollection first);
+		at: (self class) leftSymbol put: (OrderedCollection with:  anOrderedCollection second);
+		at: (self class) rightSymbol put: (OrderedCollection with:  anOrderedCollection third);
+		at: (self class) downSymbol put: (OrderedCollection with:  anOrderedCollection last);
+		yourself 
+  ).
+	
+"	^ (Dictionary new
 			at: (self class) upSymbol put: { anOrderedCollection first };
 			at: (self class) leftSymbol put: {  anOrderedCollection at: 2 };
 			at: (self class) rightSymbol put: { anOrderedCollection at: 3};
 			at: (self class) downSymbol put: { anOrderedCollection last };
 			yourself 
-	  ).
+	  )."
 ]
 
 { #category : 'initialization' }

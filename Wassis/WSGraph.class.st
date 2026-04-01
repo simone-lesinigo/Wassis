@@ -80,6 +80,11 @@ WSGraph >> clearPath: aPath [
 	aPath nodes do: [ :eachNode |
 		eachNode collapseTo: emptyTile.
 	].
+
+	aPath nodes: OrderedCollection new.
+	aPath length: nil.
+	aPath firstNode: nil.
+	aPath lastNode: nil
 ]
 
 { #category : 'optimization' }
@@ -91,7 +96,7 @@ WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNod
         select: [ :eachEdge | eachEdge target = prevNode or: [ eachEdge target = nextNode ] ]
         thenCollect: [ :eachEdge | eachEdge direction ].
 
-    aNode collapseTo: (self topology tileset tileForDirections: dir pathID: pathID)
+    ^ aNode collapseTo: (self topology tileset tileForDirections: dir pathID: pathID)
 ]
 
 { #category : 'reification' }
@@ -199,8 +204,6 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     shortestPath removeFirst.
     shortestPath removeLast.
 
-    (self paths at: pathID) optimalPath: shortestPath.
-
     ^ shortestPath
 ]
 
@@ -278,8 +281,9 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		generatedPath := self paths at: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		
-		optimalPath size < generatedPath length ifTrue: [
-			self substitute: generatedPath with: optimalPath ] ]
+		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.
+		
+	]
 ]
 
 { #category : 'optimization' }
@@ -300,9 +304,8 @@ WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 		generatedPath := (self paths at: eachPathID).
 		optimalPath := self findOptimalPathWithID: eachPathID.
 		
-		optimalPath size < generatedPath length ifTrue: [ 
-			self substitute: generatedPath with: optimalPath.
-		].
+		self substituteIfShorter: optimalPath for: generatedPath updatingExits: false.
+		
 	 ]
 ]
 
@@ -401,7 +404,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
         weight: #third.
 
     shortestPath := (dijkstra runFrom: startNode to: endNode) asOrderedCollection.
-    (self paths at: pathID) optimalPath: shortestPath.
+
     ^ shortestPath
 ]
 
@@ -423,28 +426,47 @@ WSGraph >> setPathLengths [
 ]
 
 { #category : 'optimization' }
-WSGraph >> substitute: generatedPath with: optimalPath [
+WSGraph >> substitute: oldPath with: optimalPath [
 	"Replace a generated path by erasing it with the optimal path created by Dijkstra"
 
-    | pathID |
-    pathID := generatedPath pathID.
-    self clearPath: generatedPath.
+    | newFirstNode newLastNode pathID |
+    pathID := oldPath pathID.
+    self clearPath: oldPath.
 
-    self collapseNode: optimalPath first
+    newFirstNode := (self collapseNode: optimalPath first
         toPathTile: pathID
         between: (self getAdjacentClassForNode: optimalPath first)
-        and: optimalPath second.
+        and: optimalPath second).
+	oldPath firstNode: newFirstNode.
+	oldPath addNode: newFirstNode.
 
     2 to: optimalPath size - 1 do: [ :i |
-        self collapseNode: (optimalPath at: i)
-            toPathTile: pathID
-            between: (optimalPath at: i - 1)
-            and: (optimalPath at: i + 1) ].
+		| newNode |
+       newNode := self collapseNode: (optimalPath at: i)
+           toPathTile: pathID
+           between: (optimalPath at: i - 1)
+           and: (optimalPath at: i + 1).
+		oldPath addNode: newNode
+		
+	 ].
 
-    self collapseNode: optimalPath last
+    newLastNode := (self collapseNode: optimalPath last
         toPathTile: pathID
         between: (optimalPath at: optimalPath size - 1)
-        and: (self getAdjacentClassForNode: optimalPath last)
+        and: (self getAdjacentClassForNode: optimalPath last)).
+	oldPath lastNode: newLastNode.
+	oldPath addNode: newLastNode.
+	
+	oldPath length: oldPath nodes size
+]
+
+{ #category : 'optimization' }
+WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
+
+	optimalPath size < generatedPath length ifFalse: [ ^ self ].
+	
+	self substitute: generatedPath with: optimalPath.
+	aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]
 ]
 
 { #category : 'accessing' }
@@ -457,6 +479,38 @@ WSGraph >> topology [
 WSGraph >> topology: anObject [
 
 	topology := anObject
+]
+
+{ #category : 'optimization' }
+WSGraph >> updateExitFor: aNode withPathID: aPathID [
+	"Given a node, it reorganize the class exits. This method is called only when the allowExitModification is set to true"
+	
+	| edge classTile targetEdgeSymbols emptySymbol|
+	
+	emptySymbol := self topology class emptyEdgeSymbol .
+	edge := aNode outgoingEdges detect: [ :eachEdge | (eachEdge target isClassNode) and: [ 
+			eachEdge target tileInWhichCollapsed edges anySatisfy: [ :each | each includes: aPathID ] ] ].
+	
+	classTile := edge target tileInWhichCollapsed.
+	
+	classTile edges do: [ :each |
+   		each remove: aPathID ifAbsent: [].
+      each isEmpty ifTrue: [ each add: emptySymbol ] ].
+	
+	 targetEdgeSymbols := classTile edges at: edge reverseEdge direction.
+    targetEdgeSymbols remove: emptySymbol ifAbsent: [].
+    targetEdgeSymbols add: aPathID.
+]
+
+{ #category : 'optimization' }
+WSGraph >> updateExitTilesFor: generatedPath [
+	
+	| pathID|
+	
+	pathID := generatedPath pathID.
+	self updateExitFor: generatedPath firstNode withPathID: pathID.
+	self updateExitFor: generatedPath lastNode withPathID: pathID.
+	
 ]
 
 { #category : 'propagating' }

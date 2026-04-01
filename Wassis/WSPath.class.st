@@ -7,7 +7,6 @@ Class {
 	#instVars : [
 		'nodes',
 		'length',
-		'optimalPath',
 		'firstNode',
 		'lastNode',
 		'pathID'
@@ -99,18 +98,6 @@ WSPath >> nodes [
 WSPath >> nodes: anObject [
 
 	nodes := anObject
-]
-
-{ #category : 'accessing' }
-WSPath >> optimalPath [
-
-	^ optimalPath
-]
-
-{ #category : 'accessing' }
-WSPath >> optimalPath: anObject [
-
-	optimalPath := anObject
 ]
 
 { #category : 'accessing' }
