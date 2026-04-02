@@ -14,6 +14,18 @@ Class {
 	#tag : 'Core'
 }
 
+{ #category : 'serializing' }
+WSAdaptiveSolver class >> loadFromFile: aFilePath [
+
+	^ FLMaterializer materializeFromFileNamed: aFilePath 
+]
+
+{ #category : 'serializing' }
+WSAdaptiveSolver class >> savePath [
+
+    ^ '/Users/Simo/Desktop/Wassis/solutions/solution-', DateAndTime nowAsString, '.fuel'
+]
+
 { #category : 'initialization' }
 WSAdaptiveSolver >> initialize [ 
 
@@ -25,6 +37,12 @@ WSAdaptiveSolver >> initialize [
 WSAdaptiveSolver >> run [
 	
 	^ self subclassResponsibility 
+]
+
+{ #category : 'actions' }
+WSAdaptiveSolver >> save [
+
+	self serializeToFileNamed: self class savePath
 ]
 
 { #category : 'accessing' }

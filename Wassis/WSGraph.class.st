@@ -505,7 +505,7 @@ WSGraph >> updateExitFor: aNode withPathID: aPathID [
 { #category : 'optimization' }
 WSGraph >> updateExitTilesFor: generatedPath [
 	
-	| pathID|
+	| pathID |
 	
 	pathID := generatedPath pathID.
 	self updateExitFor: generatedPath firstNode withPathID: pathID.
