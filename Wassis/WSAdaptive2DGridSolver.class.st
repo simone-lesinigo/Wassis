@@ -76,12 +76,13 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize [
-	
-	self solver: (WSSolver 
+	| currentSolver |
+	currentSolver := (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
       andSwSystem: self swSystem).
 
-   self solver run.
+   currentSolver run.
 
+	self solver: currentSolver.
 	self solutionFound: true
 ]
