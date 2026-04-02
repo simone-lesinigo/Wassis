@@ -52,9 +52,10 @@ WSAdaptive2DGridSolver >> run [
 	"self createGraphVisualization."
    [ 
 		self solveWithIncreasingSize.
-		self save.
-	
+		
 	] forkNamed: 'WaveFunctionCollapse'.
+
+	self save
 ]
 
 { #category : 'resolving' }
@@ -75,13 +76,12 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize [
-	| solver |
 	
-	solver := WSSolver 
+	self solver: (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
-      andSwSystem: self swSystem.
+      andSwSystem: self swSystem).
 
-   solver run.
+   self solver run.
 
 	self solutionFound: true
 ]

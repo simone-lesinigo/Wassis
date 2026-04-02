@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'topology',
 		'swSystem',
-		'solutionFound'
+		'solutionFound',
+		'solver'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -55,6 +56,18 @@ WSAdaptiveSolver >> solutionFound [
 WSAdaptiveSolver >> solutionFound: anObject [
 
 	solutionFound := anObject
+]
+
+{ #category : 'accessing' }
+WSAdaptiveSolver >> solver [
+
+	^ solver
+]
+
+{ #category : 'accessing' }
+WSAdaptiveSolver >> solver: anObject [
+
+	solver := anObject
 ]
 
 { #category : 'accessing' }

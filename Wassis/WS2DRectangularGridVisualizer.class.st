@@ -88,7 +88,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 		lineItemsCount: aSolver topology nColumns;
 		on: self canvas nodes.
 
-	self canvas open.
+	self canvas openOnce.
 ]
 
 { #category : 'visualization' }
