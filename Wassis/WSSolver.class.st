@@ -44,6 +44,12 @@ WSSolver >> backtracking: anObject [
 	backtracking := anObject
 ]
 
+{ #category : 'visualization' }
+WSSolver >> createVisualization [ 
+	
+	self topology visualizer createVisualizationFor: self
+]
+
 { #category : 'accessing' }
 WSSolver >> graph [
 
@@ -98,7 +104,7 @@ WSSolver >> run [
 		show: (duration asDuration); cr.
 	
 	self reifyWFCPaths.
-	self topology visualizer createVisualizationFor: self.
+	self createVisualization.
 	self graph optimizeAllPathsAllowingExitModifications: true.
 
 	WS2DRectangularGridVisualizer  new createVisualizationFor: self.
