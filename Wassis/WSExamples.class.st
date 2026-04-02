@@ -9,7 +9,7 @@ Class {
 	#tag : 'Examples'
 }
 
-{ #category : 'WFCEdge' }
+{ #category : 'WSEdge' }
 WSExamples class >> exampleCreateEdge [
 	"Create and edge between two nodes"
 	| n1 n2 edge1 edge2|
@@ -31,7 +31,7 @@ WSExamples class >> exampleCreateEdge [
 	edge2 reverseEdge: edge1
 ]
 
-{ #category : 'WFCNode' }
+{ #category : 'WSNode' }
 WSExamples class >> exampleCreateNodes [
 	"Create two nodes linked to each other"
 	| n1 n2 edge1 edge2|
@@ -56,7 +56,7 @@ WSExamples class >> exampleCreateNodes [
 	n2 outgoingEdges: { edge2 }.
 ]
 
-{ #category : 'WFCTile' }
+{ #category : 'WSTile' }
 WSExamples class >> exampleCreateTile [
 	"Create a tile and returns it"
 	
@@ -75,7 +75,7 @@ WSExamples class >> exampleCreateTile [
 		form: Form new
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'finding' }
 WSExamples class >> exampleGetClasses [
 	| res |
 	res := OrderedCollection new.
@@ -95,7 +95,15 @@ WSExamples class >> exampleGetClasses [
 	res inspect
 ]
 
-{ #category : 'WFCSolver' }
+{ #category : 'WSAdaptiveSolver' }
+WSExamples class >> exampleLoadSolutionFromFile [
+
+	| adaptiveSolver |
+	adaptiveSolver := WSAdaptiveSolver loadFromFile: '/Users/Simo/Desktop/Wassis/solutions/solution-02-04-2026_09h32m48s.fuel'.
+	adaptiveSolver inspect
+]
+
+{ #category : 'WSSolver' }
 WSExamples class >> exampleRunHexagonalGrid [
 | class1 class2 class3 class4 class5 class6 entities solver graphVisualizer |
 	class1 := WSClass new
@@ -136,8 +144,8 @@ WSExamples class >> exampleRunHexagonalGrid [
 	solver run.
 ]
 
-{ #category : 'WFCSolver' }
-WSExamples class >> exampleRunHexagonalGrid2 [
+{ #category : 'WSSolver' }
+WSExamples class >> exampleRunRectangularGrid [
 
 	| swSystem adaptiveSolver |
 
@@ -153,41 +161,4 @@ WSExamples class >> exampleRunHexagonalGrid2 [
 	adaptiveSolver run
 		
 
-]
-
-{ #category : 'WFCSolver' }
-WSExamples class >> exampleRunRectangularGrid [
-| class1 class2 class3 class4 class5 class6 entities solver |
-	class1 := WSClass new
-		          id: 1;
-		          connectedWith: { 2. 5 }.
-
-	class2 := WSClass new
-		          id: 2;
-		          connectedWith: { 1. 4. 6 }.
-
-	class3 := WSClass new
-		          id: 3;
-		          connectedWith: { 4 }.
-
-	class4 := WSClass new
-		          id: 4;
-		          connectedWith: { 2. 3 }.
-
-	class5 := WSClass new
-		          id: 5;
-		          connectedWith: { 1 }.
-
-	class6 := WSClass new
-		          id: 6;
-		          connectedWith: { 2 }.
-	
-	entities := WSSoftwareSystem new.
-	entities addClasses: { class1. class2. class3. class4. class5. class6 }.
-	
-	solver := WSSolver 
-		withTopology: (WS2DRectangularGridTopology withGrid: 10 @ 10) 
-		andSwSystem: entities.
-		
-	solver run
 ]
