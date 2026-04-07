@@ -87,8 +87,8 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 		gapSize: 0;
 		lineItemsCount: aSolver topology nColumns;
 		on: self canvas nodes.
-
-	self canvas openOnce.
+	
+	self canvas openWithTitle: 'Wassis'.
 ]
 
 { #category : 'visualization' }

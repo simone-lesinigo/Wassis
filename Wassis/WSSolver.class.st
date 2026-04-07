@@ -104,10 +104,10 @@ WSSolver >> run [
 		show: (duration asDuration); cr.
 	
 	self reifyWFCPaths.
-	self createVisualization.
 	self graph optimizeAllPathsAllowingExitModifications: true.
+	self createVisualization.
 
-	WS2DRectangularGridVisualizer  new createVisualizationFor: self.
+	"WS2DRectangularGridVisualizer  new createVisualizationFor: self."
 ]
 
 { #category : 'running' }
