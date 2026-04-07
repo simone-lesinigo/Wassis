@@ -4,22 +4,22 @@ Extension { #name : 'Form' }
 Form >> modifyWithColor: aColor [
 	"Takes a form and replace the black with aColor and scale it to 50x50"
 
-	| newForm |
-	newForm := self replaceColor: Color black withColor: aColor.
-	newForm := newForm scaledToSize: 50 @ 50.
-	^ newForm
+	| coloredForm |
+	coloredForm := self replaceColor: Color black withColor: aColor.
+	^ coloredForm scaledToSize: 50 @ 50
 ]
 
 { #category : '*Wassis' }
 Form >> replaceColor: oldColor withColor: newColor [
 	"Change the color of all the pixels of oldColor to newColor"
-	
-	| newForm |
-	newForm := self copy.
 
+	| resultForm |
+	resultForm := self copy.
+	
 	0 to: self width - 1 do: [ :x |
-			0 to: self height - 1 do: [ :y |
-					(newForm colorAt: x @ y) = oldColor ifTrue: [
-						newForm colorAt: x @ y put: newColor ] ] ].
-	^ newForm
+		0 to: self height - 1 do: [ :y |
+			(self colorAt: x @ y) = oldColor 
+				ifTrue: [ resultForm colorAt: x @ y put: newColor ]
+				ifFalse: [ resultForm colorAt: x @ y put: (self colorAt: x @ y) ] ] ].
+	^ resultForm
 ]
