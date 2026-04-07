@@ -73,6 +73,8 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
 	
+	self clear.
+	
 	self solver: aSolver.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
@@ -82,7 +84,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 		lineItemsCount: aSolver topology nColumns;
 		on: self canvas nodes.
 	
-	self canvas openWithTitle: 'Wassis'.
+	self canvas openOnce.
 ]
 
 { #category : 'visualization' }

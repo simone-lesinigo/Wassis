@@ -28,6 +28,15 @@ WSVisualizer >> canvas: anObject [
 	canvas := anObject
 ]
 
+{ #category : 'initialization' }
+WSVisualizer >> clear [ 
+
+	self canvas: RSCanvas new.
+	self canvas @ RSCanvasController.
+	self shapesNodes: Dictionary new.
+	self nodesShapes: Dictionary new.
+]
+
 { #category : 'visualization' }
 WSVisualizer >> createVisualizationFor: aSolver [
 	
@@ -35,22 +44,10 @@ WSVisualizer >> createVisualizationFor: aSolver [
 ]
 
 { #category : 'initialization' }
-WSVisualizer >> fuelAfterMaterialization [ 
-
-	self canvas: RSCanvas new.
-	self canvas @ RSCanvasController.
-	self shapesNodes: Dictionary new.
-	self nodesShapes: Dictionary new.
-]
-
-{ #category : 'initialization' }
 WSVisualizer >> initialize [
 
 	super initialize.
-	self canvas: RSCanvas new.
-	self canvas @ RSCanvasController.
-	self shapesNodes: Dictionary new.
-	self nodesShapes: Dictionary new.
+	self clear
 ]
 
 { #category : 'accessing' }
