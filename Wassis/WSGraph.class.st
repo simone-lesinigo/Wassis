@@ -32,6 +32,11 @@ WSGraph class >> createClassNodesFrom: collapsedNodes [
 
 ]
 
+{ #category : 'fuel support' }
+WSGraph class >> fuelIgnoredInstanceVariableNames [
+    ^ #('topology')
+]
+
 { #category : 'instance creation' }
 WSGraph class >> newWithNodes: nodes andCollapsedNodes: collapsedNodes andTopology: aTopology [
 

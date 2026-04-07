@@ -48,14 +48,11 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
-
 	"self createGraphVisualization."
    [ 
 		self solveWithIncreasingSize.
-		
+		self save
 	] forkNamed: 'WaveFunctionCollapse'.
-
-	self save
 ]
 
 { #category : 'resolving' }
