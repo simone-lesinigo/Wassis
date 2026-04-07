@@ -28,6 +28,12 @@ WSPathTile >> accept: aVisitor [
 	^ aVisitor visitPathTile: self
 ]
 
+{ #category : 'visualization' }
+WSPathTile >> buildPopup [ 
+	
+	^ RSPopup new text: [ 'Path Tile: ', self pathID ]
+]
+
 { #category : 'testing' }
 WSPathTile >> isPathTile [ 
 	

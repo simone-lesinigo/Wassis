@@ -34,6 +34,12 @@ WSEmptyTile >> accept: aVisitor [
 	^ aVisitor visitEmptyTile: self
 ]
 
+{ #category : 'visualization' }
+WSEmptyTile >> buildPopup [ 
+	
+	^ RSPopup new text: [ 'Empty Tile' ]
+]
+
 { #category : 'initialization' }
 WSEmptyTile >> initialize [ 
 	

@@ -41,6 +41,13 @@ WSClassTile >> accept: aVisitor [
 	^ aVisitor visitClassTile: self
 ]
 
+{ #category : 'visualization' }
+WSClassTile >> buildPopup [
+	
+	^  RSPopup new text: [ self wsClass name asString ]
+	
+]
+
 { #category : 'initialization' }
 WSClassTile >> initialize [ 
 	

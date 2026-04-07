@@ -20,6 +20,12 @@ WSTile >> accept: aVisitor [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'visualization' }
+WSTile >> buildPopup [
+	
+	^ self subclassResponsibility 
+]
+
 { #category : 'accessing' }
 WSTile >> edges [
 

@@ -27,24 +27,6 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 		for: self
 ]
 
-{ #category : 'visual properties' }
-WS2DRectangularGridVisualizer >> buildPopupFor: aTile [
-	"Returns a popup based on the type of cell"
-
-	| text |
-	text := 
-		aTile isEmptyTile 
-			ifTrue: [ 'Empty Tile' ]
-		   ifFalse: [
-				aTile isPathTile 
-					ifTrue: [ 'Path Tile: ', aTile pathID ]
-					ifFalse: [
-						aTile isClassTile ifTrue: [
-							aTile wsClass name asString ] ] ].
-
-	^ RSPopup new text: [ text ]
-]
-
 { #category : 'shapes' }
 WS2DRectangularGridVisualizer >> createBitmapFor: aTile [
 	
@@ -61,7 +43,7 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	tile := aNode tileInWhichCollapsed.
 
 	shape := self createBitmapFor: tile.					
-	shape @ (self buildPopupFor: tile).
+	shape @ (tile buildPopup).
 	self addClickTo: shape.	
 
 	self canvas add: shape.
