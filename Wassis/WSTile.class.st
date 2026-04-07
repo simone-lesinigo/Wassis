@@ -14,6 +14,12 @@ Class {
 	#tag : 'Core'
 }
 
+{ #category : 'visualization' }
+WSTile >> accept: aVisitor [
+
+	^ self subclassResponsibility 
+]
+
 { #category : 'accessing' }
 WSTile >> edges [
 

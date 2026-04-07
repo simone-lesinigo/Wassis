@@ -49,39 +49,31 @@ WS2DRectangularGridVisualizer >> buildPopupFor: aTile [
 WS2DRectangularGridVisualizer >> createBitmapFor: aTile [
 	
 	^ RSBitmap new
-		form: (self tileVisualizer createFormFor: aTile);
+		form: (aTile accept: self tileVisitor);
 		extent: 50 @ 50;
 		yourself
 ]
 
 { #category : 'visualization' }
-WS2DRectangularGridVisualizer >> createShapeAt: aPoint [
+WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 
-	| node shape tile |
-	node := (self matrix nodes at: aPoint x) at: aPoint y.
-	tile := node tileInWhichCollapsed .
+	| tile shape |
+	tile := aNode tileInWhichCollapsed.
 
 	shape := self createBitmapFor: tile.					
 	shape @ (self buildPopupFor: tile).
 	self addClickTo: shape.	
 
 	self canvas add: shape.
-	self shapesNodes at: shape put: node
 ]
 
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
 	
-	self matrix: aSolver graph.
-	self shapesNodes: Dictionary new.
-	self tileVisualizer: 
-		(WS2DSquareTileVisualizer withPathIDs: 
-			(aSolver topology swSystem classesPathIDs)).
-
-	1 to: aSolver topology nRows do: [ :i |
-			1 to: aSolver topology nColumns do: [ :j |
-				self createShapeAt: i @ j. ] ].
+	self matrix: aSolver getFlattenedNodes.
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
+	self matrix do: [ :eachNode | self createShapeFor: eachNode ].
 
 	RSGridLayout new
 		gapSize: 0;

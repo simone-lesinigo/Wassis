@@ -69,12 +69,12 @@ WS2DisoHexGridVisualizer >> createShapeFor: aNode inPosition: aPoint withRadius:
 		tile isPathTile 
 			ifTrue: [ 
 				height := 20. 
-				color:= self tileVisualizer pathIDColorDictionary at: (aNode tileInWhichCollapsed pathID) ].
+				color:= self tileVisitor pathIDColorDictionary at: (aNode tileInWhichCollapsed pathID) ].
 			
 		tile isClassTile 
 			ifTrue: [ height := 50. color:= Color orange ].
 		
-		^ self tileVisualizer 
+		^ self tileVisitor 
 			createHexPrismWithBaseCenter: center 
 			andRadius: aRadius 
 			andHeight: height 
@@ -103,8 +103,8 @@ WS2DisoHexGridVisualizer >> initializeFor: aSolver [
 
 	self matrix: aSolver graph.
 	self shapesNodes: Dictionary new.
-	self tileVisualizer: 
-		(WS2DHexTileVisualizer withPathIDs: 
+	self tileVisitor: 
+		(WS2DHexVisitor withPathIDs: 
 			(aSolver topology swSystem classesPathIDs)).
 ]
 

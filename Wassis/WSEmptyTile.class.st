@@ -28,6 +28,12 @@ WSEmptyTile class >> withEdges: edges [
 		edges: edges
 ]
 
+{ #category : 'visualization' }
+WSEmptyTile >> accept: aVisitor [
+	
+	^ aVisitor visitEmptyTile: self
+]
+
 { #category : 'initialization' }
 WSEmptyTile >> initialize [ 
 	

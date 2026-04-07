@@ -51,6 +51,18 @@ WSSolver >> createVisualization [
 ]
 
 { #category : 'accessing' }
+WSSolver >> getAllPathIDs [
+
+	^ self topology swSystem classesPathIDs
+]
+
+{ #category : 'accessing' }
+WSSolver >> getFlattenedNodes [
+
+	^ self graph nodes flattened
+]
+
+{ #category : 'accessing' }
 WSSolver >> graph [
 
 	^ graph

@@ -22,6 +22,12 @@ WSPathTile class >> withID: anID withWeight: aWeight withEdges: edges withPathID
 		pathID: aPathID
 ]
 
+{ #category : 'visualization' }
+WSPathTile >> accept: aVisitor [ 
+
+	^ aVisitor visitPathTile: self
+]
+
 { #category : 'testing' }
 WSPathTile >> isPathTile [ 
 	

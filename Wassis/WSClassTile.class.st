@@ -35,6 +35,12 @@ WSClassTile class >> withID: anID andEdges: edges [
 		edges: edges
 ]
 
+{ #category : 'visualization' }
+WSClassTile >> accept: aVisitor [
+
+	^ aVisitor visitClassTile: self
+]
+
 { #category : 'initialization' }
 WSClassTile >> initialize [ 
 	
@@ -44,6 +50,7 @@ WSClassTile >> initialize [
 
 { #category : 'testing' }
 WSClassTile >> isClassTile [ 
+
 	^ true
 ]
 
