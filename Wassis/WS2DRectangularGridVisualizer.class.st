@@ -60,10 +60,12 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 
 	shape := self createBitmapFor: tile.					
 	shape @ (tile buildPopup).
-	self addClickTo: shape.	
+	self addClickTo: shape.
+	
+	self shapesNodes at: shape put: aNode.
+	self nodesShapes at: aNode put: shape.	
 
 	self canvas add: shape.
-	self shapesNodes at: shape put: aNode
 ]
 
 { #category : 'visualization' }

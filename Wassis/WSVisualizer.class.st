@@ -8,6 +8,7 @@ Class {
 		'canvas',
 		'tileVisitor',
 		'shapesNodes',
+		'nodesShapes',
 		'graph'
 	],
 	#category : 'Wassis-Visualization',
@@ -51,7 +52,20 @@ WSVisualizer >> initialize [
 	super initialize.
 	self canvas: RSCanvas new.
 	self canvas @ RSCanvasController.
-	self shapesNodes: Dictionary new
+	self shapesNodes: Dictionary new.
+	self nodesShapes: Dictionary new.
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> nodesShapes [
+
+	^ nodesShapes
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> nodesShapes: anObject [
+
+	nodesShapes := anObject
 ]
 
 { #category : 'accessing' }

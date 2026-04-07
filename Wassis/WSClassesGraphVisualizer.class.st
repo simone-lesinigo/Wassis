@@ -69,7 +69,7 @@ WSClassesGraphVisualizer >> createLines [
 WSClassesGraphVisualizer >> createShapes [
 	"Creates all the nodes of the graph"
 	
-	self nodeShapes: (self classesArray collect: [ :eachClass |
+	self nodesShapes: (self classesArray collect: [ :eachClass |
 		| com |
 		com := RSComposite new.
 		com add: (RSEllipse new size: 80);
@@ -78,7 +78,7 @@ WSClassesGraphVisualizer >> createShapes [
 		com  model: eachClass; draggable; adjustToChildren.
 	]).
 
-	self canvas addAll: self nodeShapes
+	self canvas addAll: self nodesShapes
 ]
 
 { #category : 'visualization' }
@@ -103,13 +103,13 @@ WSClassesGraphVisualizer >> initialize [
 ]
 
 { #category : 'accessing' }
-WSClassesGraphVisualizer >> nodeShapes [
+WSClassesGraphVisualizer >> nodesShapes [
 
 	^ nodeShapes
 ]
 
 { #category : 'accessing' }
-WSClassesGraphVisualizer >> nodeShapes: anObject [
+WSClassesGraphVisualizer >> nodesShapes: anObject [
 
 	nodeShapes := anObject
 ]

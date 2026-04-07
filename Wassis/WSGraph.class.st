@@ -89,7 +89,8 @@ WSGraph >> clearPath: aPath [
 	aPath nodes: OrderedCollection new.
 	aPath length: nil.
 	aPath firstNode: nil.
-	aPath lastNode: nil
+	aPath lastNode: nil.
+	
 ]
 
 { #category : 'optimization' }
@@ -288,10 +289,11 @@ WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 WSGraph >> optimizePathsWithExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 
-	pathIDs keysAndValuesDo: [ :classes :eachPathID |
-		| generatedPath optimalPath |
+	pathIDs do: [ :eachPathID |
+		| generatedPath optimalPath classes |
 		
 		generatedPath := self paths at: eachPathID.
+		classes := self topology allPathIDs keyAtValue: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.

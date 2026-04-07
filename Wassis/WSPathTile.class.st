@@ -35,6 +35,11 @@ WSPathTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
 		add: 'Inspect Path' 
 		target: (aGraph paths at: aNode tileInWhichCollapsed pathID) 
 		selector: #inspect.
+		
+	aMenu 
+		add: 'Optimize Path' 
+		target: (aGraph paths at: aNode tileInWhichCollapsed pathID) 
+		selector: #inspect.
 ]
 
 { #category : 'visualization' }
