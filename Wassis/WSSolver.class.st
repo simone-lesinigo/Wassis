@@ -50,6 +50,12 @@ WSSolver >> createVisualization [
 	self topology visualizer createVisualizationFor: self
 ]
 
+{ #category : 'serialization' }
+WSSolver >> fuelAfterMaterialization [ 
+	
+	self graph topology: self topology
+]
+
 { #category : 'accessing' }
 WSSolver >> getAllPathIDs [
 
