@@ -9,7 +9,9 @@ Class {
 		'length',
 		'firstNode',
 		'lastNode',
-		'pathID'
+		'pathID',
+		'class1',
+		'class2'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -32,6 +34,30 @@ WSPath >> addNode: aNode [
 WSPath >> asOrderedCollection [
 	
 	self nodes: self nodes asOrderedCollection 
+]
+
+{ #category : 'accessing' }
+WSPath >> class1 [
+
+	^ class1
+]
+
+{ #category : 'accessing' }
+WSPath >> class1: anObject [
+
+	class1 := anObject
+]
+
+{ #category : 'accessing' }
+WSPath >> class2 [
+
+	^ class2
+]
+
+{ #category : 'accessing' }
+WSPath >> class2: anObject [
+
+	class2 := anObject
 ]
 
 { #category : 'private' }

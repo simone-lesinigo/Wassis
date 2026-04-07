@@ -114,15 +114,17 @@ WSGraph >> createPathFrom: anEdge [
 	reverseEdgeDir := anEdge reverseEdge direction.
 	
 	targetTile isClassTile ifTrue: [ 
-		(self paths at: (anEdge source tileInWhichCollapsed pathID)) lastNode: anEdge source.	
+		| path |
+		path := (self paths at: (anEdge source tileInWhichCollapsed pathID)).
+		path lastNode: anEdge source; class2: anEdge target
 	].
 	
 	targetTile isPathTile ifTrue: [ 
 		| path |
 		path := (self paths at: (targetTile pathID)).
 		
-		anEdge source tileInWhichCollapsed isClassTile ifTrue: [
-            path firstNode: node ].
+		anEdge source isClassNode ifTrue: [
+            path firstNode: node; class1: anEdge source ].
 
 		path addNode: node.
 	
