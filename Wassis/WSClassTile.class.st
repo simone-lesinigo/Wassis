@@ -42,7 +42,7 @@ WSClassTile >> accept: aVisitor [
 ]
 
 { #category : 'control' }
-WSClassTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+WSClassTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 
 	aMenu 
 		add: 'Inspect Class' 

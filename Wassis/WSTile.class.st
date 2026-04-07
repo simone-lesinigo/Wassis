@@ -21,7 +21,7 @@ WSTile >> accept: aVisitor [
 ]
 
 { #category : 'control' }
-WSTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+WSTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 	
 	^ self subclassResponsibility 
 ]

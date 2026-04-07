@@ -9,7 +9,7 @@ Class {
 		'tileVisitor',
 		'shapesNodes',
 		'nodesShapes',
-		'graph'
+		'solver'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -32,18 +32,6 @@ WSVisualizer >> canvas: anObject [
 WSVisualizer >> createVisualizationFor: aSolver [
 	
 	^ self subclassResponsibility 
-]
-
-{ #category : 'accessing' }
-WSVisualizer >> graph [
-
-	^ graph
-]
-
-{ #category : 'accessing' }
-WSVisualizer >> graph: anObject [
-
-	graph := anObject
 ]
 
 { #category : 'initialization' }
@@ -78,6 +66,18 @@ WSVisualizer >> shapesNodes [
 WSVisualizer >> shapesNodes: anObject [
 
 	shapesNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> solver [
+
+	^ solver
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> solver: anObject [
+
+	solver := anObject
 ]
 
 { #category : 'accessing' }

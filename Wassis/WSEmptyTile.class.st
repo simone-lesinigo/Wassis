@@ -35,7 +35,7 @@ WSEmptyTile >> accept: aVisitor [
 ]
 
 { #category : 'control' }
-WSEmptyTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+WSEmptyTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 	"This method is intentionally empty"
 	
 	^ nil

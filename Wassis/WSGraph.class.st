@@ -307,7 +307,7 @@ WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 
 	aBoolean 
 		ifTrue: [ self optimizePathsWithExitModification: pathIDs ] 
-		ifFalse: [ self optimizePathsWithoutExitModification: pathIDs ]. 
+		ifFalse: [ self optimizePathsWithoutExitModification: pathIDs ] 
 ]
 
 { #category : 'optimization' }

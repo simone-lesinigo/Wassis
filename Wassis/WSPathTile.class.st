@@ -29,17 +29,25 @@ WSPathTile >> accept: aVisitor [
 ]
 
 { #category : 'control' }
-WSPathTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
+
+	| currentPathID |
+	currentPathID := aNode tileInWhichCollapsed pathID.
 
 	aMenu 
 		add: 'Inspect Path' 
-		target: (aGraph paths at: aNode tileInWhichCollapsed pathID) 
+		target: (aSolver graph paths at: currentPathID) 
 		selector: #inspect.
 		
-	aMenu 
-		add: 'Optimize Path' 
-		target: (aGraph paths at: aNode tileInWhichCollapsed pathID) 
-		selector: #inspect.
+   aMenu add: 'Optimize Path'
+          target: [
+              aSolver graph 
+				  		optimizePathsWithPathIDs: { currentPathID } 
+						allowExitsModification: true.
+					
+              aSolver createVisualization.
+          ]
+          selector: #value.
 ]
 
 { #category : 'visualization' }

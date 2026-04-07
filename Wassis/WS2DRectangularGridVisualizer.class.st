@@ -19,9 +19,7 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 		
 	aShape 
 		when: RSMouseRightClick 
-		do: [ 
-			self createMenuFor: aShape
-		]
+		do: [ self createMenuFor: aShape ]
 		for: self
 ]
 
@@ -38,13 +36,16 @@ WS2DRectangularGridVisualizer >> createBitmapFor: aTile [
 WS2DRectangularGridVisualizer >> createMenuFor: aShape [
 	"Create the menu when right clicking on a shape"
 	
-	| menu tile |
+	| menu node |
+	node := (self shapesNodes at: aShape).
 	
 	menu := MenuMorph new.
-	menu add: 'Inspect Node' target: (self shapesNodes at: aShape)  selector: #inspect.
+	menu add: 'Inspect Node' target: node selector: #inspect.
 	
-	tile := (self shapesNodes at: aShape) tileInWhichCollapsed.
-	tile buildMenu: menu withGraph: self graph onNode: (self shapesNodes at: aShape).
+	node tileInWhichCollapsed 
+		addItemToMenu: menu 
+		onNode: node 
+		usingSolver: self solver.
 
    menu addLine.
 	menu add: 'Cancel' target: menu selector: #deleteIfPopUp.
@@ -72,7 +73,7 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
 	
-	self graph: aSolver graph.
+	self solver: aSolver.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
 
