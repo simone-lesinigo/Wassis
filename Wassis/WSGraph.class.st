@@ -63,17 +63,6 @@ WSGraph >> allNodesCollapsed [
 	^ self numberOfNodes = self numberOfCollapsedNodes
 ]
 
-{ #category : 'as yet unclassified' }
-WSGraph >> assignPathsToNodes [
-	"At each node assign its path"
-	
-	self paths do: [ :eachPath | 
-		eachPath nodes do: [ :eachNode |
-			eachNode path: eachPath 
-		]
-	].
-]
-
 { #category : 'accessing' }
 WSGraph >> classesNodes [
 

@@ -104,7 +104,6 @@ WSSolver >> reifyWFCPaths [
 	
 	self graph createPaths.
 	self graph setPathLengths.
-	"self graph assignPathsToNodes."
 	self graph destroyLoops.
 	
 	
