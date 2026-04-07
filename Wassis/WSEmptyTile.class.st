@@ -34,6 +34,13 @@ WSEmptyTile >> accept: aVisitor [
 	^ aVisitor visitEmptyTile: self
 ]
 
+{ #category : 'control' }
+WSEmptyTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+	"This method is intentionally empty"
+	
+	^ nil
+]
+
 { #category : 'visualization' }
 WSEmptyTile >> buildPopup [ 
 	

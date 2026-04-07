@@ -41,6 +41,15 @@ WSClassTile >> accept: aVisitor [
 	^ aVisitor visitClassTile: self
 ]
 
+{ #category : 'control' }
+WSClassTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+
+	aMenu 
+		add: 'Inspect Class' 
+		target: (aNode tileInWhichCollapsed wsClass) 
+		selector: #inspect
+]
+
 { #category : 'visualization' }
 WSClassTile >> buildPopup [
 	

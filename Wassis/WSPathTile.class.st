@@ -28,6 +28,15 @@ WSPathTile >> accept: aVisitor [
 	^ aVisitor visitPathTile: self
 ]
 
+{ #category : 'control' }
+WSPathTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+
+	aMenu 
+		add: 'Inspect Path' 
+		target: (aGraph paths at: aNode tileInWhichCollapsed pathID) 
+		selector: #inspect.
+]
+
 { #category : 'visualization' }
 WSPathTile >> buildPopup [ 
 	

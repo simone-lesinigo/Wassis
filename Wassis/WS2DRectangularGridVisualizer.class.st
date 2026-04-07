@@ -20,9 +20,7 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 	aShape 
 		when: RSMouseRightClick 
 		do: [ 
-			| tile |
-			tile := (self shapesNodes at: aShape) tileInWhichCollapsed.
-			(tile isPathTile ifTrue: [ (self graph paths at: tile pathID) inspect ]) 
+			self createMenuFor: aShape
 		]
 		for: self
 ]
@@ -34,6 +32,24 @@ WS2DRectangularGridVisualizer >> createBitmapFor: aTile [
 		form: (aTile accept: self tileVisitor);
 		extent: 50 @ 50;
 		yourself
+]
+
+{ #category : 'control' }
+WS2DRectangularGridVisualizer >> createMenuFor: aShape [
+	"Create the menu when right clicking on a shape"
+	
+	| menu tile |
+	
+	menu := MenuMorph new.
+	menu add: 'Inspect Node' target: (self shapesNodes at: aShape)  selector: #inspect.
+	
+	tile := (self shapesNodes at: aShape) tileInWhichCollapsed.
+	tile buildMenu: menu withGraph: self graph onNode: (self shapesNodes at: aShape).
+
+   menu addLine.
+	menu add: 'Cancel' target: menu selector: #deleteIfPopUp.
+	
+	menu popUpInWorld
 ]
 
 { #category : 'visualization' }

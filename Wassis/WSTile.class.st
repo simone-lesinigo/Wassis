@@ -20,6 +20,12 @@ WSTile >> accept: aVisitor [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'control' }
+WSTile >> buildMenu: aMenu withGraph: aGraph onNode: aNode [
+	
+	^ self subclassResponsibility 
+]
+
 { #category : 'visualization' }
 WSTile >> buildPopup [
 	
