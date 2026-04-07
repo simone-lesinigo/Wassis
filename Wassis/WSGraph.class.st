@@ -222,6 +222,12 @@ WSGraph >> getAdjacentClassForNode: aNode [
 ]
 
 { #category : 'accessing' }
+WSGraph >> getFlattenedNodes [
+
+	^ self nodes flattened
+]
+
+{ #category : 'accessing' }
 WSGraph >> minEntropyHeap [
 
 	^ minEntropyHeap

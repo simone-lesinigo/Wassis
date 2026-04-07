@@ -6,7 +6,9 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'canvas',
-		'tileVisitor'
+		'tileVisitor',
+		'shapesNodes',
+		'graph'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -31,12 +33,37 @@ WSVisualizer >> createVisualizationFor: aSolver [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'accessing' }
+WSVisualizer >> graph [
+
+	^ graph
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> graph: anObject [
+
+	graph := anObject
+]
+
 { #category : 'initialization' }
 WSVisualizer >> initialize [
 
 	super initialize.
 	self canvas: RSCanvas new.
 	self canvas @ RSCanvasController.
+	self shapesNodes: Dictionary new
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> shapesNodes [
+
+	^ shapesNodes
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> shapesNodes: anObject [
+
+	shapesNodes := anObject
 ]
 
 { #category : 'accessing' }

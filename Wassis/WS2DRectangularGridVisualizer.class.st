@@ -22,7 +22,7 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 		do: [ 
 			| tile |
 			tile := (self shapesNodes at: aShape) tileInWhichCollapsed.
-			(tile isPathTile ifTrue: [ (self matrix paths at: tile pathID) inspect ]) 
+			(tile isPathTile ifTrue: [ (self graph paths at: tile pathID) inspect ]) 
 		]
 		for: self
 ]
@@ -65,15 +65,16 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	self addClickTo: shape.	
 
 	self canvas add: shape.
+	self shapesNodes at: shape put: aNode
 ]
 
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
 	
-	self matrix: aSolver getFlattenedNodes.
+	self graph: aSolver graph.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
-	self matrix do: [ :eachNode | self createShapeFor: eachNode ].
+	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
 
 	RSGridLayout new
 		gapSize: 0;

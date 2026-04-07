@@ -59,7 +59,7 @@ WSSolver >> getAllPathIDs [
 { #category : 'accessing' }
 WSSolver >> getFlattenedNodes [
 
-	^ self graph nodes flattened
+	^ self graph getFlattenedNodes 
 ]
 
 { #category : 'accessing' }
