@@ -25,7 +25,7 @@ WSGraph class >> createClassNodesFrom: collapsedNodes [
 	dict := Dictionary new.
 	
 	collapsedNodes do: [ :eachNode | 
-		dict at: (eachNode tileInWhichCollapsed wfcClass) put: eachNode 
+		dict at: (eachNode tileInWhichCollapsed wsClass) put: eachNode 
 	].
 	
 	^ dict

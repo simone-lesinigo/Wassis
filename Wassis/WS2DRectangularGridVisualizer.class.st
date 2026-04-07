@@ -40,7 +40,7 @@ WS2DRectangularGridVisualizer >> buildPopupFor: aTile [
 					ifTrue: [ 'Path Tile: ', aTile pathID ]
 					ifFalse: [
 						aTile isClassTile ifTrue: [
-							aTile wfcClass name asString ] ] ].
+							aTile wsClass name asString ] ] ].
 
 	^ RSPopup new text: [ text ]
 ]

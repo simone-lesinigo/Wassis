@@ -5,7 +5,7 @@ Class {
 	#name : 'WSClassTile',
 	#superclass : 'WSTile',
 	#instVars : [
-		'wfcClass'
+		'wsClass'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -23,7 +23,7 @@ WSClassTile class >> withClass: aClass andEdges: edges [
 	
 	^ self new
 		id: aClass id;
-		wfcClass: aClass;
+		wsClass: aClass;
 		edges: edges
 ]
 
@@ -55,13 +55,13 @@ WSClassTile >> isClassTile [
 ]
 
 { #category : 'accessing' }
-WSClassTile >> wfcClass [
+WSClassTile >> wsClass [
 
-	^ wfcClass
+	^ wsClass
 ]
 
 { #category : 'accessing' }
-WSClassTile >> wfcClass: anObject [
+WSClassTile >> wsClass: anObject [
 
-	wfcClass := anObject
+	wsClass := anObject
 ]
