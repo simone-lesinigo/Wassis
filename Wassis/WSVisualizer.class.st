@@ -35,6 +35,15 @@ WSVisualizer >> createVisualizationFor: aSolver [
 ]
 
 { #category : 'initialization' }
+WSVisualizer >> fuelAfterMaterialization [ 
+
+	self canvas: RSCanvas new.
+	self canvas @ RSCanvasController.
+	self shapesNodes: Dictionary new.
+	self nodesShapes: Dictionary new.
+]
+
+{ #category : 'initialization' }
 WSVisualizer >> initialize [
 
 	super initialize.

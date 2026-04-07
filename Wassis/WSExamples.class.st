@@ -99,8 +99,16 @@ WSExamples class >> exampleGetClasses [
 WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
-	adaptiveSolver := WSAdaptiveSolver loadFromFile: '/Users/Simo/Desktop/Wassis/solutions/solution-07-04-2026_16h55m29s.fuel'.
-	adaptiveSolver inspect
+	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-07-04-2026_17h16m29s.fuel'.
+	adaptiveSolver solver 
+]
+
+{ #category : 'WSAdaptiveSolver' }
+WSExamples class >> exampleLoadSolutionFromFile2 [
+
+	| adaptiveSolver |
+	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-07-04-2026_17h16m29s.fuel'.
+	adaptiveSolver solver createVisualization 
 ]
 
 { #category : 'WSSolver' }
