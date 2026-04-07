@@ -6,7 +6,7 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'canvas',
-		'tileVisualizer'
+		'tileVisitor'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -40,13 +40,13 @@ WSVisualizer >> initialize [
 ]
 
 { #category : 'accessing' }
-WSVisualizer >> tileVisualizer [
+WSVisualizer >> tileVisitor [
 
-	^ tileVisualizer
+	^ tileVisitor
 ]
 
 { #category : 'accessing' }
-WSVisualizer >> tileVisualizer: anObject [
+WSVisualizer >> tileVisitor: anObject [
 
-	tileVisualizer := anObject
+	tileVisitor := anObject
 ]
