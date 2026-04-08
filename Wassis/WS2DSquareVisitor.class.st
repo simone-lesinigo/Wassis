@@ -12,16 +12,140 @@ Class {
 	#tag : 'Visualization'
 }
 
-{ #category : 'filesPath' }
-WS2DSquareVisitor class >> folderPath [
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> drawInstructionsFor: aPathTileID on: aBuilder size: aSize [
 
-	^ '/Users/Simo/Desktop/Wassis/tiles/rectangularGrid/png' asFileReference 
+    | selector |
+    selector := ('drawPath' , aPathTileID asString , 'On:size:') asSymbol.
+    
+	^ self perform: selector with: aBuilder with: aSize 
+
 ]
 
-{ #category : 'visualization' }
-WS2DSquareVisitor class >> pathFormFor: pathID [
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath1On: b size: s [
+    
+	b absolute;
+   		moveTo: 0 @ (s * 0.4);
+      lineTo: s @ (s * 0.4);
+      lineTo: s @ (s * 0.6);
+      lineTo: 0 @ (s * 0.6);
+      closePath
+]
 
-	^ Form fromFileNamed: self folderPath / (pathID asString, '.png').
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath2On: b size: s [
+
+   b absolute;
+   		moveTo: (s * 0.4) @ 0;
+      lineTo: (s * 0.6) @ 0;
+      lineTo: (s * 0.6) @ s;
+      lineTo: (s * 0.4) @ s;
+      closePath
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath3On: b size: s [
+  
+    b absolute;
+        moveTo: (s * 0.4) @ 0;         
+        lineTo: (s * 0.6) @ 0;          
+        lineTo: (s * 0.6) @ (s * 0.4);  
+        lineTo: s @ (s * 0.4);          
+        lineTo: s @ (s * 0.6);          
+        lineTo: (s * 0.4) @ (s * 0.6);  
+        lineTo: (s * 0.4) @ 0;          
+        closePath                       
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath4On: b size: s [
+  
+	b absolute;
+		moveTo: (s * 0.4) @ 0;
+		lineTo: (s * 0.6) @ 0;
+		lineTo: (s * 0.6) @ (s * 0.6);
+		lineTo: 0 @ (s * 0.6);
+		lineTo: 0 @ (s * 0.4);
+		lineTo: (s * 0.4) @ (s * 0.4);
+		closePath                     
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath5On: b size: s [
+  
+	b absolute;
+		moveTo: (s * 0.4) @ s;
+		lineTo: (s * 0.6) @ s;
+		lineTo: (s * 0.6) @ (s * 0.6);
+		lineTo: s @ (s * 0.6);
+		lineTo: s @ (s * 0.4);
+		lineTo: (s * 0.4) @ (s * 0.4);
+		closePath                    
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath6On: b size: s [
+  
+	b absolute;
+		moveTo: (s * 0.4) @ s;
+		lineTo: (s * 0.6) @ s;
+		lineTo: (s * 0.6) @ (s * 0.4);
+		lineTo: 0 @ (s * 0.4);
+		lineTo: 0 @ (s * 0.6);
+		lineTo: (s * 0.4) @ (s * 0.6);
+		closePath                 
+]
+
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> generateFormForID: aPathID withColor: aColor [
+	"Generate the correct form for the path tile with the given ID"
+	
+    | surface standardForm size |
+	 size := 50.
+    surface := AthensCairoSurface extent: size @ size.
+    
+    surface drawDuring: [ :canvas | | path |
+        canvas setPaint: Color white.
+        canvas drawShape: (0 @ 0 extent: size @ size).
+
+        path := canvas createPath: [ :builder | 
+            self drawInstructionsFor: aPathID on: builder size: size].
+        
+        canvas setPaint: aColor.
+        canvas drawShape: path.
+    ].
+
+    standardForm := Form extent: size @ size depth: 32.
+    
+    surface asForm displayOn: standardForm.
+    
+    ^ standardForm
+]
+
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
+	"Generate a square filled with aColor"
+	
+    | size standardForm |
+    size := 50.
+    standardForm := Form extent: size @ size depth: 32.
+    
+    standardForm fillColor: aColor.
+    
+    ^ standardForm
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> pathForms [
+
+	^ pathForms
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> pathForms: anObject [
+
+	pathForms := anObject
 ]
 
 { #category : 'deprecated' }
@@ -66,21 +190,20 @@ WS2DSquareVisitor >> pathTileFormFor: aTile [
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitClassTile: classTile [
 
-	^ ((Form fromFileNamed: self class folderPath / 'fullsquare.png') scaledToSize: 50 @ 50)
+	^ self class generateSolidFormWithColor: Color black
 ]
 
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitEmptyTile: emptyTile [
 
-	^ ((Form fromFileNamed: self class folderPath / 'emptyTile.png') scaledToSize: 50 @ 50)
+	^ self class generateSolidFormWithColor: Color white
 ]
 
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitPathTile: pathTile [
 	
-	| form |
-	
-	form := (self class pathFormFor: pathTile id).
-	
-	^ form modifyWithColor: (self pathIDColorDictionary at: pathTile pathID)
+	^ (self class 
+		generateFormForID: pathTile id
+		withColor: (self pathIDColorDictionary at: pathTile pathID)
+	)
 ]
