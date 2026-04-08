@@ -44,7 +44,7 @@ WSEmptyTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 { #category : 'visualization' }
 WSEmptyTile >> buildPopup [ 
 	
-	^ RSPopup new text: [ 'Empty Tile' ]
+	^ nil
 ]
 
 { #category : 'initialization' }

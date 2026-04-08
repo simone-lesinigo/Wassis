@@ -23,15 +23,6 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 		for: self
 ]
 
-{ #category : 'shapes' }
-WS2DRectangularGridVisualizer >> createBitmapFor: aTile [
-	
-	^ RSBitmap new
-		form: (aTile accept: self tileVisitor);
-		extent: 50 @ 50;
-		yourself
-]
-
 { #category : 'control' }
 WS2DRectangularGridVisualizer >> createMenuFor: aShape [
 	"Create the menu when right clicking on a shape"
@@ -59,8 +50,8 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	| tile shape |
 	tile := aNode tileInWhichCollapsed.
 
-	shape := self createBitmapFor: tile.					
-	shape @ (tile buildPopup).
+	shape := tile accept: self tileVisitor .					
+	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
 	self addClickTo: shape.
 	
 	self shapesNodes at: shape put: aNode.
@@ -98,12 +89,23 @@ WS2DRectangularGridVisualizer >> openCanvas [
 WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 	"Update the visualization for a single node"
 
-	| shape tile |
+	| shape tile newBitmap |
 	shape := (self nodesShapes at: aNode).
 	tile := aNode tileInWhichCollapsed.
 	
-	shape form: (tile accept: self tileVisitor).
-	shape @ (tile buildPopup).
+	newBitmap := (tile accept: self tileVisitor).
+	
+	shape form: newBitmap form.
+	newBitmap 
+	    propertyAt: #normalForm 
+	    ifPresent: [ :value | shape propertyAt: #normalForm put: value ].
+
+	newBitmap 
+	    propertyAt: #highlightForm 
+	    ifPresent: [ :value | shape propertyAt: #highlightForm put: value ].
+	
+	shape removeInteractionIfPresent: RSPopup.
+	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
 	shape invalidate
 ]
 

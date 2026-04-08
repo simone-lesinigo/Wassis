@@ -5,7 +5,7 @@ Class {
 	#name : 'WS2DSquareVisitor',
 	#superclass : 'WSTileVisitor',
 	#classInstVars : [
-		'pathForms'
+		'formCache'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -97,21 +97,49 @@ WS2DSquareVisitor class >> drawPath6On: b size: s [
 		closePath                 
 ]
 
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> formCache [
+
+	^ formCache ifNil: [ formCache := Dictionary new ]
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> formCache: anObject [
+
+	formCache := anObject
+]
+
 { #category : 'rendering' }
-WS2DSquareVisitor class >> generateFormForID: aPathID withColor: aColor [
-	"Generate the correct form for the path tile with the given ID"
+WS2DSquareVisitor class >> generateFormForID: aPathTileID withColor: aColor [
+	"Generate the correct path form based on the ID"
 	
-    | surface standardForm size |
-	 size := 50.
+	^ self formCache at: aPathTileID -> aColor ifAbsentPut: [
+		| form |
+		form := self renderFormForID: aPathTileID withColor: aColor.
+		form ]
+]
+
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
+	
+	^ self formCache at: aColor ifAbsentPut: [ 		
+		| form |
+		form := self renderSolidFormWithColor: aColor.
+		form  ]
+]
+
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
+	"Create the form for a path tile"
+	
+    | surface size standardForm |
+    size := 50.
     surface := AthensCairoSurface extent: size @ size.
-    
     surface drawDuring: [ :canvas | | path |
         canvas setPaint: Color white.
         canvas drawShape: (0 @ 0 extent: size @ size).
-
         path := canvas createPath: [ :builder | 
-            self drawInstructionsFor: aPathID on: builder size: size].
-        
+            self drawInstructionsFor: aPathTileID on: builder size: size ].
         canvas setPaint: aColor.
         canvas drawShape: path.
     ].
@@ -124,7 +152,7 @@ WS2DSquareVisitor class >> generateFormForID: aPathID withColor: aColor [
 ]
 
 { #category : 'rendering' }
-WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
+WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 	"Generate a square filled with aColor"
 	
     | size standardForm |
@@ -136,37 +164,63 @@ WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
     ^ standardForm
 ]
 
-{ #category : 'accessing' }
-WS2DSquareVisitor class >> pathForms [
+{ #category : 'adding' }
+WS2DSquareVisitor >> addHoverTo: aShape [
 
-	^ pathForms
-]
+	aShape
+		when: RSMouseEnter
+		do: [ :evt |
+				aShape form: (aShape propertyAt: #highlightForm).
+				aShape invalidate ]
+		for: self.
 
-{ #category : 'accessing' }
-WS2DSquareVisitor class >> pathForms: anObject [
-
-	pathForms := anObject
+	aShape
+		when: RSMouseLeave
+		do: [ :evt |
+				aShape form: (aShape propertyAt: #normalForm).
+				aShape invalidate ]
+		for: self
 ]
 
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitClassTile: classTile [
 
-	^ self class generateSolidFormWithColor: Color black
+	^ RSBitmap new
+		form: (self class generateSolidFormWithColor: Color black)
 ]
 
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitEmptyTile: emptyTile [
 
-	^ self class generateSolidFormWithColor: Color white
+	^  RSBitmap new 
+			form: (self class generateSolidFormWithColor: Color white)
 ]
 
 { #category : 'visualization' }
 WS2DSquareVisitor >> visitPathTile: pathTile [
 	<toDo> "Choose path color based on the type of relation"
 	
-	^ (self class 
-		generateFormForID: pathTile id
-		"withColor: Color black"
-		withColor: (self pathIDColorDictionary at: pathTile pathID)
-	)
+	| shape normalForm highlightedForm |
+
+	shape := RSBitmap new.
+	
+	normalForm := (self class 
+		generateFormForID: pathTile id 
+		withColor: (self pathIDColorDictionary at: pathTile pathID)).
+	
+	highlightedForm := (self class 
+		generateFormForID: pathTile id 
+		withColor: Color black).
+		
+	shape form: normalForm.
+	shape propertyAt: #normalForm put: normalForm.
+   shape propertyAt: #highlightForm put: highlightedForm.
+	
+	self addHoverTo: shape.
+	
+	^ shape
+		
+	
+	
+	
 ]
