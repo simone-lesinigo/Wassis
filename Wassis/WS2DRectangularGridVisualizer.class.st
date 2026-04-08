@@ -11,7 +11,8 @@ Class {
 
 { #category : 'adding' }
 WS2DRectangularGridVisualizer >> addClickTo: aShape [
-
+	"Add the inspect when left clicking, the contextual menu when rightclicking"
+	
 	aShape
 		when: RSMouseLeftClick 
 		do: [ (self shapesNodes at: aShape) inspect ]
@@ -25,6 +26,7 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 
 { #category : 'adding' }
 WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
+	"To all the shapes in the collection add the highlights when one of the shape is hovered"
 
     aCollectionOfShapes do: [ :shape |
         shape
@@ -104,6 +106,15 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self canvas openOnce.
 ]
 
+{ #category : 'update' }
+WS2DRectangularGridVisualizer >> migrateHoverProperties: aSource to: aTarget [
+
+    #(#normalForm #highlightForm) do: [ :key |
+        aTarget removePropertyAt: key ifAbsent: [  ].
+        aSource propertyAt: key ifPresent: [ :value |
+            aTarget propertyAt: key put: value ] ].
+]
+
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> openCanvas [
 
@@ -124,28 +135,28 @@ WS2DRectangularGridVisualizer >> registerMouseHoverForPathsOf: aSolver [
 WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 	"Update the visualization for a single node"
 
-	| shape tile newBitmap |
-	shape := (self nodesShapes at: aNode).
-	tile := aNode tileInWhichCollapsed.
-	
-	newBitmap := (tile accept: self tileVisitor).
-	
-	shape form: newBitmap form.
-	
-	shape removePropertyAt: #normalForm ifAbsent: [  ].
-	shape removePropertyAt: #highlightForm ifAbsent: [  ].
-	shape removeInteractionIfPresent: RSPopup.
-	
-	newBitmap 
-	    propertyAt: #normalForm 
-	    ifPresent: [ :value | shape propertyAt: #normalForm put: value ].
+	 | shape newBitmap |
+    shape := self nodesShapes at: aNode.
+    newBitmap := aNode tileInWhichCollapsed accept: self tileVisitor.
+    
+    self updateShape: shape fromBitmap: newBitmap.
+    self updatePopup: shape forNode: aNode.
+    shape invalidate.
+]
 
-	newBitmap 
-	    propertyAt: #highlightForm 
-	    ifPresent: [ :value | shape propertyAt: #highlightForm put: value ].
-	
-	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
-	shape invalidate
+{ #category : 'update' }
+WS2DRectangularGridVisualizer >> updatePopup: aShape forNode: aNode [
+
+    aShape removeInteractionIfPresent: RSPopup.
+    aNode tileInWhichCollapsed buildPopup
+        ifNotNil: [ :popup | aShape @ popup ].
+]
+
+{ #category : 'update' }
+WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
+
+    aShape form: aNewBitmap form.
+    self migrateHoverProperties: aNewBitmap to: aShape.
 ]
 
 { #category : 'visualization' }
