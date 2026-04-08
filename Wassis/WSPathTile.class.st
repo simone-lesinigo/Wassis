@@ -30,6 +30,7 @@ WSPathTile >> accept: aVisitor [
 
 { #category : 'control' }
 WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
+	"Add to the contextual menu (right click) the necessary items"
 
 	| currentPathID |
 	currentPathID := aNode tileInWhichCollapsed pathID.
@@ -41,10 +42,16 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 		
    aMenu add: 'Optimize Path'
           target: [
-              aSolver graph 
+				| bool |
+				(UIManager default
+    				confirm: 'Do you want to allow exit modification?'
+    				label: 'Question')
+        				ifTrue: [ bool := true ]
+        				ifFalse: [ bool := false ].
+				aSolver graph 
 				  		optimizePathsWithPathIDs: { currentPathID } 
-						allowExitsModification: true.
-					
+						allowExitsModification: bool.
+              			
               aSolver createVisualization.
           ]
           selector: #value.
