@@ -165,7 +165,7 @@ WSSolver >> topology: anObject [
 
 { #category : 'visualization' }
 WSSolver >> updateVisualizationFor: aNodesArray [
-	"For each node in nodes array it updates the visualization (without recreating the whole visualization"
+	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 	
 	self topology visualizer updateVisualizationFor: aNodesArray
 ]

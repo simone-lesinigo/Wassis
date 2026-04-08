@@ -18,7 +18,7 @@ Class {
 { #category : 'serializing' }
 WSAdaptiveSolver class >> loadFromFile: aFilePath [
 
-	^ FLMaterializer materializeFromFileNamed: aFilePath 
+	^ FLMaterializer materializeFromFileNamedIgnoringMethodChanges: aFilePath 
 ]
 
 { #category : 'serializing' }
