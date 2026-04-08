@@ -41,19 +41,7 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 		selector: #inspect.
 		
    aMenu add: 'Optimize Path'
-          target: [
-				| bool |
-				(UIManager default
-    				confirm: 'Do you want to allow exit modification?'
-    				label: 'Question')
-        				ifTrue: [ bool := true ]
-        				ifFalse: [ bool := false ].
-				aSolver graph 
-				  		optimizePathsWithPathIDs: { currentPathID } 
-						allowExitsModification: bool.
-              			
-              aSolver createVisualization.
-          ]
+          target: [ self optimizePathWithUserConfirmation: currentPathID withSolver: aSolver ]
           selector: #value.
 ]
 
@@ -67,6 +55,21 @@ WSPathTile >> buildPopup [
 WSPathTile >> isPathTile [ 
 	
 	^ true
+]
+
+{ #category : 'control' }
+WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
+
+    | allowExits |
+    allowExits := UIManager default 
+        confirm: 'Do you want to allow exit modification?' 
+        label: 'Question'.
+        
+    aSolver graph 
+        optimizePathsWithPathIDs: { aPathID } 
+        allowExitsModification: allowExits.
+    
+    aSolver createVisualization.
 ]
 
 { #category : 'accessing' }
