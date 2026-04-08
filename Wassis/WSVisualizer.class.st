@@ -97,10 +97,3 @@ WSVisualizer >> tileVisitor: anObject [
 
 	tileVisitor := anObject
 ]
-
-{ #category : 'visualization' }
-WSVisualizer >> updateVisualizationFor: aNodesArray [
-	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
-	
-	^ self subclassResponsibility 
-]

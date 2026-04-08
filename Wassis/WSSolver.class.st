@@ -63,6 +63,12 @@ WSSolver >> getAllPathIDs [
 ]
 
 { #category : 'accessing' }
+WSSolver >> getAllPaths [
+	
+	^ self graph paths
+]
+
+{ #category : 'accessing' }
 WSSolver >> getFlattenedNodes [
 
 	^ self graph getFlattenedNodes 
@@ -165,5 +171,5 @@ WSSolver >> topology: anObject [
 WSSolver >> updateVisualizationFor: aNodesArray [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 	
-	self topology visualizer updateVisualizationFor: aNodesArray
+	self topology visualizer updateVisualizationFor: aNodesArray withSolver: self
 ]

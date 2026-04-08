@@ -14,10 +14,3 @@ WS2DGridVisualizer >> createVisualizationFor: aSolver [
 	
 	^ self subclassResponsibility
 ]
-
-{ #category : 'visualization' }
-WS2DGridVisualizer >> updateVisualizationFor: aNodesArray [
-	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
-	
-	^ self subclassResponsibility 
-]

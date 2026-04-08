@@ -9,7 +9,7 @@ Class {
 	#tag : 'Visualization'
 }
 
-{ #category : 'shapes' }
+{ #category : 'adding' }
 WS2DRectangularGridVisualizer >> addClickTo: aShape [
 
 	aShape
@@ -21,6 +21,27 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 		when: RSMouseRightClick 
 		do: [ self createMenuFor: aShape ]
 		for: self
+]
+
+{ #category : 'adding' }
+WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
+
+    aCollectionOfShapes do: [ :shape |
+        shape
+            when: RSMouseEnter
+            do: [ 
+                aCollectionOfShapes do: [ :s |
+                    s form: (s propertyAt: #highlightForm).
+                    s invalidate ] ]
+            for: self.
+
+        shape
+            when: RSMouseLeave
+            do: [ 
+                aCollectionOfShapes do: [ :s |
+                    s form: (s propertyAt: #normalForm).
+                    s invalidate ] ]
+            for: self ]
 ]
 
 { #category : 'control' }
@@ -50,7 +71,8 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	| tile shape |
 	tile := aNode tileInWhichCollapsed.
 
-	shape := tile accept: self tileVisitor .					
+	shape := tile accept: self tileVisitor.			
+						
 	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
 	self addClickTo: shape.
 	
@@ -71,6 +93,8 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
 	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
+	
+	self registerMouseHoverForPathsOf: aSolver.
 
 	RSGridLayout new
 		gapSize: 0;
@@ -84,6 +108,16 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 WS2DRectangularGridVisualizer >> openCanvas [
 
 	self canvas openOnce
+]
+
+{ #category : 'adding' }
+WS2DRectangularGridVisualizer >> registerMouseHoverForPathsOf: aSolver [
+	"Highlight a path when the mouse is hovering it"
+
+    aSolver getAllPaths do: [ :path |
+        | pathShapes |
+        pathShapes := path nodes collect: [ :node | self nodesShapes at: node ].
+        self addGroupHoverTo: pathShapes ]
 ]
 
 { #category : 'visualization' }
@@ -115,12 +149,14 @@ WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 ]
 
 { #category : 'visualization' }
-WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [ 
+WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray withSolver: aSolver [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 	
 	aNodesArray do: [ :eachNode |
 		self updateNodeVisualization: eachNode 
 	].
+
+	self registerMouseHoverForPathsOf: aSolver.
 
 	self canvas signalUpdate 
 
