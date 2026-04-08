@@ -96,6 +96,11 @@ WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 	newBitmap := (tile accept: self tileVisitor).
 	
 	shape form: newBitmap form.
+	
+	shape removePropertyAt: #normalForm ifAbsent: [  ].
+	shape removePropertyAt: #highlightForm ifAbsent: [  ].
+	shape removeInteractionIfPresent: RSPopup.
+	
 	newBitmap 
 	    propertyAt: #normalForm 
 	    ifPresent: [ :value | shape propertyAt: #normalForm put: value ].
@@ -104,7 +109,6 @@ WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 	    propertyAt: #highlightForm 
 	    ifPresent: [ :value | shape propertyAt: #highlightForm put: value ].
 	
-	shape removeInteractionIfPresent: RSPopup.
 	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
 	shape invalidate
 ]
