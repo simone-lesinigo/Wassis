@@ -171,7 +171,7 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
     ^ standardForm
 ]
 
-{ #category : 'rendering' }
+{ #category : 'accessing' }
 WS2DSquareVisitor class >> size [ 
 	
 	^ size ifNil: [ 50 ]

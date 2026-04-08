@@ -120,6 +120,8 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 	
 	aNodesArray do: [ :eachNode |
 		self updateNodeVisualization: eachNode 
-	]
+	].
+
+	self canvas signalUpdate 
 
 ]
