@@ -150,7 +150,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: MCReader 
+		createForClass: Delay
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 
