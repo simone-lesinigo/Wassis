@@ -60,6 +60,7 @@ WSPathTile >> isPathTile [
 
 { #category : 'control' }
 WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
+	"Create the dialog to ask the user if he wants to allow exits modification or not"
 
     | allowExits touchedNodes |
 

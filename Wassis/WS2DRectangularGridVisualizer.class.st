@@ -75,8 +75,8 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	
 	self clear.
 	self solver: aSolver.
-	self tileVisitor: WS2DSquareVisitor new.
-	"self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs)."
+	"self tileVisitor: WS2DSquareVisitor new."
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
 	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
 

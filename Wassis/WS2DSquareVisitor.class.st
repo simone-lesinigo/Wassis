@@ -166,7 +166,7 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
 	
 	^ (self class 
 		generateFormForID: pathTile id
-		withColor: Color black
-		"withColor: (self pathIDColorDictionary at: pathTile pathID)"
+		"withColor: Color black"
+		withColor: (self pathIDColorDictionary at: pathTile pathID)
 	)
 ]

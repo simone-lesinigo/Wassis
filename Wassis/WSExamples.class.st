@@ -76,6 +76,16 @@ WSExamples class >> exampleCreateTile [
 ]
 
 { #category : 'finding' }
+WSExamples class >> exampleFindToDo [
+
+	(Pragma allNamed: #toDo) collect: [ :p | p method ].
+
+	(Pragma allNamed: #toDo) 
+	    select: [ :p | p methodClass name beginsWith: 'WS' ]
+	    thenCollect: [ :p | p method ].
+]
+
+{ #category : 'finding' }
 WSExamples class >> exampleGetClasses [
 	| res |
 	res := OrderedCollection new.
