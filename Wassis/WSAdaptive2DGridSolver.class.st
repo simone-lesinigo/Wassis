@@ -53,6 +53,7 @@ WSAdaptive2DGridSolver >> run [
 		| duration |
 		duration := [ 
 			self solveWithIncreasingSize.
+			Smalltalk garbageCollect.
 			self save
 		] timeToRun.
 	

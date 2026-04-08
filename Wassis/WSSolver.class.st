@@ -115,12 +115,10 @@ WSSolver >> reifyWFCPaths [
 { #category : 'running' }
 WSSolver >> run [
 	"Run the WFC algorithm on the graph" 
+	
 	self solveGraph.
 	self reifyWFCPaths.
 	self createVisualization.
-"	self graph optimizeAllPathsAllowingExitModifications: true.	
-	
-	WS2DRectangularGridVisualizer  new createVisualizationFor: self."
 ]
 
 { #category : 'running' }
