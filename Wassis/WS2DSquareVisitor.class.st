@@ -5,12 +5,19 @@ Class {
 	#name : 'WS2DSquareVisitor',
 	#superclass : 'WSTileVisitor',
 	#classInstVars : [
-		'formCache'
+		'formCache',
+		'size'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
 	#tag : 'Visualization'
 }
+
+{ #category : 'cleanup' }
+WS2DSquareVisitor class >> clearCache [
+	
+	self formCache: nil
+]
 
 { #category : 'rendering' }
 WS2DSquareVisitor class >> drawInstructionsFor: aPathTileID on: aBuilder size: aSize [
