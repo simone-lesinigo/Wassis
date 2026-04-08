@@ -37,12 +37,13 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 
 	aMenu 
 		add: 'Inspect Path' 
-		target: (aSolver graph paths at: currentPathID) 
-		selector: #inspect.
+		target: [ (aSolver graph paths at: currentPathID) inspect] 
+		selector: #value.
 		
-   aMenu add: 'Optimize Path'
-          target: [ self optimizePathWithUserConfirmation: currentPathID withSolver: aSolver ]
-          selector: #value.
+   aMenu 
+		add: 'Optimize Path'
+   		target: [ self optimizePathWithUserConfirmation: currentPathID withSolver: aSolver ]
+      selector: #value.
 ]
 
 { #category : 'visualization' }
@@ -60,16 +61,18 @@ WSPathTile >> isPathTile [
 { #category : 'control' }
 WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
 
-    | allowExits |
+    | allowExits touchedNodes |
+
     allowExits := UIManager default 
         confirm: 'Do you want to allow exit modification?' 
         label: 'Question'.
         
-    aSolver graph 
+    touchedNodes := 
+		aSolver graph 
         optimizePathsWithPathIDs: { aPathID } 
         allowExitsModification: allowExits.
     
-    aSolver createVisualization.
+    aSolver updateVisualizationFor: touchedNodes.
 ]
 
 { #category : 'accessing' }

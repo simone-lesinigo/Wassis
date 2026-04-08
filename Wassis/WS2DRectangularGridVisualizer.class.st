@@ -92,3 +92,19 @@ WS2DRectangularGridVisualizer >> openCanvas [
 
 	self canvas openOnce
 ]
+
+{ #category : 'visualization' }
+WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [ 
+	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
+	
+	aNodesArray do: [ :eachNode |
+		| shape tile |
+		shape := (self nodesShapes at: eachNode).
+		tile := eachNode tileInWhichCollapsed.
+		
+		shape form: (tile accept: self tileVisitor).
+		shape @ (tile buildPopup).
+		shape invalidate
+	]
+
+]

@@ -288,6 +288,9 @@ WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 { #category : 'optimization' }
 WSGraph >> optimizePathsWithExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
+	
+	| touchedNodes |
+	touchedNodes := Set new.
 
 	pathIDs do: [ :eachPathID |
 		| generatedPath optimalPath classes |
@@ -296,9 +299,12 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		classes := self topology allPathIDs keyAtValue: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		
-		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.
+		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
-	]
+		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
+	].
+
+	^ touchedNodes
 ]
 
 { #category : 'optimization' }
@@ -306,22 +312,28 @@ WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 	"Optimize all the paths which pathID is in pathIDs"
 
 	aBoolean 
-		ifTrue: [ self optimizePathsWithExitModification: pathIDs ] 
-		ifFalse: [ self optimizePathsWithoutExitModification: pathIDs ] 
+		ifTrue: [ ^ self optimizePathsWithExitModification: pathIDs ] 
+		ifFalse: [ ^ self optimizePathsWithoutExitModification: pathIDs ] 
 ]
 
 { #category : 'optimization' }
 WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
+	
+	| touchedNodes |
+	touchedNodes := Set new.
 
 	pathIDs do: [ :eachPathID | 
 		| generatedPath optimalPath |
 		generatedPath := (self paths at: eachPathID).
 		optimalPath := self findOptimalPathWithID: eachPathID.
 		
-		self substituteIfShorter: optimalPath for: generatedPath updatingExits: false.
+		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
-	 ]
+		self substituteIfShorter: optimalPath for: generatedPath updatingExits: false.		
+	 ].
+
+	^ touchedNodes 
 ]
 
 { #category : 'accessing' }
