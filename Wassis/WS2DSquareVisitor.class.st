@@ -139,19 +139,19 @@ WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
 WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 	"Create the form for a path tile"
 	
-    | surface size standardForm |
-    size := 50.
-    surface := AthensCairoSurface extent: size @ size.
+    | surface standardForm formSize |
+	 formSize := self size.
+    surface := AthensCairoSurface extent:  formSize @  formSize.
     surface drawDuring: [ :canvas | | path |
         canvas setPaint: Color white.
-        canvas drawShape: (0 @ 0 extent: size @ size).
+        canvas drawShape: (0 @ 0 extent:  formSize @  formSize).
         path := canvas createPath: [ :builder | 
-            self drawInstructionsFor: aPathTileID on: builder size: size ].
+            self drawInstructionsFor: aPathTileID on: builder size:  formSize ].
         canvas setPaint: aColor.
         canvas drawShape: path.
     ].
 
-    standardForm := Form extent: size @ size depth: 32.
+    standardForm := Form extent:  formSize @  formSize depth: 32.
     
     surface asForm displayOn: standardForm.
     
@@ -162,13 +162,19 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 	"Generate a square filled with aColor"
 	
-    | size standardForm |
-    size := 50.
-    standardForm := Form extent: size @ size depth: 32.
+    | standardForm formSize |
+	 formSize := self size.
+    standardForm := Form extent: formSize @ formSize depth: 32.
     
     standardForm fillColor: aColor.
     
     ^ standardForm
+]
+
+{ #category : 'rendering' }
+WS2DSquareVisitor class >> size [ 
+	
+	^ size ifNil: [ 50 ]
 ]
 
 { #category : 'adding' }
