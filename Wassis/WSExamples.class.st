@@ -105,6 +105,26 @@ WSExamples class >> exampleGetClasses [
 	res inspect
 ]
 
+{ #category : 'finding' }
+WSExamples class >> exampleGetClasses2 [
+	| res |
+	res := OrderedCollection new.
+	ProtoObject withAllSuperAndSubclassesDo: [ :eachClass |
+	    | sw connections |
+	    sw := WSSoftwareSystem 
+	        createForClass: eachClass 
+	        usingStrategy: WSHierarchyClassCollector new.
+	    connections := sw allConnectionsPerClass.
+	    
+	    ((sw classes size between: 2 and: 15) 
+	    	and: [ (connections allSatisfy: [ :row | row value size < 8 ])  
+		 		and: [ (connections select: [ :row | row value size > 4 ]) size >= 2 ] 
+			]
+		) ifTrue: [ res add: eachClass ] ].
+	
+	res inspect
+]
+
 { #category : 'WSAdaptiveSolver' }
 WSExamples class >> exampleLoadSolutionFromFile [
 
@@ -156,11 +176,11 @@ WSExamples class >> exampleRunHexagonalGrid [
 
 { #category : 'WSSolver' }
 WSExamples class >> exampleRunRectangularGrid [
-
+"InstructionClient" "McReader"
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: Delay
+		createForClass: TaAbstractComposition 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 
@@ -171,4 +191,42 @@ WSExamples class >> exampleRunRectangularGrid [
 	adaptiveSolver run
 		
 
+]
+
+{ #category : 'WSSolver' }
+WSExamples class >> exampleRunRectangularGrid2 [
+| class1 class2 class3 class4 class5 class6 adaptiveSolver swSystem |
+	class1 := WSClass new
+		          id: 1;
+		          connectedWith: { 2. "5" }.
+
+	class2 := WSClass new
+		          id: 2;
+		          connectedWith: { 1. 4. }.
+
+	class3 := WSClass new
+		          id: 3;
+		          connectedWith: { 4 . "6" }.
+
+	class4 := WSClass new
+		          id: 4;
+		          connectedWith: { 2. 3 }.
+
+	class5 := WSClass new
+		          id: 5;
+		          connectedWith: { 1 }.
+
+	class6 := WSClass new
+		          id: 6;
+		          connectedWith: { 3 }.
+	
+	swSystem := WSSoftwareSystem new 
+		addClasses: { class1. class2. class3. class4 . "class5. class6" }.
+	
+	adaptiveSolver := 
+		WSAdaptive2DGridSolver 
+			withTopology: WS2DRectangularGridTopology 
+			andSwSystem: swSystem.
+	
+	adaptiveSolver run
 ]

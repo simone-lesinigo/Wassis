@@ -89,31 +89,36 @@ WS2DRectangularGridTopology >> computeCircularWeights: deltaX and: deltaY [
 
 { #category : 'weight' }
 WS2DRectangularGridTopology >> computeRigidWeights: deltaX and: deltaY [
-	"Compute the weights using a greedy choice"
-	
-	| weights |
-	weights := Dictionary new.
-	
-   self addWeightsFor: deltaX
-         positive: self class rightSymbol 
-         negative: self class leftSymbol 
-         into: weights.
+    "Returns an OrderedCollection of directions sorted by preference"
+    
+    | primary secondary remaining result |
+    result := OrderedCollection new.
+    
+    primary  := deltaX abs >= deltaY abs
+        ifTrue:  [ deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ] ]
+        ifFalse: [ deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ] ].
+    
+    secondary := deltaX abs >= deltaY abs
+        ifTrue:  [ deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ] ]
+        ifFalse: [ deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ] ].
+    
+    remaining := { self class upSymbol. self class downSymbol. 
+                   self class leftSymbol. self class rightSymbol } asOrderedCollection.
+    remaining remove: primary; remove: secondary.
+    remaining := remaining shuffled.
+    
+    result add: primary; add: secondary; addAll: remaining.
 
-    self addWeightsFor: deltaY
-         positive: self class downSymbol 
-         negative: self class upSymbol 
-         into: weights.
-
-	^ weights 
+    ^ result
 ]
 
-{ #category : 'weight' }
+{ #category : 'deprecated' }
 WS2DRectangularGridTopology >> computeWeightsFrom: sourceNode to: targetNode [
 	"Assigns at each direction the weight (given by the distance)"
 
 	| deltaX deltaY |
-	deltaX := targetNode position second - sourceNode position second.
-	deltaY := targetNode position first - sourceNode position first.
+	deltaX := targetNode column - sourceNode column.
+	deltaY := targetNode row - sourceNode position row.
 	
 	"^ self computeCircularWeights: deltaX and: deltaY."
 	^ self computeRigidWeights: deltaX and: deltaY.
@@ -122,7 +127,7 @@ WS2DRectangularGridTopology >> computeWeightsFrom: sourceNode to: targetNode [
 
 ]
 
-{ #category : 'tileset' }
+{ #category : 'tilesetDeprecated' }
 WS2DRectangularGridTopology >> createClassTile: aClass [
 	"Create the class tile and returns it"
 	
@@ -143,6 +148,62 @@ WS2DRectangularGridTopology >> createClassTile: aClass [
 	^ WSClassTile 
 		withClass: aClass
 		andEdges: (self createTileEdgesFrom: edges)
+]
+
+{ #category : 'tileset' }
+WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
+    "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
+    
+    | connectionDirections slots nodeEdges ees result |
+    ees := self class emptyEdgeSymbol.
+    
+    "For each connection compute the preferred direction array"
+    connectionDirections := Dictionary new.
+    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
+        | sourceCenter targetCenter directions |
+        sourceCenter := aFootprint centerNode.
+        targetCenter := (self classNodes at: eachConnectedClass) centerNode.
+        directions := self weightedDirection: sourceCenter and: targetCenter.
+        connectionDirections at: eachConnectedClass put: directions ].
+    
+    "Build pool of available slots (node -> direction)"
+    slots := OrderedCollection new.
+    aFootprint nodes do: [ :aNode |
+        (self exposedDirectionsOf: aNode) do: [ :dir |
+            slots add: aNode -> dir ] ].
+    
+    "Initialize empty edges for each node"
+    nodeEdges := Dictionary new.
+    aFootprint nodes do: [ :aNode |
+        nodeEdges at: aNode put: Dictionary new ].
+    
+    "Assign each connection to the best available slot"
+    connectionDirections keysAndValuesDo: [ :eachConnectedClass :directions |
+        | bestSlot pathID |
+        bestSlot := directions 
+            detect: [ :dir | slots anySatisfy: [ :slot | slot value = dir ] ]
+            ifNone: [ nil ].
+        
+        bestSlot ifNotNil: [ :dir |
+            | slot |
+            slot := slots detect: [ :s | s value = dir ].
+            pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
+            (nodeEdges at: slot key) at: dir put: pathID.
+            slots remove: slot ] ].
+    
+		"Build one WSClassTile per node"
+		result := Dictionary new.
+		nodeEdges keysAndValuesDo: [ :aNode :dirPathDict |
+		    | edges posDir |
+		    posDir := self class positionDirection.
+		    edges := OrderedCollection new: 4 withAll: ees.
+		    
+		    dirPathDict keysAndValuesDo: [ :dir :pathID |
+		        edges at: (posDir at: dir) put: pathID ].
+		    
+		    result at: aNode put: (WSClassTile withClass: aClass andEdges: (self createTileEdgesFrom: edges)) ].
+
+		^ result
 ]
 
 { #category : 'matrix' }
@@ -229,14 +290,26 @@ WS2DRectangularGridTopology >> createTileEdgesFrom: anOrderedCollection [
 		at: (self class) downSymbol put: (OrderedCollection with:  anOrderedCollection last);
 		yourself 
   ).
-	
-"	^ (Dictionary new
-			at: (self class) upSymbol put: { anOrderedCollection first };
-			at: (self class) leftSymbol put: {  anOrderedCollection at: 2 };
-			at: (self class) rightSymbol put: { anOrderedCollection at: 3};
-			at: (self class) downSymbol put: { anOrderedCollection last };
-			yourself 
-	  )."
+]
+
+{ #category : 'collapse' }
+WS2DRectangularGridTopology >> exposedDirectionsOf: aNode [
+    "Return the directions of aNode that face outside the footprint"
+    
+    | row column originRow originColumn exposed footPrint |
+	 footPrint := aNode footPrint.
+    row := aNode row. 
+    column := aNode column.
+    originRow := footPrint originNode row. 
+    originColumn := footPrint originNode column.
+    exposed := OrderedCollection new.
+    
+    row = originRow ifTrue: [ exposed add: self class upSymbol ].
+    row = (originRow + footPrint sideLength - 1) ifTrue: [ exposed add: self class downSymbol  ].
+    column = originColumn ifTrue: [ exposed add: self class leftSymbol ].
+    column = (originColumn + footPrint sideLength - 1) ifTrue: [ exposed add: self class rightSymbol ].
+    
+    ^ exposed
 ]
 
 { #category : 'initialization' }
@@ -274,7 +347,7 @@ WS2DRectangularGridTopology >> removePossibilitiesFromLastRow [
 		(self getAtRow: self nRows andColumn: j) keepTilesWithIDin: #( 0 1 3 4 ) ].
 ]
 
-{ #category : 'weight' }
+{ #category : 'deprecated' }
 WS2DRectangularGridTopology >> selectNextDirectionIn: aDictionary [
 	"Weighted choice of the next direction"
 
@@ -294,20 +367,10 @@ WS2DRectangularGridTopology >> selectNextDirectionIn: aDictionary [
 WS2DRectangularGridTopology >> weightedDirection: sourceNode and: targetNode [
 	"Create a list of numbers (1, 2, 3, 4) where each one represents a direction (up, left, right, down), the order of the numbers is given by a weighted choice based on the relative position of the target compared with the position of the source"
 	
-	| weightedDir posDir res |
-	res := OrderedCollection new.
-	
-	weightedDir := self computeWeightsFrom: sourceNode to: targetNode.
-	posDir := self class positionDirection.
-	 
-	[ weightedDir isEmpty ] whileFalse: [ 
-		| dir |
-		dir := self selectNextDirectionIn: weightedDir.
-		weightedDir removeKey: dir.
-		res add: (posDir at: dir)
-	].
-
-	^ res
+    | deltaX deltaY |
+    deltaX := targetNode position second - sourceNode position second.
+    deltaY := targetNode position first - sourceNode position first.
+    ^ self computeRigidWeights: deltaX and: deltaY
 	
 	
 ]

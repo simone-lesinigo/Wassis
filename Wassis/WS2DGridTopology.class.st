@@ -33,13 +33,26 @@ WS2DGridTopology class >> withGrid: aPoint [
 
 { #category : 'collapse' }
 WS2DGridTopology >> assignNodesToClasses [
-	"For each class select the node in which it will be placed"
-	
-	self swSystem classes do: [ :eachClass | 
-		| node |
-		node := self pickNodeForClass: eachClass.
-		node isCollapsed: true.
-		self classNodes at: eachClass put: node ]
+    "For each class select the node in which it will be placed"
+    
+    self swSystem classes do: [ :eachClass | 
+        | sideLength originNode footprintNodes footprint |
+        sideLength := self footprintSizeFor: eachClass.
+        originNode := self pickNodeForClass: eachClass footprintSize: sideLength.
+        footprintNodes := self collectFootprintFrom: originNode size: sideLength.
+        
+        footprint := WSFootprint new
+            wsClass: eachClass;
+            nodes: footprintNodes;
+            originNode: originNode;
+            sideLength: sideLength;
+            yourself.
+        
+        footprintNodes do: [ :each | 
+            each isCollapsed: true.
+            each footPrint: footprint ].
+        
+        self classNodes at: eachClass put: footprint ]
 ]
 
 { #category : 'accessing' }
@@ -56,20 +69,33 @@ WS2DGridTopology >> classNodes: anObject [
 
 { #category : 'collapse' }
 WS2DGridTopology >> collapseNodesToClasses [
-	"Collapse some nodes to classes and returns them"
-	
-	| result |
-	result := OrderedCollection new.
-	self assignNodesToClasses.
-	
-	self classNodes keysAndValuesDo: [ :eachClass :eachNode |
-		| classTile |
-		classTile := self createClassTile: eachClass.
-		
-		result add: (eachNode collapseToClassTile: classTile).
-	].
+    "Collapse some nodes to classes and returns them"
+    
+    | result |
+    result := OrderedCollection new.
+    self assignNodesToClasses.
+    self classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
+        | nodeToTile |
+        nodeToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
 
-	^ result
+        nodeToTile keysAndValuesDo: [ :eachNode :eachTile |
+            result add: (eachNode collapseToClassTile: eachTile) ] ].
+    
+    ^ result
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> collectFootprintFrom: originNode size: n [
+    "Return all nodes in the NxN block with originNode as top-left"
+
+    | result r c |
+    result := OrderedCollection new.
+    r := originNode row.
+    c := originNode column.
+    0 to: n - 1 do: [ :dr |
+        0 to: n - 1 do: [ :dc |
+            result add: (self getAtRow: r + dr andColumn: c + dc) ] ].
+    ^ result
 ]
 
 { #category : 'tileset' }
@@ -88,6 +114,12 @@ WS2DGridTopology >> createAllPathTiles [
 
 { #category : 'tileset' }
 WS2DGridTopology >> createClassTile: aClass [
+
+	^ self subclassResponsibility 
+]
+
+{ #category : 'tileset' }
+WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 
 	^ self subclassResponsibility 
 ]
@@ -210,6 +242,17 @@ WS2DGridTopology >> createTileset [
 
 ]
 
+{ #category : 'collapse' }
+WS2DGridTopology >> footprintSizeFor: aClass [
+	 "Return the side length N of the NxN footprint needed for aClass"
+	
+	| connectionsSize |
+	
+	connectionsSize := (self swSystem allConnectionsPerClass at: aClass) size. 
+	
+	^ (connectionsSize / 4) ceiling
+]
+
 { #category : 'accessing' }
 WS2DGridTopology >> getAtRow: i andColumn: j [
 	
@@ -222,8 +265,8 @@ WS2DGridTopology >> getNeighboursOf: aNode atLevel: aNumber [
     "Return the Moore neighbours at exactly distance aNumber from aNode"
     
     | posX posY neighbours |
-    posX := aNode position first.
-    posY := aNode position last.
+    posX := aNode row.
+    posY := aNode column.
     neighbours := OrderedCollection new.
     
     (posX - aNumber) to: (posX + aNumber) do: [ :x |
@@ -256,19 +299,48 @@ WS2DGridTopology >> initializeWith: aSwSystem [
 
 ]
 
+{ #category : 'collapse' }
+WS2DGridTopology >> isInBoundsRow: row col: col [
+
+	^ (row between: 1 and: self nRows) and: [ col between: 1 and: self nColumns ]
+]
+
 { #category : 'accessing' }
 WS2DGridTopology >> isValidPosition: aPoint [
 	
 	^ (aPoint x between: 2 and: self nRows - 1) and: [ aPoint y between: 2 and: self nColumns - 1]
 ]
 
-{ #category : 'collapse' }
+{ #category : 'collapseDeprecated' }
 WS2DGridTopology >> isValidTarget: aNode [
     "A valid target is not collapsed and has no collapsed Moore neighbours"
 
     ^ aNode isNotCollapsed and: [
         (self getNeighboursOf: aNode atLevel: 1) allSatisfy: [ :each | each isNotCollapsed ] ]
 
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> isValidTopLeft: aNode forSize: n [
+    "A valid top-left node has:
+     - the NxN footprint entirely within bounds and not collapsed
+     - a 1 cell border around the footprint entirely not collapsed"
+    
+    | r c |
+    r := aNode row.
+    c := aNode column.
+    
+    "Footprint must fit in grid"
+	 (self isInBoundsRow: r - 1 col: c - 1) ifFalse: [ ^ false ].
+    (self isInBoundsRow: r + n - 1 col: c + n - 1) ifFalse: [ ^ false ].
+    
+    "Check footprint"
+    (r - 1) to: (r + n) do: [ :row |
+        (c - 1) to: (c + n) do: [ :col |
+            (self getAtRow: row andColumn: col) isCollapsed 
+                ifTrue: [ ^ false ] ] ].
+    
+    ^ true
 ]
 
 { #category : 'accessing' }
@@ -319,7 +391,7 @@ WS2DGridTopology >> nRows: anObject [
 	nRows := anObject
 ]
 
-{ #category : 'collapse' }
+{ #category : 'collapseDeprecated' }
 WS2DGridTopology >> pickNodeForClass: aClass [
     "Return a non collapsed node with no collapsed Moore neighbours"
     
@@ -333,6 +405,21 @@ WS2DGridTopology >> pickNodeForClass: aClass [
    (self isValidTarget: target) ifTrue: [ ^ target ].
     
    ^ self searchOutwardFrom: target
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n [
+    "Return the top-left node of a valid NxN footprint"
+    
+    | pos posX posY target |
+    pos := self layoutMatrix rowAt: aClass id.
+    posX := pos first.
+    posY := pos last.
+    target := self getAtRow: posX andColumn: posY.
+    
+    (self isValidTopLeft: target forSize: n) ifTrue: [ ^ target ].
+    
+    ^ self searchOutwardFrom: target forSize: n
 ]
 
 { #category : 'removing' }
@@ -376,7 +463,7 @@ WS2DGridTopology >> scaleNormalizedValue: aValue toInnerRange: n [
     ^ ((aValue * (n - 3)) rounded) + 2
 ]
 
-{ #category : 'collapse' }
+{ #category : 'collapseDeprecated' }
 WS2DGridTopology >> searchOutwardFrom: aNode [
     "Expand outward from aPoint until a valid node positon is found"
 
@@ -393,5 +480,23 @@ WS2DGridTopology >> searchOutwardFrom: aNode [
     
     candidates ifEmpty: [ self error: 'No valid node found' ].
 
+    ^ candidates shuffled first
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> searchOutwardFrom: aNode forSize: n [
+    "Expand outward from aNode until a valid top-left position is found"
+    
+    | candidates level maxLevel |
+    candidates := OrderedCollection new.
+    level := 2.
+    maxLevel := (self nRows max: self nColumns) // 2.
+    
+    [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
+        candidates := (self getNeighboursOf: aNode atLevel: level)
+            select: [ :node | self isValidTopLeft: node forSize: n ].
+        level := level + 1 ].
+    
+    candidates ifEmpty: [ self error: 'No valid node found' ].
     ^ candidates shuffled first
 ]

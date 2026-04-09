@@ -86,7 +86,11 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
 	currentSolver := (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
       andSwSystem: self swSystem).
-
+	
+	currentSolver graph nodes: currentSolver graph nodes flattened.
+	currentSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (self topology new createEmptyTile) ] ].
+	currentSolver createVisualization.
+	self halt.
    currentSolver run.
 
 	self solver: currentSolver.

@@ -162,11 +162,10 @@ WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray withSolver: aSolver [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
-	<toDo> "Fix the update of hovering"
+
 	aNodesArray do: [ :eachNode |
 		self updateNodeVisualization: eachNode 
 	].
-	
 	
 	self registerMouseHoverForPathsOf: aSolver.
 

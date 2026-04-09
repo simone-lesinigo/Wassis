@@ -12,6 +12,7 @@ Class {
 		'isCollapsed',
 		'entropy',
 		'tileInWhichCollapsed',
+		'footPrint',
 		'sumOfWeights',
 		'sumOfWeightsLog'
 	],
@@ -78,6 +79,12 @@ WSNode >> collapseToClassTile: aTile [
 ]
 
 { #category : 'accessing' }
+WSNode >> column [
+	
+	^ self position second
+]
+
+{ #category : 'accessing' }
 WSNode >> entropy [
 
 	^ entropy
@@ -87,6 +94,18 @@ WSNode >> entropy [
 WSNode >> entropy: anObject [
 
 	entropy := anObject
+]
+
+{ #category : 'accessing' }
+WSNode >> footPrint [
+
+	^ footPrint
+]
+
+{ #category : 'accessing' }
+WSNode >> footPrint: anObject [
+
+	footPrint := anObject
 ]
 
 { #category : 'accessing' }
@@ -208,6 +227,12 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 	
 	^ oldTiles difference: newTiles
 	
+]
+
+{ #category : 'accessing' }
+WSNode >> row [
+	
+	^ self position first
 ]
 
 { #category : 'collapse' }
