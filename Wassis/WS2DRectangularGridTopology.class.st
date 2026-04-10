@@ -84,50 +84,17 @@ WS2DRectangularGridTopology class >> verticalSymbols [
 		with: self downSymbol
 ]
 
-{ #category : 'weight' }
-WS2DRectangularGridTopology >> addWeightsFor: aValue positive: posDir negative: negDir into: aDictionary [
-
-    aValue >= 0
-        ifTrue: [ 
-            aDictionary at: posDir put: aValue.
-            aDictionary at: negDir put: 0 ]
-        ifFalse: [ 
-            aDictionary at: posDir put: 0.
-            aDictionary at: negDir put: aValue abs ]
-]
-
-{ #category : 'weight' }
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
-    "Returns an OrderedCollection of directions sorted by preference. Note that deltaX can be equal to deltaY but they cannot be both 0 at the same time"
-    
-    | result remaining horizontal vertical |
-    result := OrderedCollection new.
-    horizontal := deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ].
-    vertical   := deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ].
+	"Returns an OrderedCollection of directions sorted by preference"
+	| preferred remaining |
 	
-	deltaX abs = deltaY abs 
-		ifTrue: [ result addAll: ({ horizontal . vertical } shuffled) ]
-		ifFalse: [ 
-			deltaX abs > deltaY abs
-				ifTrue: [ 
-					result add: horizontal.
-					deltaY = 0
-						ifTrue: [ result addAll: ((self class verticalSymbols) shuffled)]
-						ifFalse: [ result add: vertical ]
-				]
-				ifFalse: [ 
-					result add: vertical.
-					deltaX = 0
-						ifTrue: [ result addAll: ((self class horizontalSymbols) shuffled)]
-						ifFalse: [ result add: horizontal ]
-				]
-		].
-    
-    remaining := self class allSymbols asOrderedCollection.
-    remaining removeAll: result.
-    result addAll: remaining shuffled.
-    
-    ^ result
+	preferred := self primaryDirectionsFor: deltaX and: deltaY.
+	
+	remaining := self class allSymbols asOrderedCollection.
+	remaining removeAll: preferred.
+	
+	^ preferred , (remaining shuffled)
 ]
 
 { #category : 'tilesetDeprecated' }
@@ -322,16 +289,39 @@ WS2DRectangularGridTopology >> initialize [
 	self visualizer:WS2DRectangularGridVisualizer new
 ]
 
-{ #category : 'weight' }
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> preferredDirectionsFrom: sourceNode to: targetNode [
 	"Create a list of directions (up, left, right, down), the order of the directions is given by a preferred choice based on the relative position of the target compared with the position of the source"
 	
     | deltaX deltaY |
     deltaX := targetNode column - sourceNode column.
     deltaY := targetNode row - sourceNode row.
+
     ^ self computeDirectionsFor: deltaX and: deltaY
 	
 	
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> primaryDirectionsFor: deltaX and: deltaY [
+	"Note that deltaX can be equal to deltaY but they cannot be both 0 at the same time"
+	
+	| horizontal vertical |
+	horizontal := deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ].
+	vertical := deltaY >= 0 ifTrue: [ self class downSymbol ] ifFalse: [ self class upSymbol ].
+
+	"Target on diagonal"
+	deltaX abs = deltaY abs ifTrue: [ ^ { horizontal. vertical } shuffled ].
+
+	"Target on horizontal line"
+	deltaY = 0 ifTrue: [ ^ { horizontal } , (self class verticalSymbols shuffled) ].
+
+	"Target on vertical line"
+	deltaX = 0 ifTrue: [ ^ { vertical } , (self class horizontalSymbols shuffled) ].
+
+	^ deltaX abs > deltaY abs 
+		ifTrue: [ { horizontal. vertical } ] 
+		ifFalse: [ { vertical. horizontal } ]
 ]
 
 { #category : 'removing' }
