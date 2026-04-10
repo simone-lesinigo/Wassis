@@ -85,16 +85,16 @@ WS2DGridTopology >> collapseNodesToClasses [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> collectFootprintFrom: originNode size: n [
+WS2DGridTopology >> collectFootprintFrom: originNode size: sideLength [
     "Return all nodes in the NxN block with originNode as top-left"
 
-    | result r c |
+    | result row col |
     result := OrderedCollection new.
-    r := originNode row.
-    c := originNode column.
-    0 to: n - 1 do: [ :dr |
-        0 to: n - 1 do: [ :dc |
-            result add: (self getAtRow: r + dr andColumn: c + dc) ] ].
+    row := originNode row.
+    col := originNode column.
+    0 to: sideLength - 1 do: [ :dr |
+        0 to: sideLength - 1 do: [ :dc |
+            result add: (self getAtRow: (row + dr) andColumn: (col + dc)) ] ].
     ^ result
 ]
 
@@ -491,10 +491,14 @@ WS2DGridTopology >> searchOutwardFrom: aNode forSize: n [
     maxLevel := (self nRows max: self nColumns) // 2.
     
     [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
-        candidates := (self getNeighboursOf: aNode atLevel: level)
+	
+        candidates := 
+		   		(self getNeighboursOf: aNode atLevel: level)
             select: [ :node | self isValidTopLeft: node forSize: n ].
+
         level := level + 1 ].
     
     candidates ifEmpty: [ self error: 'No valid node found' ].
+
     ^ candidates shuffled first
 ]
