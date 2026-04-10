@@ -84,7 +84,31 @@ WS2DRectangularGridTopology class >> verticalSymbols [
 		with: self downSymbol
 ]
 
-{ #category : 'tileset' }
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
+    "Returns a Dictionary WSNode -> Dictionary(direction -> pathID)"
+    
+    | nodeEdges |
+    nodeEdges := Dictionary new.
+    slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
+    
+    connectionDirections keysAndValuesDo: [ :eachConnectedClass :directions |
+        | bestDir secondaryDir slot pathID |
+        bestDir := directions 
+            detect: [ :dir | slots anySatisfy: [ :s | s value = dir ] ]
+            ifNone: [ nil ].
+        
+        bestDir ifNotNil: [
+            secondaryDir := directions detect: [ :dir | dir ~= bestDir ] ifNone: [ nil ].
+            slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
+            pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
+            (nodeEdges at: slot key) at: bestDir put: pathID.
+            slots remove: slot ] ].
+    
+    ^ nodeEdges
+]
+
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots [
     "Among all slots with bestDir, pick the one whose node is most aligned 
      with secondaryDir"
@@ -102,7 +126,7 @@ WS2DRectangularGridTopology >> bestSlotForDirection: bestDir secondaryDir: secon
     ^ candidates first
 ]
 
-{ #category : 'tileset' }
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
     "Returns an OrderedCollection of (WSNode -> direction) for all exposed directions"
     
@@ -114,7 +138,7 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
     ^ slots
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tileset' }
 WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
     "Returns a Dictionary WSNode -> WSClassTile"
     
@@ -170,25 +194,7 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 	 slots := self buildAvailableSlotsFor: aFootprint.
-
-    "Initialize empty edges for each node"
-    nodeEdges := Dictionary new.
-    aFootprint nodes do: [ :aNode |
-        nodeEdges at: aNode put: Dictionary new ].
-
-    "Assign each connection to the best available slot"
-    connectionDirections keysAndValuesDo: [ :eachConnectedClass :directions |
-        | bestDir secondaryDir slot pathID |
-        bestDir := directions 
-            detect: [ :dir | slots anySatisfy: [ :s | s value = dir ] ]
-            ifNone: [ nil ].
-
-        bestDir ifNotNil: [
-            secondaryDir := directions detect: [ :dir | dir ~= bestDir ] ifNone: [ nil ].
-            slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
-            pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
-            (nodeEdges at: slot key) at: bestDir put: pathID.
-            slots remove: slot ] ].
+	 nodeEdges := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
 
     ^ self buildTiles: nodeEdges forClass: aClass
 ]
