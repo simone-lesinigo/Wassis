@@ -1,3 +1,6 @@
+"
+A class node has a footprint, as it can be composed of multiple nodes (to increase the number of exits it can have)
+"
 Class {
 	#name : 'WSFootprint',
 	#superclass : 'WSObject',

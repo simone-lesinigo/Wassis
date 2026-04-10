@@ -324,23 +324,23 @@ WS2DGridTopology >> isValidTarget: aNode [
 WS2DGridTopology >> isValidTopLeft: aNode forSize: n [
     "A valid top-left node has:
      - the NxN footprint entirely within bounds and not collapsed
-     - a 1 cell border around the footprint entirely not collapsed"
+     - a 2 cell border around the footprint entirely not collapsed"
     
-    | r c |
-    r := aNode row.
-    c := aNode column.
-    
-    "Footprint must fit in grid"
-	 (self isInBoundsRow: r - 1 col: c - 1) ifFalse: [ ^ false ].
-    (self isInBoundsRow: r + n - 1 col: c + n - 1) ifFalse: [ ^ false ].
-    
-    "Check footprint"
-    (r - 1) to: (r + n) do: [ :row |
-        (c - 1) to: (c + n) do: [ :col |
-            (self getAtRow: row andColumn: col) isCollapsed 
-                ifTrue: [ ^ false ] ] ].
-    
-    ^ true
+   | minRow maxRow minCol maxCol |
+	minRow := (aNode row) - 2.
+	minCol := (aNode column) - 2.
+	maxRow := (aNode row) + n + 1.
+	maxCol := (aNode column) + n + 1.
+
+	(self isInBoundsRow: minRow col: minCol ) ifFalse: [ ^ false ].
+	(self isInBoundsRow: maxRow col: maxCol ) ifFalse: [ ^ false ].
+
+	minRow to: maxRow do: [ :eachRow |
+	    minCol to: maxCol do: [ :eachCol |
+	        (self getAtRow: eachRow andColumn: eachCol) isCollapsed 
+	            ifTrue: [ ^ false ] ] ].
+
+	^ true
 ]
 
 { #category : 'accessing' }
@@ -411,11 +411,9 @@ WS2DGridTopology >> pickNodeForClass: aClass [
 WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n [
     "Return the top-left node of a valid NxN footprint"
     
-    | pos posX posY target |
+    | pos target |
     pos := self layoutMatrix rowAt: aClass id.
-    posX := pos first.
-    posY := pos last.
-    target := self getAtRow: posX andColumn: posY.
+    target := self getAtRow: (pos first) andColumn: (pos last).
     
     (self isValidTopLeft: target forSize: n) ifTrue: [ ^ target ].
     

@@ -296,18 +296,16 @@ WS2DRectangularGridTopology >> createTileEdgesFrom: anOrderedCollection [
 WS2DRectangularGridTopology >> exposedDirectionsOf: aNode [
     "Return the directions of aNode that face outside the footprint"
     
-    | row column originRow originColumn exposed footPrint |
+    | originRow originColumn exposed footPrint |
 	 footPrint := aNode footPrint.
-    row := aNode row. 
-    column := aNode column.
     originRow := footPrint originNode row. 
     originColumn := footPrint originNode column.
     exposed := OrderedCollection new.
     
-    row = originRow ifTrue: [ exposed add: self class upSymbol ].
-    row = (originRow + footPrint sideLength - 1) ifTrue: [ exposed add: self class downSymbol  ].
-    column = originColumn ifTrue: [ exposed add: self class leftSymbol ].
-    column = (originColumn + footPrint sideLength - 1) ifTrue: [ exposed add: self class rightSymbol ].
+    aNode row = originRow ifTrue: [ exposed add: self class upSymbol ].
+    aNode row = (originRow + footPrint sideLength - 1) ifTrue: [ exposed add: self class downSymbol  ].
+    aNode column = originColumn ifTrue: [ exposed add: self class leftSymbol ].
+    aNode column = (originColumn + footPrint sideLength - 1) ifTrue: [ exposed add: self class rightSymbol ].
     
     ^ exposed
 ]
