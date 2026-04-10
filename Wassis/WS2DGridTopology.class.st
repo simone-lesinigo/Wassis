@@ -113,12 +113,6 @@ WS2DGridTopology >> createAllPathTiles [
 ]
 
 { #category : 'tileset' }
-WS2DGridTopology >> createClassTile: aClass [
-
-	^ self subclassResponsibility 
-]
-
-{ #category : 'tileset' }
 WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 
 	^ self subclassResponsibility 

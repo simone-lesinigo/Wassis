@@ -176,11 +176,11 @@ WSExamples class >> exampleRunHexagonalGrid [
 
 { #category : 'WSSolver' }
 WSExamples class >> exampleRunRectangularGrid [
-"InstructionClient" "McReader"
+"InstructionClient" "McReader" "TaAbstractComposition"
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient 
+		createForClass: InstructionClient
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

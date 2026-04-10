@@ -13,7 +13,7 @@ Class {
 ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:44:00.417506+02:00') #(#(#RGMethodDefinition #(#WSGraph #updateExitFor:withPathID: #false)) #'2026-04-01T16:30:50.230472+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:44:00.417506+02:00') #(#(#RGMethodDefinition #(#WSGraph #updateExitFor:withPathID: #false)) #'2026-04-01T16:30:50.230472+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridTopology #buildAvailableSlotsFor: #false)) #'2026-04-10T15:08:02.6527+02:00') )
 ]
 
 { #category : 'code-critics' }
