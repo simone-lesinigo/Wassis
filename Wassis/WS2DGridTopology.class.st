@@ -75,10 +75,10 @@ WS2DGridTopology >> collapseNodesToClasses [
     result := OrderedCollection new.
     self assignNodesToClasses.
     self classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
-        | nodeToTile |
-        nodeToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
+        | nodesToTile |
+        nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
 
-        nodeToTile keysAndValuesDo: [ :eachNode :eachTile |
+        nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
             result add: (eachNode collapseToClassTile: eachTile) ] ].
     
     ^ result

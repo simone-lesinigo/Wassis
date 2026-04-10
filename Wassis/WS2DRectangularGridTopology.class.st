@@ -9,6 +9,16 @@ Class {
 	#tag : 'Topology'
 }
 
+{ #category : 'accessing' }
+WS2DRectangularGridTopology class >> allSymbols [
+	
+	^ OrderedCollection 
+		with: self upSymbol 
+		with: self leftSymbol 
+		with: self rightSymbol 
+		with: self downSymbol 
+]
+
 { #category : 'instance creation' }
 WS2DRectangularGridTopology class >> createOppositeDirections [
 
@@ -26,6 +36,14 @@ WS2DRectangularGridTopology class >> createOppositeDirections [
 WS2DRectangularGridTopology class >> downSymbol [
 	
 	^ #down
+]
+
+{ #category : 'as yet unclassified' }
+WS2DRectangularGridTopology class >> horizontalSymbols [
+	
+	^ OrderedCollection 
+		with: self leftSymbol 
+		with: self rightSymbol
 ]
 
 { #category : 'directionSymbol' }
@@ -58,6 +76,14 @@ WS2DRectangularGridTopology class >> upSymbol [
 	^ #up
 ]
 
+{ #category : 'as yet unclassified' }
+WS2DRectangularGridTopology class >> verticalSymbols [
+	
+	^ OrderedCollection 
+		with: self upSymbol 
+		with: self downSymbol
+]
+
 { #category : 'weight' }
 WS2DRectangularGridTopology >> addWeightsFor: aValue positive: posDir negative: negDir into: aDictionary [
 
@@ -71,60 +97,37 @@ WS2DRectangularGridTopology >> addWeightsFor: aValue positive: posDir negative: 
 ]
 
 { #category : 'weight' }
-WS2DRectangularGridTopology >> computeCircularWeights: deltaX and: deltaY [
-	"The choice is not greedy but the gretaer probability is assigned to the most convenient direction"
-
-	| magnitude weights |
-	
-	magnitude := ((deltaX * deltaX) + (deltaY * deltaY)) sqrt.
-	weights := Dictionary new.
-	
-	weights at: self class upSymbol put: ((((deltaY negated / magnitude) + 1) / 2) * 100) rounded;
-		     at: self class downSymbol put: ((((deltaY / magnitude) + 1) / 2) * 100) rounded;
-           at: self class rightSymbol put: ((((deltaX / magnitude) + 1) / 2) * 100) rounded;
-           at: self class leftSymbol put: ((((deltaX negated / magnitude) + 1) / 2) * 100) rounded.
-	
-	^ weights 
-]
-
-{ #category : 'weight' }
-WS2DRectangularGridTopology >> computeRigidWeights: deltaX and: deltaY [
-    "Returns an OrderedCollection of directions sorted by preference"
+WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
+    "Returns an OrderedCollection of directions sorted by preference. Note that deltaX can be equal to deltaY but they cannot be both 0 at the same time"
     
-    | primary secondary remaining result |
+    | result remaining horizontal vertical |
     result := OrderedCollection new.
-    
-    primary  := deltaX abs >= deltaY abs
-        ifTrue:  [ deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ] ]
-        ifFalse: [ deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ] ].
-    
-    secondary := deltaX abs >= deltaY abs
-        ifTrue:  [ deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ] ]
-        ifFalse: [ deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ] ].
-    
-    remaining := { self class upSymbol. self class downSymbol. 
-                   self class leftSymbol. self class rightSymbol } asOrderedCollection.
-    remaining remove: primary; remove: secondary.
-    remaining := remaining shuffled.
-    
-    result add: primary; add: secondary; addAll: remaining.
-
-    ^ result
-]
-
-{ #category : 'deprecated' }
-WS2DRectangularGridTopology >> computeWeightsFrom: sourceNode to: targetNode [
-	"Assigns at each direction the weight (given by the distance)"
-
-	| deltaX deltaY |
-	deltaX := targetNode column - sourceNode column.
-	deltaY := targetNode row - sourceNode position row.
+    horizontal := deltaX >= 0 ifTrue: [ self class rightSymbol ] ifFalse: [ self class leftSymbol ].
+    vertical   := deltaY >= 0 ifTrue: [ self class downSymbol ]  ifFalse: [ self class upSymbol ].
 	
-	"^ self computeCircularWeights: deltaX and: deltaY."
-	^ self computeRigidWeights: deltaX and: deltaY.
-
-
-
+	deltaX abs = deltaY abs 
+		ifTrue: [ result addAll: ({ horizontal . vertical } shuffled) ]
+		ifFalse: [ 
+			deltaX abs > deltaY abs
+				ifTrue: [ 
+					result add: horizontal.
+					deltaY = 0
+						ifTrue: [ result addAll: ((self class verticalSymbols) shuffled)]
+						ifFalse: [ result add: vertical ]
+				]
+				ifFalse: [ 
+					result add: vertical.
+					deltaX = 0
+						ifTrue: [ result addAll: ((self class horizontalSymbols) shuffled)]
+						ifFalse: [ result add: horizontal ]
+				]
+		].
+    
+    remaining := self class allSymbols asOrderedCollection.
+    remaining removeAll: result.
+    result addAll: remaining shuffled.
+    
+    ^ result
 ]
 
 { #category : 'tilesetDeprecated' }
@@ -137,8 +140,10 @@ WS2DRectangularGridTopology >> createClassTile: aClass [
 
 	(self swSystem allConnectionsOf: aClass) do: [ :eachClass |
 		| pathID directions |
-		directions :=  
-			self weightedDirection: (self classNodes at: aClass) and: (self classNodes at: eachClass).
+		directions :=  self 
+			preferredDirectionsFrom: (self classNodes at: aClass) 
+			to: (self classNodes at: eachClass).
+			
 		pathID := self swSystem pathIDOf: aClass and: eachClass.
 		
 		directions detect: [ :dir | (edges at: dir) = ees ]
@@ -163,7 +168,7 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
         | sourceCenter targetCenter directions |
         sourceCenter := aFootprint centerNode.
         targetCenter := (self classNodes at: eachConnectedClass) centerNode.
-        directions := self weightedDirection: sourceCenter and: targetCenter.
+        directions := self preferredDirectionsFrom: sourceCenter to: targetCenter.
         connectionDirections at: eachConnectedClass put: directions ].
     
     "Build pool of available slots (node -> direction)"
@@ -317,6 +322,18 @@ WS2DRectangularGridTopology >> initialize [
 	self visualizer:WS2DRectangularGridVisualizer new
 ]
 
+{ #category : 'weight' }
+WS2DRectangularGridTopology >> preferredDirectionsFrom: sourceNode to: targetNode [
+	"Create a list of directions (up, left, right, down), the order of the directions is given by a preferred choice based on the relative position of the target compared with the position of the source"
+	
+    | deltaX deltaY |
+    deltaX := targetNode column - sourceNode column.
+    deltaY := targetNode row - sourceNode row.
+    ^ self computeDirectionsFor: deltaX and: deltaY
+	
+	
+]
+
 { #category : 'removing' }
 WS2DRectangularGridTopology >> removePossibilitiesFromFirstColumn [
 
@@ -359,16 +376,4 @@ WS2DRectangularGridTopology >> selectNextDirectionIn: aDictionary [
 	aDictionary keysAndValuesDo: [ :eachKey :eachValue | 
 		random := random - eachValue.
 		random <= 0 ifTrue: [ ^ eachKey ] ]
-]
-
-{ #category : 'weight' }
-WS2DRectangularGridTopology >> weightedDirection: sourceNode and: targetNode [
-	"Create a list of numbers (1, 2, 3, 4) where each one represents a direction (up, left, right, down), the order of the numbers is given by a weighted choice based on the relative position of the target compared with the position of the source"
-	
-    | deltaX deltaY |
-    deltaX := targetNode position second - sourceNode position second.
-    deltaY := targetNode position first - sourceNode position first.
-    ^ self computeRigidWeights: deltaX and: deltaY
-	
-	
 ]
