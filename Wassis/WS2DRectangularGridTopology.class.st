@@ -114,6 +114,24 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
     ^ slots
 ]
 
+{ #category : 'as yet unclassified' }
+WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
+    "Returns a Dictionary WSNode -> WSClassTile"
+    
+    | result ees posDir |
+    result := Dictionary new.
+    ees := self class emptyEdgeSymbol.
+    posDir := self class positionDirection.
+    
+    nodeEdges keysAndValuesDo: [ :aNode :dirPathDict |
+        | edges |
+        edges := OrderedCollection new: 4 withAll: ees.
+        dirPathDict keysAndValuesDo: [ :dir :pathID |
+            edges at: (posDir at: dir) put: pathID ].
+        result at: aNode put: (WSClassTile withClass: aClass andEdges: (self createTileEdgesFrom: edges)) ].
+    ^ result
+]
+
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
     "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
@@ -148,8 +166,7 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
-    | connectionDirections slots nodeEdges ees result |
-    ees := self class emptyEdgeSymbol.
+    | connectionDirections slots nodeEdges |
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 	 slots := self buildAvailableSlotsFor: aFootprint.
@@ -172,18 +189,8 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
             pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
             (nodeEdges at: slot key) at: bestDir put: pathID.
             slots remove: slot ] ].
-        "Build one WSClassTile per node"
-        result := Dictionary new.
-        nodeEdges keysAndValuesDo: [ :aNode :dirPathDict |
-            | edges posDir |
-            posDir := self class positionDirection.
-            edges := OrderedCollection new: 4 withAll: ees.
 
-            dirPathDict keysAndValuesDo: [ :dir :pathID |
-                edges at: (posDir at: dir) put: pathID ].
-
-            result at: aNode put: (WSClassTile withClass: aClass andEdges: (self createTileEdgesFrom: edges)) ].
-        ^ result
+    ^ self buildTiles: nodeEdges forClass: aClass
 ]
 
 { #category : 'matrix' }
