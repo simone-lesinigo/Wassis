@@ -16,6 +16,14 @@ Class {
 }
 
 { #category : 'accessing' }
+WSFootprint >> borderNodes: aTopology [
+    "Return the nodes on the perimeter of the footprint"
+    
+    ^ self nodes select: [ :aNode |
+        (aTopology exposedDirectionsOf: aNode) notEmpty ]
+]
+
+{ #category : 'accessing' }
 WSFootprint >> centerNode [
     "Return the center node of the footprint. If N is even, return one of the 4 central nodes at random."
     

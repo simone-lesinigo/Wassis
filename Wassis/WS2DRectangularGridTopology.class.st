@@ -38,7 +38,7 @@ WS2DRectangularGridTopology class >> downSymbol [
 	^ #down
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 WS2DRectangularGridTopology class >> horizontalSymbols [
 	
 	^ OrderedCollection 
@@ -52,7 +52,7 @@ WS2DRectangularGridTopology class >> leftSymbol [
 	^ #left
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 WS2DRectangularGridTopology class >> positionDirection [ 
 	"Returns a dictionary, the key is the direction, the value is the index in the edges"
 	
@@ -76,7 +76,7 @@ WS2DRectangularGridTopology class >> upSymbol [
 	^ #up
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 WS2DRectangularGridTopology class >> verticalSymbols [
 	
 	^ OrderedCollection 

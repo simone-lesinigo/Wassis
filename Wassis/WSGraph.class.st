@@ -199,7 +199,31 @@ WSGraph >> findOptimalPathWithID: pathID [
 WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
-    | class1node class2node shortestPath |
+	| footprint1 footprint2 shortestPath |
+	footprint1 := (self classesNodes at: classes key) footPrint.
+	footprint2 := (self classesNodes at: classes value) footPrint.
+	
+	shortestPath := nil.
+	
+   (footprint1 borderNodes: self topology) do: [ :node1 |
+   		(footprint2 borderNodes: self topology) do: [ :node2 |
+      		| candidate |
+         candidate := self
+         		runDijkstraFrom: node1
+            to: node2
+            withExtraNodes: { node1. node2 }
+            pathID: pathID.
+			
+			candidate isNotEmpty ifTrue: 
+				[ (shortestPath isNil or: [ candidate size < shortestPath size ])
+                ifTrue: [  shortestPath := candidate ] ] ] ].
+
+    shortestPath removeFirst.
+    shortestPath removeLast.
+
+    ^ shortestPath
+	
+"    | class1node class2node shortestPath |
     class1node := self classesNodes at: classes key.
     class2node := self classesNodes at: classes value.
 
@@ -212,7 +236,7 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     shortestPath removeFirst.
     shortestPath removeLast.
 
-    ^ shortestPath
+    ^ shortestPath"
 ]
 
 { #category : 'optimization' }
@@ -493,7 +517,7 @@ WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aB
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
 	
 	self substitute: generatedPath with: optimalPath.
-	aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]
+	aBoolean ifTrue: [ "self updateExitTilesFor: generatedPath" ]
 ]
 
 { #category : 'accessing' }
