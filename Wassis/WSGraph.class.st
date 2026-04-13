@@ -75,7 +75,7 @@ WSGraph >> classesNodes: anObject [
 	classesNodes := anObject
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> clearPath: aPath [
 	"Clear a path replacing each tile with the empty tile"
 
@@ -93,7 +93,7 @@ WSGraph >> clearPath: aPath [
 	
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNode [
 	"Collapse a node to the right path tile"
 
@@ -178,7 +178,7 @@ WSGraph >> destroyLoops [
 	
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> findOptimalPathWithID: pathID [
 	"Find optimal path between two classes. Does NOT change the exit for each class"
 	
@@ -195,7 +195,7 @@ WSGraph >> findOptimalPathWithID: pathID [
     ^ shortestPath
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
@@ -239,7 +239,7 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath"
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> getAdjacentClassForNode: aNode [
 	
     ^ (aNode outgoingEdges 
@@ -302,14 +302,14 @@ WSGraph >> numberOfNodes: anObject [
 	numberOfNodes := anObject
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 	"Optimize all the paths, decide if you allow exit changing"
 
 	self optimizePathsWithPathIDs: (self topology allPathIDs) allowExitsModification: aBoolean 
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> optimizePathsWithExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
@@ -331,7 +331,7 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 	^ touchedNodes
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 	"Optimize all the paths which pathID is in pathIDs"
 
@@ -340,7 +340,7 @@ WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 		ifFalse: [ ^ self optimizePathsWithoutExitModification: pathIDs ] 
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
@@ -426,7 +426,7 @@ WSGraph >> restoreMinEntropyHeap [
 	
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID [
 	"Run dijkstra from startNode to endNode"
 
@@ -476,7 +476,7 @@ WSGraph >> setPathLengths [
 	]
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> substitute: oldPath with: optimalPath [
 	"Replace a generated path by erasing it with the optimal path created by Dijkstra"
 
@@ -511,13 +511,14 @@ WSGraph >> substitute: oldPath with: optimalPath [
 	oldPath length: oldPath nodes size
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
 
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
 	
 	self substitute: generatedPath with: optimalPath.
-	aBoolean ifTrue: [ "self updateExitTilesFor: generatedPath" ]
+
+	aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]
 ]
 
 { #category : 'accessing' }
@@ -532,35 +533,51 @@ WSGraph >> topology: anObject [
 	topology := anObject
 ]
 
-{ #category : 'optimization' }
-WSGraph >> updateExitFor: aNode withPathID: aPathID [
-	"Given a node, it reorganize the class exits. This method is called only when the allowExitModification is set to true"
-	
-	| edge classTile targetEdgeSymbols emptySymbol|
-	
-	emptySymbol := self topology class emptyEdgeSymbol .
-	edge := aNode outgoingEdges detect: [ :eachEdge | (eachEdge target isClassNode) and: [ 
-			eachEdge target tileInWhichCollapsed edges anySatisfy: [ :each | each includes: aPathID ] ] ].
-	
-	classTile := edge target tileInWhichCollapsed.
-	
-	classTile edges do: [ :each |
-   		each remove: aPathID ifAbsent: [].
-      each isEmpty ifTrue: [ each add: emptySymbol ] ].
-	
-	 targetEdgeSymbols := classTile edges at: edge reverseEdge direction.
-    targetEdgeSymbols remove: emptySymbol ifAbsent: [].
-    targetEdgeSymbols add: aPathID.
+{ #category : 'pathOptimization' }
+WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: aPathID [
+    "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
+    
+    | emptySymbol exitNode exitDirection exitEdgeSymbols |
+    emptySymbol := self topology class emptyEdgeSymbol.
+    
+    "Remove pathID from all exits of all nodes in the footprint"
+    aFootprint nodes do: [ :aNode |
+         aNode tileInWhichCollapsed edges do: [ :edgeSymbols |
+        		(edgeSymbols includes: aPathID) ifTrue: [
+            		edgeSymbols remove: aPathID.
+            		edgeSymbols add: emptySymbol ] ] ].
+    
+    "Find which footprint node is adjacent to aPathNode"
+    exitNode := (aFootprint borderNodes: self topology) detect: [ :aNode |
+        aNode outgoingEdges anySatisfy: [ :e | e target = aPathNode ] ].
+    
+    "Find the direction toward aPathNode"
+    exitDirection := (exitNode outgoingEdges detect: [ :e | e target = aPathNode ]) direction.
+    
+    "Assign pathID to that exit"
+    exitEdgeSymbols := exitNode tileInWhichCollapsed edges at: exitDirection.
+    exitEdgeSymbols remove: emptySymbol ifAbsent: [].
+    exitEdgeSymbols add: aPathID.
 ]
 
-{ #category : 'optimization' }
+{ #category : 'pathOptimization' }
 WSGraph >> updateExitTilesFor: generatedPath [
-	
-	| pathID |
-	
-	pathID := generatedPath pathID.
-	self updateExitFor: generatedPath firstNode withPathID: pathID.
-	self updateExitFor: generatedPath lastNode withPathID: pathID.
+	"Understand which footprint is adjancet to which path node, then update the exits"
+
+    | pathID footprint1 footprint2 firstAdjacent lastAdjacent |
+    pathID := generatedPath pathID.
+    footprint1 := generatedPath class1 footPrint.
+    footprint2 := generatedPath class2 footPrint.
+
+	 firstAdjacent := ((footprint1 borderNodes: self topology) 
+    	anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = generatedPath firstNode ] ])
+        ifTrue: [ footprint1 ]
+        ifFalse: [ footprint2 ].
+
+	 lastAdjacent := (firstAdjacent = footprint1) ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
+
+	 self updateExitForFootprint: firstAdjacent adjacentTo: (generatedPath firstNode) withPathID: pathID.
+    self updateExitForFootprint: lastAdjacent adjacentTo: (generatedPath lastNode) withPathID: pathID.
 	
 ]
 
