@@ -563,7 +563,7 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
 WSGraph >> updateExitTilesFor: generatedPath [
 	"Understand which footprint is adjancet to which path node, then update the exits"
 
-    | pathID footprint1 footprint2 firstAdjacent lastAdjacent |
+    | pathID footprint1 footprint2 firstAdjacent lastAdjacent  firstClassNode lastClassNode |
     pathID := generatedPath pathID.
     footprint1 := generatedPath class1 footPrint.
     footprint2 := generatedPath class2 footPrint.
@@ -574,6 +574,14 @@ WSGraph >> updateExitTilesFor: generatedPath [
         ifFalse: [ footprint2 ].
 
 	 lastAdjacent := (firstAdjacent = footprint1) ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
+	
+	 firstClassNode := (firstAdjacent borderNodes: self topology)
+        detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNode ] ].
+    lastClassNode := (lastAdjacent borderNodes: self topology)
+        detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath lastNode ] ].
+    
+    generatedPath class1: firstClassNode.
+    generatedPath class2: lastClassNode.
 
 	 self updateExitForFootprint: firstAdjacent adjacentTo: (generatedPath firstNode) withPathID: pathID.
     self updateExitForFootprint: lastAdjacent adjacentTo: (generatedPath lastNode) withPathID: pathID.
