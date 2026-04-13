@@ -537,7 +537,7 @@ WSGraph >> topology: anObject [
 WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: aPathID [
     "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
     
-    | emptySymbol exitNode exitDirection exitEdgeSymbols |
+    | emptySymbol exitEdge exitEdgeSymbols |
     emptySymbol := self topology class emptyEdgeSymbol.
     
     "Remove pathID from all exits of all nodes in the footprint"
@@ -548,16 +548,15 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
             		edgeSymbols add: emptySymbol ] ] ].
     
     "Find which footprint node is adjacent to aPathNode"
-    exitNode := (aFootprint borderNodes: self topology) detect: [ :aNode |
-        aNode outgoingEdges anySatisfy: [ :e | e target = aPathNode ] ].
-    
-    "Find the direction toward aPathNode"
-    exitDirection := (exitNode outgoingEdges detect: [ :e | e target = aPathNode ]) direction.
+	 exitEdge := ((aFootprint borderNodes: self topology) 
+		 flatCollect: [ :eachNode | eachNode outgoingEdges ])
+	    detect: [ :eachEdge | eachEdge target = aPathNode ].
     
     "Assign pathID to that exit"
-    exitEdgeSymbols := exitNode tileInWhichCollapsed edges at: exitDirection.
-    exitEdgeSymbols remove: emptySymbol ifAbsent: [].
-    exitEdgeSymbols add: aPathID.
+    exitEdgeSymbols := (exitEdge source tileInWhichCollapsed edges) at: (exitEdge direction).
+    exitEdgeSymbols 
+		remove: emptySymbol ifAbsent: [];
+      add: aPathID.
 ]
 
 { #category : 'pathOptimization' }
