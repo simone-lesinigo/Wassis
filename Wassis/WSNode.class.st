@@ -34,6 +34,13 @@ WSNode >> <= aNode [
 ]
 
 { #category : 'comparing' }
+WSNode >> = anotherObject [
+
+    self class = anotherObject class ifFalse: [ ^ false ].
+    ^ self id = anotherObject id and: [ self position = anotherObject position ]
+]
+
+{ #category : 'comparing' }
 WSNode >> > aNode [
 	^ self entropy > aNode entropy
 	
@@ -106,6 +113,11 @@ WSNode >> footPrint [
 WSNode >> footPrint: anObject [
 
 	footPrint := anObject
+]
+
+{ #category : 'comparing' }
+WSNode >> hash [
+    ^ self id hash bitXor: self position hash
 ]
 
 { #category : 'accessing' }

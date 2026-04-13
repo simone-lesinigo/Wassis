@@ -8,7 +8,6 @@ Class {
 		'nodes',
 		'minEntropyHeap',
 		'paths',
-		'classesNodes',
 		'numberOfNodes',
 		'numberOfCollapsedNodes',
 		'topology'
@@ -42,7 +41,6 @@ WSGraph class >> newWithNodes: nodes andCollapsedNodes: collapsedNodes andTopolo
 
 	^ self new
 		nodes: nodes;
-		classesNodes: (self createClassNodesFrom: collapsedNodes);
 		topology: aTopology;
 		paths: Dictionary new;
 		numberOfNodes: nodes flattened size;
@@ -69,18 +67,6 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
     
     ^ (aFootprint borderNodes: self topology)
         detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = aPathNode ] ]
-]
-
-{ #category : 'accessing' }
-WSGraph >> classesNodes [
-
-	^ classesNodes
-]
-
-{ #category : 'accessing' }
-WSGraph >> classesNodes: anObject [
-
-	classesNodes := anObject
 ]
 
 { #category : 'pathOptimization' }
@@ -154,16 +140,19 @@ WSGraph >> createPaths [
 
 	pathIDs do: [ :pathID | self paths at: pathID put: (WSPath withID:pathID) ].
 	
-	self classesNodes do: [ :eachClassNode |
-		| tileEdges directionsToCheck |
-		tileEdges := eachClassNode tileInWhichCollapsed edges.
-		
-		directionsToCheck := tileEdges keys select: [ :key |
-            (tileEdges at: key) anySatisfy: [ :each | pathIDs includes: each ] ].
+	self topology classNodes do: [ :eachFootprint |
+		 
+		eachFootprint nodes do: [ :eachClassNode |
+			| tileEdges directionsToCheck |
+			tileEdges := eachClassNode tileInWhichCollapsed edges.
+			
+			directionsToCheck := tileEdges keys select: [ :key |
+	            (tileEdges at: key) anySatisfy: [ :each | pathIDs includes: each ] ].
 
-		eachClassNode outgoingEdges do: [ :eachEdge | 
-			(directionsToCheck includes: eachEdge direction) ifTrue: [
-				self createPathFrom: eachEdge
+			eachClassNode outgoingEdges do: [ :eachEdge | 
+				(directionsToCheck includes: eachEdge direction) ifTrue: [
+					self createPathFrom: eachEdge
+				]
 			]
 		]
 	]
@@ -208,8 +197,8 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
 	| footprint1 footprint2 shortestPath |
-	footprint1 := (self classesNodes at: classes key) footPrint.
-	footprint2 := (self classesNodes at: classes value) footPrint.
+	footprint1 := (self topology classNodes at: classes key).
+	footprint2 := (self topology classNodes at: classes value).
 	
 	shortestPath := nil.
 	

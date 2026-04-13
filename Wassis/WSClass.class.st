@@ -18,7 +18,8 @@ Class {
 WSClass >> = anObject [
 
 ^ self class = anObject class 
-    and: [ self id = anObject id ]
+    and: [(self id = anObject id) and: [ self name = anObject name ] ]
+	 
 ]
 
 { #category : 'private' }
@@ -58,7 +59,7 @@ WSClass >> connectedWith: anObject [
 
 { #category : 'comparing' }
 WSClass >> hash [
-    ^ self id hash
+    ^ self id hash bitXor: self name hash
 ]
 
 { #category : 'accessing' }

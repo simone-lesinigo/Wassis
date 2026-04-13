@@ -103,7 +103,26 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 		lineItemsCount: aSolver topology nColumns;
 		on: self canvas nodes.
 	
+	self groupFootprintShapes: aSolver.
+	
 	self canvas openOnce.
+]
+
+{ #category : 'visualization' }
+WS2DRectangularGridVisualizer >> groupFootprintShapes: aSolver [
+    "For each class, group its footprint shapes into a draggable RSComposite"
+    
+    aSolver topology classNodes keysAndValuesDo: [ :aClass :aFootprint |
+        | footprintShapes composite |
+
+        footprintShapes := aFootprint nodes collect: [ :aNode | self nodesShapes at: aNode ].
+        composite := RSComposite new.
+        footprintShapes do: [ :shape | composite add: shape ].
+        composite @ RSDraggable.
+        "composite when: RSMouseDragEnd do: [ :evt | 
+            self onDragEnd: evt forClass: aClass footprint: aFootprint ]."
+        
+        self canvas add: composite ]
 ]
 
 { #category : 'update' }
