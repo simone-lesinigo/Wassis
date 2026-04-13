@@ -63,6 +63,14 @@ WSGraph >> allNodesCollapsed [
 	^ self numberOfNodes = self numberOfCollapsedNodes
 ]
 
+{ #category : 'pathOptimization' }
+WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
+    "Return the border node of aFootprint that is adjacent to aPathNode"
+    
+    ^ (aFootprint borderNodes: self topology)
+        detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = aPathNode ] ]
+]
+
 { #category : 'accessing' }
 WSGraph >> classesNodes [
 
@@ -222,21 +230,6 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     shortestPath removeLast.
 
     ^ shortestPath
-	
-"    | class1node class2node shortestPath |
-    class1node := self classesNodes at: classes key.
-    class2node := self classesNodes at: classes value.
-
-    shortestPath := self
-        runDijkstraFrom: class1node
-        to: class2node
-        withExtraNodes: { class1node . class2node }
-        pathID: pathID.
-
-    shortestPath removeFirst.
-    shortestPath removeLast.
-
-    ^ shortestPath"
 ]
 
 { #category : 'pathOptimization' }
@@ -561,31 +554,24 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
 
 { #category : 'pathOptimization' }
 WSGraph >> updateExitTilesFor: generatedPath [
-	"Understand which footprint is adjancet to which path node, then update the exits"
+    "Understand which footprint is adjacent to which path node, then update the exits"
 
-    | pathID footprint1 footprint2 firstAdjacent lastAdjacent  firstClassNode lastClassNode |
+    | pathID footprint1 footprint2 firstAdjacent lastAdjacent |
     pathID := generatedPath pathID.
     footprint1 := generatedPath class1 footPrint.
     footprint2 := generatedPath class2 footPrint.
-
-	 firstAdjacent := ((footprint1 borderNodes: self topology) 
-    	anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = generatedPath firstNode ] ])
-        ifTrue: [ footprint1 ]
-        ifFalse: [ footprint2 ].
-
-	 lastAdjacent := (firstAdjacent = footprint1) ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
-	
-	 firstClassNode := (firstAdjacent borderNodes: self topology)
-        detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNode ] ].
-    lastClassNode := (lastAdjacent borderNodes: self topology)
-        detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath lastNode ] ].
     
-    generatedPath class1: firstClassNode.
-    generatedPath class2: lastClassNode.
-
-	 self updateExitForFootprint: firstAdjacent adjacentTo: (generatedPath firstNode) withPathID: pathID.
-    self updateExitForFootprint: lastAdjacent adjacentTo: (generatedPath lastNode) withPathID: pathID.
-	
+    firstAdjacent := ((footprint1 borderNodes: self topology) 
+        anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNode ] ])
+            ifTrue: [ footprint1 ]
+            ifFalse: [ footprint2 ].
+    lastAdjacent := firstAdjacent = footprint1 ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
+    
+    generatedPath class1: (self borderNodeOf: firstAdjacent adjacentTo: generatedPath firstNode).
+    generatedPath class2: (self borderNodeOf: lastAdjacent adjacentTo: generatedPath lastNode).
+    
+    self updateExitForFootprint: firstAdjacent adjacentTo: generatedPath firstNode withPathID: pathID.
+    self updateExitForFootprint: lastAdjacent adjacentTo: generatedPath lastNode withPathID: pathID.
 ]
 
 { #category : 'propagating' }
