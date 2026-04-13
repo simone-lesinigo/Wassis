@@ -134,18 +134,21 @@ WS2DRectangularGridVisualizer >> migrateHoverProperties: aSource to: aTarget [
             aTarget propertyAt: key put: value ] ].
 ]
 
-{ #category : 'as yet unclassified' }
-WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint [
+{ #category : 'retrieving' }
+WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n [
     "Returns the nearest node to aPoint. aPoint should be the center"
-    | cellSize firstNodeShape firstNodeCenter col row topology |
+
+    | cellSize firstNodeShape firstNodeCenter col row topology offset |
 	 topology := self solver topology.
 
     firstNodeShape := self nodesShapes at: (topology getAtRow: 1 andColumn: 1).
     cellSize := firstNodeShape extent x.
     firstNodeCenter := firstNodeShape position.
     
-    col := ((aPoint x - firstNodeCenter x) / cellSize) rounded + 1.
-    row := ((aPoint y - firstNodeCenter y) / cellSize) rounded + 1.
+    offset := (n - 1) / 2.0 * cellSize.
+    
+    col := (((aPoint x - offset) - firstNodeCenter x) / cellSize) rounded + 1.
+    row := (((aPoint y - offset) - firstNodeCenter y) / cellSize) rounded + 1.
     
     col := (col max: 1) min: topology nColumns.
     row := (row max: 1) min: topology nRows.
