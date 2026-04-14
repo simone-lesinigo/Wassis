@@ -166,13 +166,13 @@ WS2DGridTopology >> createEmptyTile [
 WS2DGridTopology >> createGraph [
 	"Take the empty matrix and collapse nodes to class tile. Then restore the matrix and returns the graph"
 	
-	| emptyMatrixCheckpoint collapsedNodes nodes |
+	| emc collapsedNodes nodes |
 	
-	emptyMatrixCheckpoint := self matrix veryDeepCopy.
+	emc := self emptyMatrixCheckpoint veryDeepCopy.
 	collapsedNodes := (self collapseNodesToClasses).
 
-	nodes := (OrderedCollection new addAll: self matrix; yourself).
-	self matrix: emptyMatrixCheckpoint.
+	nodes := (OrderedCollection new addAll: self emptyMatrixCheckpoint; yourself).
+	self emptyMatrixCheckpoint: emc.
 	
 	^ WSGraph 
 		newWithNodes: nodes 
