@@ -167,6 +167,10 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
     standardForm := Form extent: formSize @ formSize depth: 32.
     
     standardForm fillColor: aColor.
+
+	aColor = Color white ifTrue: [ 
+        standardForm border: standardForm boundingBox width: 1 fillColor: Color black 
+    ].
     
     ^ standardForm
 ]

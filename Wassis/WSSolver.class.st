@@ -69,6 +69,12 @@ WSSolver >> getAllPaths [
 ]
 
 { #category : 'accessing' }
+WSSolver >> getClassNodes [
+
+	^ self topology classNodes 
+]
+
+{ #category : 'accessing' }
 WSSolver >> getFlattenedNodes [
 
 	^ self graph getFlattenedNodes 

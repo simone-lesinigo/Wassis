@@ -21,6 +21,12 @@ WS2DGridTopology class >> createOppositeDirections [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'accessing' }
+WS2DGridTopology class >> defaultOffset [
+	
+	^ 2
+]
+
 { #category : 'instance creation' }
 WS2DGridTopology class >> withGrid: aPoint [
 	

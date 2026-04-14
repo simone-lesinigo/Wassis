@@ -96,33 +96,55 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	
 	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
 	
-	self registerMouseHoverForPathsOf: aSolver.
+	self registerMouseHoverForPaths.
 
 	RSGridLayout new
 		gapSize: 0;
 		lineItemsCount: aSolver topology nColumns;
 		on: self canvas nodes.
 	
-	self groupFootprintShapes: aSolver.
+	self groupFootprintShapes.
 	
-	self canvas openOnce.
+	self canvas openOnceWithTitle: 'Wassis'.
 ]
 
 { #category : 'visualization' }
-WS2DRectangularGridVisualizer >> groupFootprintShapes: aSolver [
-    "For each class, group its footprint shapes into a draggable RSComposite"
-    
-    aSolver topology classNodes keysAndValuesDo: [ :aClass :aFootprint |
-        | footprintShapes composite |
+WS2DRectangularGridVisualizer >> groupFootprintShapes [
+	"Group the classnodes into a composite so that you can interact with the class"
 
-        footprintShapes := aFootprint nodes collect: [ :aNode | self nodesShapes at: aNode ].
-        composite := RSComposite new.
-        footprintShapes do: [ :shape | composite add: shape ].
-        composite @ RSDraggable.
-        "composite when: RSMouseDragEnd do: [ :evt | 
-            self onDragEnd: evt forClass: aClass footprint: aFootprint ]."
-        
-        self canvas add: composite ]
+	self solver getClassNodes keysAndValuesDo: [ :aClass :aFootprint |
+			| footprintShapes composite originalPosition |
+			footprintShapes := aFootprint nodes collect: [ :aNode | self nodesShapes at: aNode ].
+
+			composite := RSComposite new.
+			composite addAll: footprintShapes; adjustToChildren.
+			originalPosition := composite position copy.
+
+			footprintShapes do: [ :s | 
+				s when: RSMouseDragging do: [ :evt | composite announce: evt ] for: self.
+				s when: RSMouseDragEnd do: [ :evt | composite announce: evt ] for: self ].
+
+			composite @ (RSDraggable new noValidateChildrenEvents).
+
+			composite when: RSMouseDragEnd do: [ :evt |
+            | nearestNode |
+            nearestNode := self nearestNodeTo: (composite position) footprintSize: (aFootprint sideLength).
+            
+            (nearestNode = aFootprint originNode)
+                ifTrue: [ 
+                    composite position: originalPosition.
+                    self canvas signalUpdate ]
+                ifFalse: [
+						  (self solver topology isValidTopLeft: nearestNode forSize: aFootprint sideLength withOffset: 2) 
+								ifTrue: [ (self solver moveClass: aClass toNode: nearestNode) ]
+								ifFalse: [ 
+									composite position: originalPosition.
+									self canvas signalUpdate  ].
+	
+                    
+      				 ] ] for: self.
+
+			self canvas add: composite ]
 ]
 
 { #category : 'update' }
@@ -163,10 +185,10 @@ WS2DRectangularGridVisualizer >> openCanvas [
 ]
 
 { #category : 'adding' }
-WS2DRectangularGridVisualizer >> registerMouseHoverForPathsOf: aSolver [
+WS2DRectangularGridVisualizer >> registerMouseHoverForPaths [
 	"Highlight a path when the mouse is hovering it"
 
-    aSolver getAllPaths do: [ :path |
+    self solver getAllPaths do: [ :path |
         | pathShapes |
         pathShapes := path nodes collect: [ :node | self nodesShapes at: node ].
         self addGroupHoverTo: pathShapes ]
