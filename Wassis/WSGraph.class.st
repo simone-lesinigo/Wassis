@@ -312,10 +312,13 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		| generatedPath optimalPath classes |
 		
 		generatedPath := self paths at: eachPathID.
+		
 		classes := self topology allPathIDs keyAtValue: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
+		generatedPath class1: (((self topology classNodes at: classes key) borderNodes: self topology) first).
+		generatedPath class2: (((self topology classNodes at: classes value) borderNodes: self topology) first).
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
 	]. 
 

@@ -165,6 +165,7 @@ WSSolver >> run [
 	
 	self solveGraph.
 	self reifyWFCPaths.
+	self topology rebuildClassNodes: self graph.
 	self createVisualization.
 ]
 

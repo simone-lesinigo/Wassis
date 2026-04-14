@@ -345,6 +345,24 @@ WS2DRectangularGridTopology >> primaryDirectionsFor: deltaX and: deltaY [
 		ifFalse: [ { vertical. horizontal } ]
 ]
 
+{ #category : 'reification' }
+WS2DRectangularGridTopology >> rebuildClassNodes: aGraph [
+	
+	| classNodesDict |
+	classNodesDict := Dictionary new.
+	aGraph nodes flattened do: [ :eachNode |
+		eachNode isClassNode ifTrue: [
+	
+	   		| footprint |
+					
+	       footprint := classNodesDict 
+	                at: eachNode tileInWhichCollapsed wsClass 
+	                ifAbsentPut: [ eachNode footPrint ].
+	        ]
+	].
+	self classNodes: classNodesDict
+]
+
 { #category : 'removing' }
 WS2DRectangularGridTopology >> removePossibilitiesFromFirstColumn [
 
