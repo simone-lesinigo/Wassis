@@ -66,23 +66,9 @@ WSNode >> collapseTo: aTile [
 		isCollapsed: true;
 		tileInWhichCollapsed: aTile.
 	
-	self updateShannonEntropyFromScratch 
-]
-
-{ #category : 'collapse' }
-WSNode >> collapseToClassTile: aTile [
-
-	self 
-		isCollapsed: true;
-		possibleTiles: (Set with: aTile);
-		tileInWhichCollapsed: aTile.
-		
 	self updateShannonEntropyFromScratch.
 	
 	^ self
-	
-	
-	
 ]
 
 { #category : 'accessing' }

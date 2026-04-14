@@ -109,7 +109,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self canvas openOnceWithTitle: 'Wassis'.
 ]
 
-{ #category : 'classes' }
+{ #category : 'drag and drop' }
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
 	"Group the classnodes into a composite so that you can interact with the class"
 
@@ -137,8 +137,7 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
                     self canvas signalUpdate ]
                 ifFalse: [
 						  (self solver isValidToMove: aClass toNode: nearestNode)
-								
-								ifTrue: [ self halt. (self solver moveClass: aClass toNode: nearestNode) ]
+								ifTrue: [ self solver moveClass: aClass toNode: nearestNode ]
 								ifFalse: [ 
 									composite position: originalPosition.
 									self canvas signalUpdate  ].

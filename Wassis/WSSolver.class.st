@@ -44,6 +44,15 @@ WSSolver >> backtracking: anObject [
 	backtracking := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WSSolver >> clearAllPathsOf: aClass [
+	"Destroy all the paths associated to a class"
+	| pathIDs |
+	pathIDs := self topology pathIDsOf: aClass.
+	
+	pathIDs do: [ :eachPathID  | self graph clearPathWithID: eachPathID ]
+]
+
 { #category : 'visualization' }
 WSSolver >> createVisualization [ 
 	
@@ -96,6 +105,15 @@ WSSolver >> graph: anObject [
 WSSolver >> isValidToMove: aClass toNode: aNode [
 	
 	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph nodes.
+]
+
+{ #category : 'drag and drop' }
+WSSolver >> moveClass: aClass toNode: aNode [
+	"Move aClass to its new position"
+	
+	self clearAllPathsOf: aClass.
+	
+	self topology moveClass: aClass toNode: aNode onGraph: self graph nodes
 ]
 
 { #category : 'error handling' }

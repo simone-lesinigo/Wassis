@@ -88,6 +88,12 @@ WSGraph >> clearPath: aPath [
 ]
 
 { #category : 'pathOptimization' }
+WSGraph >> clearPathWithID: anID [
+
+	self clearPath: (self paths at: anID)
+]
+
+{ #category : 'pathOptimization' }
 WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNode [
 	"Collapse a node to the right path tile"
 

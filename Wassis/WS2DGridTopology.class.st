@@ -85,7 +85,7 @@ WS2DGridTopology >> collapseNodesToClasses [
         nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
 
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
-            result add: (eachNode collapseToClassTile: eachTile) ] ].
+            result add: (eachNode collapseTo: eachTile) ] ].
     
     ^ result
 ]
@@ -400,6 +400,23 @@ WS2DGridTopology >> matrix [
 WS2DGridTopology >> matrix: anObject [
 
 	matrix := anObject
+]
+
+{ #category : 'as yet unclassified' }
+WS2DGridTopology >> moveClass: aClass toNode: aNode onGraph: aGraph [
+	
+	| footprint oldNodes newNodes |
+	footprint := self classNodes at: aClass.
+	
+	 oldNodes := footprint nodes copy.
+    oldNodes do: [ :eachNode |
+        eachNode footPrint: nil.
+        eachNode collapseTo: self createEmptyTile ]. 
+
+	 newNodes := self collectFootprintFrom: aNode size: footprint sideLength.
+    footprint originNode: aNode.
+    footprint nodes: newNodes.
+    newNodes do: [ :eachNode | eachNode footPrint: footprint ].
 ]
 
 { #category : 'accessing' }
