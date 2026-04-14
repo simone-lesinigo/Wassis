@@ -44,13 +44,17 @@ WSSolver >> backtracking: anObject [
 	backtracking := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'pathOptimization' }
 WSSolver >> clearAllPathsOf: aClass [
 	"Destroy all the paths associated to a class"
-	| pathIDs |
-	pathIDs := self topology pathIDsOf: aClass.
+	| pathIDs touchedNodes |
+	touchedNodes := OrderedCollection new.
+	pathIDs := self topology swSystem pathIDsOf: aClass.
 	
-	pathIDs do: [ :eachPathID  | self graph clearPathWithID: eachPathID ]
+	pathIDs do: [ :eachPathID  | 
+		touchedNodes addAll: (self graph clearPathWithID: eachPathID) ].
+	
+	^ touchedNodes
 ]
 
 { #category : 'visualization' }
@@ -111,9 +115,16 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 WSSolver >> moveClass: aClass toNode: aNode [
 	"Move aClass to its new position"
 	
-	self clearAllPathsOf: aClass.
+	| touchedNodes |
+	touchedNodes := OrderedCollection new.
+	touchedNodes 
+		addAll: (self clearAllPathsOf: aClass);
+		addAll: (self topology 
+			moveClass: aClass 
+			toNode: aNode 
+			inGraph: self graph).
 	
-	self topology moveClass: aClass toNode: aNode onGraph: self graph nodes
+	^ touchedNodes
 ]
 
 { #category : 'error handling' }

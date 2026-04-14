@@ -5,7 +5,7 @@ Class {
 	#name : 'WS2DGridTopology',
 	#superclass : 'WSTopology',
 	#instVars : [
-		'matrix',
+		'emptyMatrixCheckpoint',
 		'nRows',
 		'nColumns',
 		'layoutMatrix',
@@ -45,7 +45,10 @@ WS2DGridTopology >> assignNodesToClasses [
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
         originNode := self pickNodeForClass: eachClass footprintSize: sideLength.
-        footprintNodes := self collectFootprintFrom: originNode size: sideLength.
+        footprintNodes := self 
+			collectFootprintFrom: originNode 
+			size: sideLength
+			inGraph: self emptyMatrixCheckpoint.
         
         footprint := WSFootprint new
             wsClass: eachClass;
@@ -91,7 +94,7 @@ WS2DGridTopology >> collapseNodesToClasses [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> collectFootprintFrom: originNode size: sideLength [
+WS2DGridTopology >> collectFootprintFrom: originNode size: sideLength inGraph: aGraph [
     "Return all nodes in the NxN block with originNode as top-left"
 
     | result row col |
@@ -100,7 +103,7 @@ WS2DGridTopology >> collectFootprintFrom: originNode size: sideLength [
     col := originNode column.
     0 to: sideLength - 1 do: [ :dr |
         0 to: sideLength - 1 do: [ :dc |
-            result add: (self getAtRow: (row + dr) andColumn: (col + dc)) ] ].
+            result add: (self getAtRow: (row + dr) andColumn: (col + dc) inGraph: aGraph) ] ].
     ^ result
 ]
 
@@ -137,7 +140,7 @@ WS2DGridTopology >> createEmptyMatrix [
 	| mockNode |
 	mockNode := self createMockNode.
 	
-	self matrix: 
+	self emptyMatrixCheckpoint: 
 		((1 to: self nRows) collect: [ :i |
         (1 to: self nColumns) collect: [ :j |
             WSNode new
@@ -242,6 +245,18 @@ WS2DGridTopology >> createTileset [
 
 ]
 
+{ #category : 'accessing' }
+WS2DGridTopology >> emptyMatrixCheckpoint [
+
+	^ emptyMatrixCheckpoint
+]
+
+{ #category : 'accessing' }
+WS2DGridTopology >> emptyMatrixCheckpoint: anObject [
+
+	emptyMatrixCheckpoint := anObject
+]
+
 { #category : 'collapse' }
 WS2DGridTopology >> footprintSizeFor: aClass [
 	 "Return the side length N of the NxN footprint needed for aClass"
@@ -256,8 +271,14 @@ WS2DGridTopology >> footprintSizeFor: aClass [
 { #category : 'accessing' }
 WS2DGridTopology >> getAtRow: i andColumn: j [
 	
-	^ (self matrix at: i) at: j
+	^ (self emptyMatrixCheckpoint at: i) at: j
 	
+]
+
+{ #category : 'accessing' }
+WS2DGridTopology >> getAtRow: aRow andColumn: aColumn inGraph: aGraph [
+	
+	^ (aGraph at: aRow) at: aColumn 
 ]
 
 { #category : 'accessing' }
@@ -344,7 +365,7 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
     row to: row + n - 1 do: [ :eachRow |
         col to: col + n - 1 do: [ :eachCol |
             | node |
-            node := (aGraph at: eachRow) at: eachCol.
+            node :=  self getAtRow: eachRow andColumn: eachCol inGraph: aGraph.
             (self 
 					isFreeCell: node 
 					forClass: aClass 
@@ -390,33 +411,33 @@ WS2DGridTopology >> layoutMatrix: anObject [
 	layoutMatrix := anObject
 ]
 
-{ #category : 'accessing' }
-WS2DGridTopology >> matrix [
-
-	^ matrix
-]
-
-{ #category : 'accessing' }
-WS2DGridTopology >> matrix: anObject [
-
-	matrix := anObject
-]
-
 { #category : 'as yet unclassified' }
-WS2DGridTopology >> moveClass: aClass toNode: aNode onGraph: aGraph [
-	
-	| footprint oldNodes newNodes |
+WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
+	"Given a class, it changes its position to aNode"
+	| touchedNodes footprint oldNodes newNodes |
+	aGraph topology: self.
+	touchedNodes := OrderedCollection new.
 	footprint := self classNodes at: aClass.
 	
-	 oldNodes := footprint nodes copy.
-    oldNodes do: [ :eachNode |
+	 oldNodes := footprint nodes veryDeepCopy .
+    footprint nodes do: [ :eachNode |
         eachNode footPrint: nil.
         eachNode collapseTo: self createEmptyTile ]. 
 
-	 newNodes := self collectFootprintFrom: aNode size: footprint sideLength.
+	 newNodes := self collectFootprintFrom: aNode size: footprint sideLength inGraph: aGraph nodes.
     footprint originNode: aNode.
     footprint nodes: newNodes.
     newNodes do: [ :eachNode | eachNode footPrint: footprint ].
+
+	   oldNodes withIndexDo: [ :oldNode :i |
+        (newNodes at: i) collapseTo: oldNode tileInWhichCollapsed ].
+
+	touchedNodes 
+		addAll: oldNodes; 
+		addAll: newNodes.
+		"addAll: (aGraph optimizePathsWithExitModification: (self swSystem pathIDsOf: aClass))."
+
+	^ touchedNodes 
 ]
 
 { #category : 'accessing' }

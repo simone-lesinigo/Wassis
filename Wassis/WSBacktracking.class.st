@@ -135,7 +135,7 @@ WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 	"Restart the algorithm collapsing other nodes to classes"
 	| newGraph |
-	newGraph := aSolver topology createGraph .
+	newGraph := aSolver topology createGraph.
 	
 	self classesGraphCheckpoint: newGraph veryDeepCopy.
 	aSolver graph: newGraph.

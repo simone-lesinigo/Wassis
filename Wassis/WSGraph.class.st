@@ -73,10 +73,12 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
 WSGraph >> clearPath: aPath [
 	"Clear a path replacing each tile with the empty tile"
 
-	| emptyTile |
+	| emptyTile touchedNodes |
+	touchedNodes := OrderedCollection new.
 	emptyTile := self topology createEmptyTile.
 
 	aPath nodes do: [ :eachNode |
+		touchedNodes add: eachNode.
 		eachNode collapseTo: emptyTile.
 	].
 
@@ -85,12 +87,14 @@ WSGraph >> clearPath: aPath [
 	aPath firstNode: nil.
 	aPath lastNode: nil.
 	
+	^ touchedNodes 
+	
 ]
 
 { #category : 'pathOptimization' }
 WSGraph >> clearPathWithID: anID [
 
-	self clearPath: (self paths at: anID)
+	^ self clearPath: (self paths at: anID)
 ]
 
 { #category : 'pathOptimization' }
@@ -205,7 +209,7 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	| footprint1 footprint2 shortestPath |
 	footprint1 := (self topology classNodes at: classes key).
 	footprint2 := (self topology classNodes at: classes value).
-	
+
 	shortestPath := nil.
 	
    (footprint1 borderNodes: self topology) do: [ :node1 |
@@ -310,11 +314,10 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		generatedPath := self paths at: eachPathID.
 		classes := self topology allPathIDs keyAtValue: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
-		
 		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
-	].
+	]. 
 
 	^ touchedNodes
 ]
@@ -503,7 +506,7 @@ WSGraph >> substitute: oldPath with: optimalPath [
 WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
 
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
-	
+
 	self substitute: generatedPath with: optimalPath.
 
 	aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]

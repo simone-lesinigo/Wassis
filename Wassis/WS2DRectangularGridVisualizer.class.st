@@ -129,15 +129,15 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
 
 			composite when: RSMouseDragEnd do: [ :evt |
             | nearestNode |
-            nearestNode := self nearestNodeTo: (composite position) footprintSize: (aFootprint sideLength).
-            
+            nearestNode := self nearestNodeTo: (composite position) footprintSize: (aFootprint sideLength) inGraph: self solver graph nodes.
             (nearestNode = aFootprint originNode)
                 ifTrue: [ 
                     composite position: originalPosition.
                     self canvas signalUpdate ]
                 ifFalse: [
 						  (self solver isValidToMove: aClass toNode: nearestNode)
-								ifTrue: [ self solver moveClass: aClass toNode: nearestNode ]
+								ifTrue: [ "self updateVisualizationFor:" (self solver moveClass: aClass toNode: nearestNode).
+									self solver createVisualization ]
 								ifFalse: [ 
 									composite position: originalPosition.
 									self canvas signalUpdate  ].
@@ -158,13 +158,13 @@ WS2DRectangularGridVisualizer >> migrateHoverProperties: aSource to: aTarget [
 ]
 
 { #category : 'retrieving' }
-WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n [
+WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n inGraph: aGraph [
     "Returns the nearest node to aPoint. aPoint should be the center"
 
     | cellSize firstNodeShape firstNodeCenter col row topology offset |
 	 topology := self solver topology.
 
-    firstNodeShape := self nodesShapes at: (topology getAtRow: 1 andColumn: 1).
+    firstNodeShape := self nodesShapes at: (topology getAtRow: 1 andColumn: 1 inGraph: aGraph).
     cellSize := firstNodeShape extent x.
     firstNodeCenter := firstNodeShape position.
     
@@ -176,7 +176,7 @@ WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n [
     col := (col max: 1) min: topology nColumns.
     row := (row max: 1) min: topology nRows.
     
-    ^ topology getAtRow: row andColumn: col
+    ^ topology getAtRow: row andColumn: col inGraph: aGraph
 ]
 
 { #category : 'visualization' }
@@ -225,20 +225,6 @@ WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
 
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
-	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
-
-	aNodesArray do: [ :eachNode |
-		self updateNodeVisualization: eachNode 
-	].
-	
-	self registerMouseHoverForPaths.
-
-	self canvas signalUpdate 
-
-]
-
-{ #category : 'visualization' }
-WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray withSolver: aSolver [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 
 	aNodesArray do: [ :eachNode |
