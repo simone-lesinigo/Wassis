@@ -315,16 +315,16 @@ WS2DGridTopology >> isValidTarget: aNode [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> isValidTopLeft: aNode forSize: n [
+WS2DGridTopology >> isValidTopLeft: aNode forSize: n withOffset: offset [
     "A valid top-left node has:
      - the NxN footprint entirely within bounds and not collapsed
-     - a 2 cell border around the footprint entirely not collapsed"
+     - a 2 (default offset) cell border around the footprint entirely not collapsed"
     
    | minRow maxRow minCol maxCol |
-	minRow := (aNode row) - 2.
-	minCol := (aNode column) - 2.
-	maxRow := (aNode row) + n + 1.
-	maxCol := (aNode column) + n + 1.
+	minRow := (aNode row) - offset.
+	minCol := (aNode column) - offset.
+	maxRow := (aNode row) + n + offset - 1.
+	maxCol := (aNode column) + n + offset - 1.
 
 	(self isInBoundsRow: minRow col: minCol ) ifFalse: [ ^ false ].
 	(self isInBoundsRow: maxRow col: maxCol ) ifFalse: [ ^ false ].
@@ -409,7 +409,8 @@ WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n [
     pos := self layoutMatrix rowAt: aClass id.
     target := self getAtRow: (pos first) andColumn: (pos last).
     
-    (self isValidTopLeft: target forSize: n) ifTrue: [ ^ target ].
+    (self isValidTopLeft: target forSize: n withOffset: self class defaultOffset) 
+		ifTrue: [ ^ target ].
     
     ^ self searchOutwardFrom: target forSize: n
 ]
@@ -488,7 +489,7 @@ WS2DGridTopology >> searchOutwardFrom: aNode forSize: n [
 	
         candidates := 
 		   		(self getNeighboursOf: aNode atLevel: level)
-            select: [ :node | self isValidTopLeft: node forSize: n ].
+            select: [ :node | self isValidTopLeft: node forSize: n withOffset: self class defaultOffset].
 
         level := level + 1 ].
     
