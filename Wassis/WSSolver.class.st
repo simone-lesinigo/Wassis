@@ -92,6 +92,12 @@ WSSolver >> graph: anObject [
 	graph := anObject
 ]
 
+{ #category : 'testing' }
+WSSolver >> isValidToMove: aClass toNode: aNode [
+	
+	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph nodes.
+]
+
 { #category : 'error handling' }
 WSSolver >> onContradiction [
 
@@ -177,5 +183,5 @@ WSSolver >> topology: anObject [
 WSSolver >> updateVisualizationFor: aNodesArray [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 	
-	self topology visualizer updateVisualizationFor: aNodesArray withSolver: self
+	self topology visualizer updateVisualizationFor: aNodesArray
 ]

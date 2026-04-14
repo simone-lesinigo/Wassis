@@ -69,6 +69,7 @@ WS2DRectangularGridVisualizer >> createMenuFor: aShape [
 
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createShapeFor: aNode [
+	"Given a node, it creates the correct shape to visualize it"
 
 	| tile shape |
 	tile := aNode tileInWhichCollapsed.
@@ -108,7 +109,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self canvas openOnceWithTitle: 'Wassis'.
 ]
 
-{ #category : 'visualization' }
+{ #category : 'classes' }
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
 	"Group the classnodes into a composite so that you can interact with the class"
 
@@ -135,8 +136,9 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
                     composite position: originalPosition.
                     self canvas signalUpdate ]
                 ifFalse: [
-						  (self solver topology isValidTopLeft: nearestNode forSize: aFootprint sideLength withOffset: 2) 
-								ifTrue: [ (self solver moveClass: aClass toNode: nearestNode) ]
+						  (self solver isValidToMove: aClass toNode: nearestNode)
+								
+								ifTrue: [ self halt. (self solver moveClass: aClass toNode: nearestNode) ]
 								ifFalse: [ 
 									composite position: originalPosition.
 									self canvas signalUpdate  ].
@@ -223,6 +225,20 @@ WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
 ]
 
 { #category : 'visualization' }
+WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
+	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
+
+	aNodesArray do: [ :eachNode |
+		self updateNodeVisualization: eachNode 
+	].
+	
+	self registerMouseHoverForPaths.
+
+	self canvas signalUpdate 
+
+]
+
+{ #category : 'visualization' }
 WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray withSolver: aSolver [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 
@@ -230,7 +246,7 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray withSolver:
 		self updateNodeVisualization: eachNode 
 	].
 	
-	self registerMouseHoverForPathsOf: aSolver.
+	self registerMouseHoverForPaths.
 
 	self canvas signalUpdate 
 

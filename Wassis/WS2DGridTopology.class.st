@@ -299,6 +299,17 @@ WS2DGridTopology >> initializeWith: aSwSystem [
 
 ]
 
+{ #category : 'drag and drop' }
+WS2DGridTopology >> isFreeCell: aNode forClass: aClass withPathIDs: pathIDs [
+
+    | tile |
+    tile := aNode tileInWhichCollapsed.
+    tile isEmptyTile ifTrue: [ ^ true ].
+    (tile isClassTile and: [ tile wsClass = aClass ]) ifTrue: [ ^ true ].
+    (tile isPathTile and: [ pathIDs includes: tile pathID ]) ifTrue: [ ^ true ].
+    ^ false
+]
+
 { #category : 'collapse' }
 WS2DGridTopology >> isInBoundsRow: row col: col [
 
@@ -320,9 +331,33 @@ WS2DGridTopology >> isValidTarget: aNode [
 
 ]
 
+{ #category : 'testing' }
+WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
+    "This method is called when the execution has finished and you want to check if the new position for a class is valid. aNode must be the top-left node of the footprint. Footprint cells must be empty, own class tiles, or own path tiles"
+    
+    | row col n |
+	 n := (self classNodes at: aClass) sideLength.
+    row := aNode row.
+    col := aNode column.
+    (self isInBoundsRow: row + n - 1 col: col + n - 1) ifFalse: [ ^ false ].
+    
+    row to: row + n - 1 do: [ :eachRow |
+        col to: col + n - 1 do: [ :eachCol |
+            | node |
+            node := (aGraph at: eachRow) at: eachCol.
+            (self 
+					isFreeCell: node 
+					forClass: aClass 
+					withPathIDs: (self swSystem pathIDsOf: aClass))
+                	ifFalse: [ ^ false ] ] ].
+    
+    ^ true
+]
+
 { #category : 'collapse' }
 WS2DGridTopology >> isValidTopLeft: aNode forSize: n withOffset: offset [
-    "A valid top-left node has:
+    "Note that this method is used only for placing classes when the graph is initialized.
+	 A valid top-left node has:
      - the NxN footprint entirely within bounds and not collapsed
      - a 2 (default offset) cell border around the footprint entirely not collapsed"
     

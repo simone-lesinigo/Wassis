@@ -159,5 +159,5 @@ WSSoftwareSystem >> pathIDOf: class1 and: class2 [
 WSSoftwareSystem >> pathIDsOf: aClass [
 	"Returns an OrderedCollection of PathIDs linked to a class"
 	
-	^ self classesPathIDs pathIDsFor: aClass withConnections: (self allConnectionsPerClass at: aClass)
+	^ self classesPathIDs pathIDsFor: aClass withConnections: (self allConnectionsOf: aClass)
 ]

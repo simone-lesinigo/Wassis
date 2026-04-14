@@ -81,7 +81,7 @@ WSGraph >> clearPath: aPath [
 	].
 
 	aPath nodes: OrderedCollection new.
-	aPath length: nil.
+	aPath length: Float infinity.
 	aPath firstNode: nil.
 	aPath lastNode: nil.
 	
