@@ -343,15 +343,6 @@ WS2DGridTopology >> isValidPosition: aPoint [
 	^ (aPoint x between: 1 and: self nRows) and: [ aPoint y between: 1 and: self nColumns ]
 ]
 
-{ #category : 'collapseDeprecated' }
-WS2DGridTopology >> isValidTarget: aNode [
-    "A valid target is not collapsed and has no collapsed Moore neighbours"
-
-    ^ aNode isNotCollapsed and: [
-        (self getNeighboursOf: aNode atLevel: 1) allSatisfy: [ :each | each isNotCollapsed ] ]
-
-]
-
 { #category : 'testing' }
 WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
     "This method is called when the execution has finished and you want to check if the new position for a class is valid. aNode must be the top-left node of the footprint. Footprint cells must be empty, own class tiles, or own path tiles"
@@ -371,8 +362,6 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
 					forClass: aClass 
 					withPathIDs: (self swSystem pathIDsOf: aClass))
                 	ifFalse: [ ^ false ] ] ].
-
-	(self getNeighboursOf: aNode atLevel: 1) do: [ :eachNode | eachNode isClassNode ifTrue: [ ^ false ] ].
 
     ^ true
 ]
@@ -466,22 +455,6 @@ WS2DGridTopology >> nRows: anObject [
 	nRows := anObject
 ]
 
-{ #category : 'collapseDeprecated' }
-WS2DGridTopology >> pickNodeForClass: aClass [
-    "Return a non collapsed node with no collapsed Moore neighbours"
-    
-   | pos posX posY target |
-   pos := self layoutMatrix rowAt: aClass id.
- 	posX := pos first.
-   posY := pos last.
-
-   target := self getAtRow: posX andColumn: posY.
-    
-   (self isValidTarget: target) ifTrue: [ ^ target ].
-    
-   ^ self searchOutwardFrom: target
-]
-
 { #category : 'collapse' }
 WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n [
     "Return the top-left node of a valid NxN footprint"
@@ -535,26 +508,6 @@ WS2DGridTopology >> scaleNormalizedValue: aValue toInnerRange: n [
     "Scale a normalized value [0,1] to [2, n-1], excluding border positions"
 
     ^ ((aValue * (n - 3)) rounded) + 2
-]
-
-{ #category : 'collapseDeprecated' }
-WS2DGridTopology >> searchOutwardFrom: aNode [
-    "Expand outward from aPoint until a valid node positon is found"
-
-    | candidates level maxLevel |
-    candidates := OrderedCollection new.
-    level := 2.
-    maxLevel := (self nRows max: self nColumns) // 2.
-    
-    [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
-        candidates := (self getNeighboursOf: aNode atLevel: level)
-            select: [ :node | self isValidTarget: node].
-
-        level := level + 1 ].
-    
-    candidates ifEmpty: [ self error: 'No valid node found' ].
-
-    ^ candidates shuffled first
 ]
 
 { #category : 'collapse' }
