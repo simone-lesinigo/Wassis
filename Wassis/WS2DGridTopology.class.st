@@ -38,17 +38,17 @@ WS2DGridTopology class >> withGrid: aPoint [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> assignNodesToClasses [
+WS2DGridTopology >> assignNodesToClassesIn: aGrid [
     "For each class select the node in which it will be placed"
     
     self swSystem classes do: [ :eachClass | 
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
-        originNode := self pickNodeForClass: eachClass footprintSize: sideLength.
-        footprintNodes := self 
+        originNode := self pickNodeForClass: eachClass footprintSize: sideLength in: aGrid.
+
+        footprintNodes := aGrid 
 			collectFootprintFrom: originNode 
-			size: sideLength
-			inGraph: self emptyMatrixCheckpoint.
+			size: sideLength.
         
         footprint := WSFootprint new
             wsClass: eachClass;
@@ -77,12 +77,13 @@ WS2DGridTopology >> classNodes: anObject [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> collapseNodesToClasses [
+WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
     "Collapse some nodes to classes and returns them"
     
     | result |
     result := OrderedCollection new.
-    self assignNodesToClasses.
+    self assignNodesToClassesIn: aGrid.
+
     self classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
         | nodesToTile |
         nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
@@ -90,20 +91,6 @@ WS2DGridTopology >> collapseNodesToClasses [
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
             result add: (eachNode collapseTo: eachTile) ] ].
     
-    ^ result
-]
-
-{ #category : 'collapse' }
-WS2DGridTopology >> collectFootprintFrom: originNode size: sideLength inGraph: aGraph [
-    "Return all nodes in the NxN block with originNode as top-left"
-
-    | result row col |
-    result := OrderedCollection new.
-    row := originNode row.
-    col := originNode column.
-    0 to: sideLength - 1 do: [ :dr |
-        0 to: sideLength - 1 do: [ :dc |
-            result add: (self getAtRow: (row + dr) andColumn: (col + dc) inGraph: aGraph) ] ].
     ^ result
 ]
 
@@ -128,7 +115,7 @@ WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 ]
 
 { #category : 'matrix' }
-WS2DGridTopology >> createEdgesOfNodes [
+WS2DGridTopology >> createEdgesIn: aGrid [
 
 	^ self subclassResponsibility
 ]
@@ -137,21 +124,26 @@ WS2DGridTopology >> createEdgesOfNodes [
 WS2DGridTopology >> createEmptyMatrix [
 	"Creates the nodes and save them in the matrix. All the nodes have the same entropy and contain all the possibile tiles from the tileset"
 	
-	| mockNode |
-	mockNode := self createMockNode.
-	
-	self emptyMatrixCheckpoint: 
-		((1 to: self nRows) collect: [ :i |
-        (1 to: self nColumns) collect: [ :j |
-            WSNode new
+	| grid mockNode |
+    mockNode := self createMockNode.
+    grid := WSGrid2D withRows: self nRows andColumns: self nColumns.
+    
+    1 to: self nRows do: [ :i |
+        1 to: self nColumns do: [ :j |
+            | node |
+            node := WSNode new
                 id: (i - 1) * self nColumns + j;
-					 position: { i . j };
+                position: { i . j };
                 possibleTiles: self tileset tiles;
                 isCollapsed: false;
                 sumOfWeights: mockNode sumOfWeights;
                 sumOfWeightsLog: mockNode sumOfWeightsLog;
                 entropy: mockNode entropy;
-                yourself ] ]).
+                yourself.
+
+            grid addNode: node ] ].
+
+     ^ grid
 ]
 
 { #category : 'tileset' }
@@ -166,19 +158,16 @@ WS2DGridTopology >> createEmptyTile [
 WS2DGridTopology >> createGraph [
 	"Take the empty matrix and collapse nodes to class tile. Then restore the matrix and returns the graph"
 	
-	| emc collapsedNodes nodes |
-	
-	emc := self emptyMatrixCheckpoint veryDeepCopy.
-	collapsedNodes := (self collapseNodesToClasses).
+	| workingGrid collapsedNodes |
 
-	nodes := (OrderedCollection new addAll: self emptyMatrixCheckpoint; yourself).
-	self emptyMatrixCheckpoint: emc.
+	workingGrid := self emptyMatrixCheckpoint veryDeepCopy.
+	collapsedNodes := (self collapseNodesToClassesIn: workingGrid).
 	
 	^ WSGraph 
-		newWithNodes: nodes 
+		newWithStructure: workingGrid
 		andCollapsedNodes: collapsedNodes 
-		andTopology: self
-
+		andTopology: self.
+		
 ]
 
 { #category : 'creation' }
@@ -203,10 +192,9 @@ WS2DGridTopology >> createLayoutMatrix: aSwSystem [
 WS2DGridTopology >> createMatrixFromTileset [
 	"Create the matrix containing the nodes of the graph"
 	
-	self createEmptyMatrix.
-	self createEdgesOfNodes.
-	self removePossibilitiesFromBorders.
-	
+	self emptyMatrixCheckpoint: self createEmptyMatrix.
+	self createEdgesIn: self emptyMatrixCheckpoint.
+	self removePossibilitiesFromBordersIn: self emptyMatrixCheckpoint
 	
 ]
 
@@ -275,32 +263,6 @@ WS2DGridTopology >> getAtRow: i andColumn: j [
 	
 ]
 
-{ #category : 'accessing' }
-WS2DGridTopology >> getAtRow: aRow andColumn: aColumn inGraph: aGraph [
-	
-	^ (aGraph at: aRow) at: aColumn 
-]
-
-{ #category : 'accessing' }
-WS2DGridTopology >> getNeighboursOf: aNode atLevel: aNumber [
-    "Return the Moore neighbours at exactly distance aNumber from aNode"
-    
-    | posX posY neighbours |
-    posX := aNode row.
-    posY := aNode column.
-    neighbours := OrderedCollection new.
-    
-    (posX - aNumber) to: (posX + aNumber) do: [ :x |
-        (posY - aNumber) to: (posY + aNumber) do: [ :y |
-            ((x = (posX - aNumber) or: [ x = (posX + aNumber) ]) or: [
-              y = (posY - aNumber) or: [ y = (posY + aNumber) ]])
-                ifTrue: [
-                    (self isValidPosition: x @ y) ifTrue: [
-                        neighbours add: (self getAtRow: x andColumn: y) ] ] ] ].
-    
-    ^ neighbours
-]
-
 { #category : 'initialization' }
 WS2DGridTopology >> initialize [ 
 	
@@ -331,12 +293,6 @@ WS2DGridTopology >> isFreeCell: aNode forClass: aClass withPathIDs: pathIDs [
     ^ false
 ]
 
-{ #category : 'collapse' }
-WS2DGridTopology >> isInBoundsRow: row col: col [
-
-	^ (row between: 1 and: self nRows) and: [ col between: 1 and: self nColumns ]
-]
-
 { #category : 'accessing' }
 WS2DGridTopology >> isValidPosition: aPoint [
 	
@@ -351,12 +307,12 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
 	 n := (self classNodes at: aClass) sideLength.
     row := aNode row.
     col := aNode column.
-    (self isInBoundsRow: row + n - 1 col: col + n - 1) ifFalse: [ ^ false ].
+    (aGraph isInBoundsRow: (row + n - 1) column: (col + n - 1)) ifFalse: [ ^ false ].
     
     row  to: row + n - 1 do: [ :eachRow |
         col to: col + n - 1 do: [ :eachCol |
             | node |
-            node :=  self getAtRow: eachRow andColumn: eachCol inGraph: aGraph.
+            node := aGraph atRow: eachRow atColumn: eachCol.
             (self 
 					isFreeCell: node 
 					forClass: aClass 
@@ -364,30 +320,6 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
                 	ifFalse: [ ^ false ] ] ].
 
     ^ true
-]
-
-{ #category : 'collapse' }
-WS2DGridTopology >> isValidTopLeft: aNode forSize: n withOffset: offset [
-    "Note that this method is used only for placing classes when the graph is initialized.
-	 A valid top-left node has:
-     - the NxN footprint entirely within bounds and not collapsed
-     - a 2 (default offset) cell border around the footprint entirely not collapsed"
-    
-   | minRow maxRow minCol maxCol |
-	minRow := (aNode row) - offset.
-	minCol := (aNode column) - offset.
-	maxRow := (aNode row) + n + offset - 1.
-	maxCol := (aNode column) + n + offset - 1.
-
-	(self isInBoundsRow: minRow col: minCol ) ifFalse: [ ^ false ].
-	(self isInBoundsRow: maxRow col: maxCol ) ifFalse: [ ^ false ].
-
-	minRow to: maxRow do: [ :eachRow |
-	    minCol to: maxCol do: [ :eachCol |
-	        (self getAtRow: eachRow andColumn: eachCol) isCollapsed 
-	            ifTrue: [ ^ false ] ] ].
-
-	^ true
 ]
 
 { #category : 'accessing' }
@@ -415,7 +347,7 @@ WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
         eachNode footPrint: nil.
         eachNode collapseTo: self createEmptyTile ]. 
 
-	 newNodes := self collectFootprintFrom: aNode size: footprint sideLength inGraph: aGraph nodes.
+	 newNodes := aGraph structure collectFootprintFrom: aNode size: footprint sideLength.
     footprint originNode: aNode.
     footprint nodes: newNodes.
     newNodes do: [ :eachNode | eachNode footPrint: footprint ].
@@ -456,49 +388,55 @@ WS2DGridTopology >> nRows: anObject [
 ]
 
 { #category : 'collapse' }
-WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n [
+WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n in: aGrid [
     "Return the top-left node of a valid NxN footprint"
     
     | pos target |
     pos := self layoutMatrix rowAt: aClass id.
-    target := self getAtRow: (pos first) andColumn: (pos last).
+    target := aGrid atRow: (pos first) atColumn: (pos last).
     
-    (self isValidTopLeft: target forSize: n withOffset: self class defaultOffset) 
-		ifTrue: [ ^ target ].
+    (aGrid 
+		isValidTopLeft: target 
+		forSize: n 
+		withOffset: self class defaultOffset) 
+			ifTrue: [ ^ target ].
     
-    ^ self searchOutwardFrom: target forSize: n
+    ^ aGrid 
+		searchOutwardFrom: target 
+		forSize: n 
+		defaultOffset: self class defaultOffset
 ]
 
 { #category : 'removing' }
-WS2DGridTopology >> removePossibilitiesFromBorders [
+WS2DGridTopology >> removePossibilitiesFromBordersIn: aGrid [
 	"Remove the possibilities from border nodes in order that a path cannot exit the grid"
-    self removePossibilitiesFromFirstRow.
-    self removePossibilitiesFromLastRow.
-    self removePossibilitiesFromFirstColumn.
-    self removePossibilitiesFromLastColumn	
+	self removePossibilitiesFromFirstRowIn: aGrid.
+	self removePossibilitiesFromLastRowIn: aGrid.
+	self removePossibilitiesFromFirstColumnIn: aGrid.
+	self removePossibilitiesFromLastColumnIn: aGrid.
 
 ]
 
 { #category : 'removing' }
-WS2DGridTopology >> removePossibilitiesFromFirstColumn [
+WS2DGridTopology >> removePossibilitiesFromFirstColumnIn: aGrid [
 	
 	^ self subclassResponsibility 
 ]
 
 { #category : 'removing' }
-WS2DGridTopology >> removePossibilitiesFromFirstRow [
+WS2DGridTopology >> removePossibilitiesFromFirstRowIn: aGrid [
 	
 	 ^ self subclassResponsibility 
 ]
 
 { #category : 'removing' }
-WS2DGridTopology >> removePossibilitiesFromLastColumn [
+WS2DGridTopology >> removePossibilitiesFromLastColumnIn: aGrid [
 	
 	^ self subclassResponsibility 
 ]
 
 { #category : 'removing' }
-WS2DGridTopology >> removePossibilitiesFromLastRow [
+WS2DGridTopology >> removePossibilitiesFromLastRowIn: aGrid [
 	
 	^ self subclassResponsibility 
 ]
@@ -524,6 +462,54 @@ WS2DGridTopology >> searchOutwardFrom: aNode forSize: n [
 		candidates := (self getNeighboursOf: aNode atLevel: level) select: [ :node | 
 		    (node outgoingEdges size = 4) and: [ 
 		        self isValidTopLeft: node forSize: n withOffset: self class defaultOffset 
+		    ] 
+		].
+
+        level := level + 1 ].
+    
+    candidates ifEmpty: [ self error: 'No valid node found' ].
+
+    ^ candidates shuffled first
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> searchOutwardFrom: aNode forSize: n defaultOffset: offset [
+    "Expand outward from aNode until a valid top-left position is found"
+    
+    | candidates level maxLevel |
+    candidates := OrderedCollection new.
+    level := 2.
+    maxLevel := (self nRows max: self nColumns) // 2.
+    
+    [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
+	
+		candidates := (self getNeighboursOf: aNode atLevel: level) select: [ :node | 
+		    (node outgoingEdges size = 4) and: [ 
+		        self isValidTopLeft: node forSize: n withOffset: self class defaultOffset 
+		    ] 
+		].
+
+        level := level + 1 ].
+    
+    candidates ifEmpty: [ self error: 'No valid node found' ].
+
+    ^ candidates shuffled first
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> searchOutwardFrom: aNode in: aGrid forSize: n defaultOffset: offset [
+    "Expand outward from aNode until a valid top-left position is found"
+    
+    | candidates level maxLevel |
+    candidates := OrderedCollection new.
+    level := 2.
+    maxLevel := (self nRows max: self nColumns) // 2.
+    
+    [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
+	
+		candidates := (aGrid getNeighboursOf: aNode atLevel: level) select: [ :node | 
+		    (node outgoingEdges size = 4) and: [ 
+		        aGrid isValidTopLeft: node forSize: n withOffset: self class defaultOffset 
 		    ] 
 		].
 

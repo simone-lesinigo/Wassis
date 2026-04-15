@@ -108,7 +108,7 @@ WSSolver >> graph: anObject [
 { #category : 'testing' }
 WSSolver >> isValidToMove: aClass toNode: aNode [
 	
-	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph nodes.
+	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph.
 ]
 
 { #category : 'drag and drop' }
@@ -166,7 +166,7 @@ WSSolver >> run [
 	self solveGraph.
 	self reifyWFCPaths.
 	self topology rebuildClassNodes: self graph.
-	self createVisualization.
+	self createVisualization
 ]
 
 { #category : 'running' }

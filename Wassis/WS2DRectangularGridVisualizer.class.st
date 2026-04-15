@@ -129,7 +129,7 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
 
 			composite when: RSMouseDragEnd do: [ :evt |
             | nearestNode |
-            nearestNode := self nearestNodeTo: (composite position) footprintSize: (aFootprint sideLength) inGraph: self solver graph nodes.
+            nearestNode := self nearestNodeTo: (composite position) footprintSize: (aFootprint sideLength) inGraph: self solver graph.
             (nearestNode = aFootprint originNode)
                 ifTrue: [ 
                     composite position: originalPosition.
@@ -164,7 +164,7 @@ WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n inGraph:
     | cellSize firstNodeShape firstNodeCenter col row topology offset |
 	 topology := self solver topology.
 
-    firstNodeShape := self nodesShapes at: (topology getAtRow: 1 andColumn: 1 inGraph: aGraph).
+    firstNodeShape := self nodesShapes at: (aGraph atRow: 1 atColumn: 1).
     cellSize := firstNodeShape extent x.
     firstNodeCenter := firstNodeShape position.
     
@@ -176,7 +176,7 @@ WS2DRectangularGridVisualizer >> nearestNodeTo: aPoint footprintSize: n inGraph:
     col := (col max: 1) min: topology nColumns.
     row := (row max: 1) min: topology nRows.
     
-    ^ topology getAtRow: row andColumn: col inGraph: aGraph
+    ^ aGraph atRow: row atColumn: col
 ]
 
 { #category : 'visualization' }

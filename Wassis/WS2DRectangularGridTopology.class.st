@@ -200,6 +200,32 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
 ]
 
 { #category : 'matrix' }
+WS2DRectangularGridTopology >> createEdgesIn: aGrid [
+"Given a WSGrid2D, assign the edges for each node using the topology's rules"
+	
+	1 to: aGrid nRows do: [ :i |
+		1 to: aGrid nColumns do: [ :j |
+			| eachNode | 
+			eachNode := aGrid atRow: i atColumn: j.
+			
+			"Connect to the right neighbour and viceversa"
+			j < aGrid nColumns ifTrue: [ 
+				self connect: eachNode 
+					  to: (aGrid atRow: i atColumn: (j + 1)) 
+					  withDirection: self class rightSymbol
+			].
+			
+			"Connect to the down neighbour and viceversa"
+			i < aGrid nRows ifTrue: [ 
+				self connect: eachNode 
+					  to: (aGrid atRow: (i + 1) atColumn: j)
+					  withDirection: self class downSymbol 
+			]
+		]
+	]
+]
+
+{ #category : 'deprecated' }
 WS2DRectangularGridTopology >> createEdgesOfNodes [
 	"Given a matrix of nodes, assign the edges for each node"
 	
@@ -350,11 +376,9 @@ WS2DRectangularGridTopology >> rebuildClassNodes: aGraph [
 	
 	| classNodesDict |
 	classNodesDict := Dictionary new.
-	aGraph nodes flattened do: [ :eachNode |
+	aGraph nodes do: [ :eachNode |
 		eachNode isClassNode ifTrue: [
-	
-	   		| footprint |
-					
+	   		| footprint |			
 	       footprint := classNodesDict 
 	                at: eachNode tileInWhichCollapsed wsClass 
 	                ifAbsentPut: [ eachNode footPrint ].
@@ -364,29 +388,25 @@ WS2DRectangularGridTopology >> rebuildClassNodes: aGraph [
 ]
 
 { #category : 'removing' }
-WS2DRectangularGridTopology >> removePossibilitiesFromFirstColumn [
+WS2DRectangularGridTopology >> removePossibilitiesFromFirstColumnIn: aGrid [
 
-	1 to: self nRows do: [ :i |
-		(self getAtRow: i andColumn: 1) keepTilesWithIDin: #( 0 2 3 5 ) ].
+	aGrid firstColumnDo: [ :node | node keepTilesWithIDin: #( 0 2 3 5 ) ].
 ]
 
 { #category : 'removing' }
-WS2DRectangularGridTopology >> removePossibilitiesFromFirstRow [
+WS2DRectangularGridTopology >> removePossibilitiesFromFirstRowIn: aGrid [
 
-	1 to: self nColumns do: [ :j |
-			(self getAtRow: 1 andColumn: j) keepTilesWithIDin: #( 0 1 5 6 ) ].
+	aGrid firstRowDo: [ :node | node keepTilesWithIDin: #( 0 1 5 6 ) ].
 ]
 
 { #category : 'removing' }
-WS2DRectangularGridTopology >> removePossibilitiesFromLastColumn [
+WS2DRectangularGridTopology >> removePossibilitiesFromLastColumnIn: aGrid [
 
-	1 to: self nRows do: [ :i |
-			(self getAtRow: i andColumn: self nColumns) keepTilesWithIDin: #( 0 2 4 6 ) ]
+	aGrid lastColumnDo: [ :node | node keepTilesWithIDin: #( 0 2 4 6 ) ].
 ]
 
 { #category : 'removing' }
-WS2DRectangularGridTopology >> removePossibilitiesFromLastRow [
+WS2DRectangularGridTopology >> removePossibilitiesFromLastRowIn: aGrid [
 
-	1 to: self nColumns do: [ :j |
-		(self getAtRow: self nRows andColumn: j) keepTilesWithIDin: #( 0 1 3 4 ) ].
+	aGrid lastRowDo: [ :node | node keepTilesWithIDin: #( 0 1 3 4 ) ].
 ]

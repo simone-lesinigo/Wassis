@@ -10,7 +10,8 @@ Class {
 		'paths',
 		'numberOfNodes',
 		'numberOfCollapsedNodes',
-		'topology'
+		'topology',
+		'structure'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -37,13 +38,17 @@ WSGraph class >> fuelIgnoredInstanceVariableNames [
 ]
 
 { #category : 'instance creation' }
-WSGraph class >> newWithNodes: nodes andCollapsedNodes: collapsedNodes andTopology: aTopology [
+WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes andTopology: aTopology [
+	
+	| allNodes |
+	allNodes := aStructure getFlattenedNodes.
 
 	^ self new
-		nodes: nodes;
+		structure: aStructure;
+		nodes: allNodes;
 		topology: aTopology;
 		paths: Dictionary new;
-		numberOfNodes: nodes flattened size;
+		numberOfNodes: allNodes size;
 		numberOfCollapsedNodes: 0;
 		minEntropyHeap: (Heap new addAll: collapsedNodes; yourself) 
 ]
@@ -59,6 +64,12 @@ WSGraph >> allNodesCollapsed [
 	"Returns true if all nodes in the graph have collapsed, otherwise false"
 
 	^ self numberOfNodes = self numberOfCollapsedNodes
+]
+
+{ #category : '2D' }
+WSGraph >> atRow: row atColumn: column [
+	
+	^ self structure atRow: row atColumn: column 
 ]
 
 { #category : 'pathOptimization' }
@@ -107,6 +118,12 @@ WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNod
         thenCollect: [ :eachEdge | eachEdge direction ].
 
     ^ aNode collapseTo: (self topology tileset tileForDirections: dir pathID: pathID)
+]
+
+{ #category : 'collapse' }
+WSGraph >> collectFootprintFrom: aNode size: n [
+	
+	^ self structure collectFootprintFrom: aNode size: n
 ]
 
 { #category : 'reification' }
@@ -244,6 +261,12 @@ WSGraph >> getAdjacentClassForNode: aNode [
 WSGraph >> getFlattenedNodes [
 
 	^ self nodes flattened
+]
+
+{ #category : '2D' }
+WSGraph >> isInBoundsRow: row column: col [
+
+	^ self structure isInBoundsRow: row column: col 
 ]
 
 { #category : 'accessing' }
@@ -407,7 +430,7 @@ WSGraph >> restoreMinEntropyHeap [
 	"If the entropy is empty, it select a random node to continue the execution"
 	
 	| nodesArray isCollapsed nodeToAdd |
-	nodesArray := self nodes flattened.
+	nodesArray := self nodes.
 	isCollapsed := true.
 	
 	[ isCollapsed ] whileTrue: [ 
@@ -468,6 +491,18 @@ WSGraph >> setPathLengths [
 		self paths at: key put: value asOrderedCollection.
 		(self paths at: key) computeLength
 	]
+]
+
+{ #category : 'accessing' }
+WSGraph >> structure [
+
+	^ structure
+]
+
+{ #category : 'accessing' }
+WSGraph >> structure: anObject [
+
+	structure := anObject
 ]
 
 { #category : 'pathOptimization' }
