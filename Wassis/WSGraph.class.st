@@ -478,6 +478,18 @@ WSGraph >> substitute: oldPath with: optimalPath [
     pathID := oldPath pathID.
     self clearPath: oldPath.
 
+	optimalPath size = 1 ifTrue: [
+        | loneNode |
+        loneNode := self collapseNode: optimalPath first
+                        toPathTile: pathID
+                        between: (self getAdjacentClassForNode: optimalPath first)
+                        and: (self getAdjacentClassForNode: optimalPath first).
+        oldPath firstNode: loneNode.
+        oldPath lastNode: loneNode.
+        oldPath addNode: loneNode.
+        oldPath length: 1.
+        ^ self ].
+
     newFirstNode := (self collapseNode: optimalPath first
         toPathTile: pathID
         between: (self getAdjacentClassForNode: optimalPath first)
