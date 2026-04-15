@@ -136,8 +136,8 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
                     self canvas signalUpdate ]
                 ifFalse: [
 						  (self solver isValidToMove: aClass toNode: nearestNode)
-								ifTrue: [ "self updateVisualizationFor:" (self solver moveClass: aClass toNode: nearestNode).
-									self solver createVisualization ]
+								ifTrue: [ self updateVisualizationFor: (self solver moveClass: aClass toNode: nearestNode).
+									"self solver createVisualization" ]
 								ifFalse: [ 
 									composite position: originalPosition.
 									self canvas signalUpdate  ].

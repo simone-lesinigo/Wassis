@@ -9,17 +9,17 @@ Class {
 		'name',
 		'connectedWith'
 	],
-	#category : 'Wassis-Core',
+	#category : 'Wassis-SoftwareSystem',
 	#package : 'Wassis',
-	#tag : 'Core'
+	#tag : 'SoftwareSystem'
 }
 
 { #category : 'comparing' }
 WSClass >> = anObject [
 
-^ self class = anObject class 
-    and: [(self id = anObject id) and: [ self name = anObject name ] ]
-	 
+	^ self class = anObject class 
+	    and: [(self id = anObject id) and: [ self name = anObject name ] ]
+		 
 ]
 
 { #category : 'private' }

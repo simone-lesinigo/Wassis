@@ -263,6 +263,30 @@ WS2DGridTopology >> getAtRow: i andColumn: j [
 	
 ]
 
+{ #category : 'accessing' }
+WS2DGridTopology >> getPerimeterNodesForFootprintAt: topLeftNode size: n onGraph: aGraph [
+    "Return all Moore neighbours at distance 1 from the NxN footprint starting at topLeftNode"
+    
+    | row col perimeterNodes |
+    row := topLeftNode row.
+    col := topLeftNode column.
+    perimeterNodes := Set new. 
+    
+    col - 1 to: col + n do: [ :y |
+        (aGraph isInBoundsRow: row - 1 column: y) 
+            ifTrue: [ perimeterNodes add: (aGraph atRow: row - 1 atColumn: y) ].
+        (aGraph isInBoundsRow: row + n column: y) 
+            ifTrue: [ perimeterNodes add: (aGraph atRow: row + n atColumn: y) ] ].
+    
+    row to: row + n - 1 do: [ :x |
+        (aGraph isInBoundsRow: x column: col - 1) 
+            ifTrue: [ perimeterNodes add: (aGraph atRow: x atColumn: col - 1) ].
+        (aGraph isInBoundsRow: x column: col + n) 
+            ifTrue: [ perimeterNodes add: (aGraph atRow: x atColumn: col + n) ] ].
+    
+    ^ perimeterNodes
+]
+
 { #category : 'initialization' }
 WS2DGridTopology >> initialize [ 
 	
@@ -286,10 +310,12 @@ WS2DGridTopology >> initializeWith: aSwSystem [
 WS2DGridTopology >> isFreeCell: aNode forClass: aClass withPathIDs: pathIDs [
 
     | tile |
+
     tile := aNode tileInWhichCollapsed.
     tile isEmptyTile ifTrue: [ ^ true ].
     (tile isClassTile and: [ tile wsClass = aClass ]) ifTrue: [ ^ true ].
     (tile isPathTile and: [ pathIDs includes: tile pathID ]) ifTrue: [ ^ true ].
+
     ^ false
 ]
 
@@ -303,7 +329,7 @@ WS2DGridTopology >> isValidPosition: aPoint [
 WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
     "This method is called when the execution has finished and you want to check if the new position for a class is valid. aNode must be the top-left node of the footprint. Footprint cells must be empty, own class tiles, or own path tiles"
     
-    | row col n |
+     | row col n perimeterNodes |
 	 n := (self classNodes at: aClass) sideLength.
     row := aNode row.
     col := aNode column.
@@ -318,7 +344,15 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
 					forClass: aClass 
 					withPathIDs: (self swSystem pathIDsOf: aClass))
                 	ifFalse: [ ^ false ] ] ].
-
+	
+    perimeterNodes := self getPerimeterNodesForFootprintAt: aNode size: n onGraph: aGraph.
+    perimeterNodes do: [ :eachNeighbour | 
+        | tile |
+        tile := eachNeighbour tileInWhichCollapsed.
+        (tile isClassTile and: [ tile wsClass ~= aClass ]) 
+            ifTrue: [ ^ false ] ].
+		
+	
     ^ true
 ]
 
@@ -334,7 +368,7 @@ WS2DGridTopology >> layoutMatrix: anObject [
 	layoutMatrix := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'drag and drop' }
 WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
 	"Given a class, it changes its position to aNode"
 	| touchedNodes footprint oldNodes newNodes |

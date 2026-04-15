@@ -66,7 +66,7 @@ WSGraph >> allNodesCollapsed [
 	^ self numberOfNodes = self numberOfCollapsedNodes
 ]
 
-{ #category : '2D' }
+{ #category : '2DGrid' }
 WSGraph >> atRow: row atColumn: column [
 	
 	^ self structure atRow: row atColumn: column 
@@ -263,7 +263,13 @@ WSGraph >> getFlattenedNodes [
 	^ self nodes flattened
 ]
 
-{ #category : '2D' }
+{ #category : '2DGrid' }
+WSGraph >> getNeighboursOf: aNode atLevel: level [
+	
+	^ self structure getNeighboursOf: aNode atLevel: level
+]
+
+{ #category : '2DGrid' }
 WSGraph >> isInBoundsRow: row column: col [
 
 	^ self structure isInBoundsRow: row column: col 
