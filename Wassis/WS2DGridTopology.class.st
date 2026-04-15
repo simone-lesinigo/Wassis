@@ -340,7 +340,7 @@ WS2DGridTopology >> isInBoundsRow: row col: col [
 { #category : 'accessing' }
 WS2DGridTopology >> isValidPosition: aPoint [
 	
-	^ (aPoint x between: 2 and: self nRows - 1) and: [ aPoint y between: 2 and: self nColumns - 1]
+	^ (aPoint x between: 1 and: self nRows) and: [ aPoint y between: 1 and: self nColumns ]
 ]
 
 { #category : 'collapseDeprecated' }
@@ -362,7 +362,7 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
     col := aNode column.
     (self isInBoundsRow: row + n - 1 col: col + n - 1) ifFalse: [ ^ false ].
     
-    row to: row + n - 1 do: [ :eachRow |
+    row  to: row + n - 1 do: [ :eachRow |
         col to: col + n - 1 do: [ :eachCol |
             | node |
             node :=  self getAtRow: eachRow andColumn: eachCol inGraph: aGraph.
@@ -371,7 +371,9 @@ WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
 					forClass: aClass 
 					withPathIDs: (self swSystem pathIDsOf: aClass))
                 	ifFalse: [ ^ false ] ] ].
-    
+
+	(self getNeighboursOf: aNode atLevel: 1) do: [ :eachNode | eachNode isClassNode ifTrue: [ ^ false ] ].
+
     ^ true
 ]
 
@@ -566,9 +568,11 @@ WS2DGridTopology >> searchOutwardFrom: aNode forSize: n [
     
     [ candidates isEmpty and: [ level <= maxLevel ] ] whileTrue: [
 	
-        candidates := 
-		   		(self getNeighboursOf: aNode atLevel: level)
-            select: [ :node | self isValidTopLeft: node forSize: n withOffset: self class defaultOffset].
+		candidates := (self getNeighboursOf: aNode atLevel: level) select: [ :node | 
+		    (node outgoingEdges size = 4) and: [ 
+		        self isValidTopLeft: node forSize: n withOffset: self class defaultOffset 
+		    ] 
+		].
 
         level := level + 1 ].
     
