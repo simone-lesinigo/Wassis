@@ -111,18 +111,38 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 
 { #category : 'drag and drop' }
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
-    self solver getClassNodes keysAndValuesDo: [ :aClass :aFootprint |
-        | footprintShapes composite |
-        footprintShapes := aFootprint nodes collect: [ :aNode | self nodesShapes at: aNode ].
-        composite := RSComposite new.
-        composite addAll: footprintShapes; adjustToChildren.
-        footprintShapes do: [ :s |
-            s when: RSMouseDragging do: [ :evt | composite announce: evt ] for: self.
-            s when: RSMouseDragEnd do: [ :evt | composite announce: evt ] for: self ].
-        composite @ (RSDraggable new noValidateChildrenEvents).
-        self registerDragEndOn: composite forClass: aClass footprint: aFootprint.
-        self classComposites at: aClass put: composite.
-        self canvas add: composite ]
+	"Groups in a RSComposite the shapes of the same class"
+
+	self solver getClassNodes keysAndValuesDo: [ :aClass :aFootprint |
+			| footprintShapes composite |
+			footprintShapes := aFootprint nodes collect: [ :aNode |
+				                   self nodesShapes at: aNode ].
+
+			composite := RSComposite new.
+			composite
+				addAll: footprintShapes;
+				adjustToChildren.
+			footprintShapes do: [ :s |
+					s
+						when: RSMouseDragging
+						do: [ :evt | composite announce: evt ]
+						for: self.
+					s
+						when: RSMouseDragEnd
+						do: [ :evt | composite announce: evt ]
+						for: self ].
+			composite @ RSDraggable new noValidateChildrenEvents.
+			
+			composite when: RSMouseDragging do: [ :evt |
+    			composite pushFront.
+			] for: self.
+
+			self
+				registerDragEndOn: composite
+				forClass: aClass
+				footprint: aFootprint.
+			self classComposites at: aClass put: composite.
+			self canvas add: composite ]
 ]
 
 { #category : 'update' }
@@ -200,7 +220,7 @@ WS2DRectangularGridVisualizer >> refreshCompositeFor: aClass oldFootprintNodes: 
     
     self registerDragEndOn: newComposite forClass: aClass footprint: newFootprint.
     self classComposites at: aClass put: newComposite.
-    self canvas add: newComposite.
+    self canvas add: newComposite
 ]
 
 { #category : 'pathHovering' }
@@ -261,7 +281,7 @@ WS2DRectangularGridVisualizer >> tileSize [
     ^ self nodesShapes anyOne extent x
 ]
 
-{ #category : 'visualization' }
+{ #category : 'update' }
 WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
 	"Update the visualization for a single node"
 
@@ -290,7 +310,7 @@ WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
     self migrateHoverProperties: aNewBitmap to: aShape.
 ]
 
-{ #category : 'visualization' }
+{ #category : 'update' }
 WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 
