@@ -116,14 +116,14 @@ WSSolver >> moveClass: aClass toNode: aNode [
 	"Move aClass to its new position"
 	
 	| touchedNodes |
-	touchedNodes := OrderedCollection new.
+	touchedNodes := Set new.
 	touchedNodes 
 		addAll: (self clearAllPathsOf: aClass);
 		addAll: (self topology 
 			moveClass: aClass 
 			toNode: aNode 
 			inGraph: self graph).
-	
+
 	^ touchedNodes
 ]
 

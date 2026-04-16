@@ -327,33 +327,32 @@ WS2DGridTopology >> isValidPosition: aPoint [
 
 { #category : 'testing' }
 WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
-    "This method is called when the execution has finished and you want to check if the new position for a class is valid. aNode must be the top-left node of the footprint. Footprint cells must be empty, own class tiles, or own path tiles"
-    
-     | row col n perimeterNodes |
-	 n := (self classNodes at: aClass) sideLength.
-    row := aNode row.
-    col := aNode column.
-    (aGraph isInBoundsRow: (row + n - 1) column: (col + n - 1)) ifFalse: [ ^ false ].
-    
-    row  to: row + n - 1 do: [ :eachRow |
-        col to: col + n - 1 do: [ :eachCol |
-            | node |
-            node := aGraph atRow: eachRow atColumn: eachCol.
-            (self 
-					isFreeCell: node 
-					forClass: aClass 
-					withPathIDs: (self swSystem pathIDsOf: aClass))
-                	ifFalse: [ ^ false ] ] ].
-	
-    perimeterNodes := self getPerimeterNodesForFootprintAt: aNode size: n onGraph: aGraph.
-    perimeterNodes do: [ :eachNeighbour | 
-        | tile |
-        tile := eachNeighbour tileInWhichCollapsed.
-        (tile isClassTile and: [ tile wsClass ~= aClass ]) 
-            ifTrue: [ ^ false ] ].
+
+	| row col n perimeterNodes |
+	n := (self classNodes at: aClass) sideLength.
+	row := aNode row.
+	col := aNode column.
+	(aGraph isInBoundsRow: row + n - 1 column: col + n - 1) ifFalse: [
+		^ false ].
+	row to: row + n - 1 do: [ :eachRow |
+			col to: col + n - 1 do: [ :eachCol |
+					| node |
+					node := aGraph atRow: eachRow atColumn: eachCol.
+					(self
+						 isFreeCell: node
+						 forClass: aClass
+						 withPathIDs: (self swSystem pathIDsOf: aClass)) ifFalse: [
+						^ false ] ] ].
+			
+	perimeterNodes := self
+		getPerimeterNodesForFootprintAt: aNode
+		size: n
+		onGraph: aGraph.
 		
-	
-    ^ true
+	^ perimeterNodes noneSatisfy: [ :eachNeighbour |
+			  | tile |
+			  tile := eachNeighbour tileInWhichCollapsed.
+			  tile isClassTile and: [ tile wsClass ~= aClass ] ]
 ]
 
 { #category : 'accessing' }
@@ -375,6 +374,7 @@ WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
 	aGraph topology: self.
 	touchedNodes := OrderedCollection new.
 	footprint := self classNodes at: aClass.
+	touchedNodes addAll: footprint nodes.
 	
 	 oldNodes := footprint nodes veryDeepCopy .
     footprint nodes do: [ :eachNode |
@@ -390,7 +390,6 @@ WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
         (newNodes at: i) collapseTo: oldNode tileInWhichCollapsed ].
 
 	touchedNodes 
-		addAll: oldNodes; 
 		addAll: newNodes;
 		addAll: (aGraph optimizePathsWithExitModification: (self swSystem pathIDsOf: aClass)).
 
