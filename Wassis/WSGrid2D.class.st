@@ -195,7 +195,7 @@ WSGrid2D >> searchOutwardFrom: aNode forSize: n defaultOffset: offset [
 
         level := level + 1 ].
     
-    candidates ifEmpty: [ self error: 'No valid node found' ].
+    candidates ifEmpty: [ WSNoValidPlacementFound signal ].
 
     ^ candidates shuffled first
 ]

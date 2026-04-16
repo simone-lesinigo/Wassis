@@ -25,7 +25,7 @@ WSAdaptive2DGridSolver >> computeInitialSize [
 	| nOfClasses |
 	nOfClasses := self swSystem classes size.
 	
-	^ (nOfClasses * 2)
+	^ (nOfClasses * 1.5) rounded 
 ]
 
 { #category : 'visualization' }
@@ -74,7 +74,7 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 			Smalltalk garbageCollect.
 			self logGridSize: size.
 			self solveWithSize: size.
-       ] on: WSMaxTriesReached do: [ 
+       ] on: WSMaxTriesReached, WSNoValidPlacementFound do: [ 
         	size := size + 1 
        ].
 	]
