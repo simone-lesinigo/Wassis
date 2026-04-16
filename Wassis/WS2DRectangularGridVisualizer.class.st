@@ -132,10 +132,6 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
 						do: [ :evt | composite announce: evt ]
 						for: self ].
 			composite @ RSDraggable new noValidateChildrenEvents.
-			
-			composite when: RSMouseDragging do: [ :evt |
-    			composite pushFront.
-			] for: self.
 
 			self
 				registerDragEndOn: composite
@@ -291,7 +287,7 @@ WS2DRectangularGridVisualizer >> updateNodeVisualization: aNode [
     
     self updateShape: shape fromBitmap: newBitmap.
     self updatePopup: shape forNode: aNode.
-    shape invalidate.
+    shape invalidate
 ]
 
 { #category : 'update' }
@@ -314,11 +310,8 @@ WS2DRectangularGridVisualizer >> updateShape: aShape fromBitmap: aNewBitmap [
 WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 	"For each node in nodes array it updates the visualization (without recreating the whole visualization)"
 
-	aNodesArray do: [ :eachNode |
-		self updateNodeVisualization: eachNode 
-	].
-	
-	self refreshMouseHoverForPaths.
-	self canvas signalUpdate 
+	aNodesArray do: [ :eachNode | self updateNodeVisualization: eachNode ].
 
+	self refreshMouseHoverForPaths.
+	self canvas signalUpdate
 ]
