@@ -49,8 +49,22 @@ WSTileset >> pathTiles: anObject [
 { #category : 'adding' }
 WSTileset >> tileForDirections: directions pathID: pathID [
 	"Return the tile in which each direction in directions contain pathID"
-	
+	<toDO> "Remove the directions = 4 control as the + tile should be in the tileset"
     | tile |
+
+directions size = 4 ifTrue: [ 
+		^ WSPathTile new 
+			id: 11;
+			weight: 1;
+			pathID: pathID;
+			edges: (Dictionary new
+				at: #up put: (OrderedCollection with: pathID asSymbol);
+				at: #down put: (OrderedCollection with: pathID asSymbol);
+				at: #left put: (OrderedCollection with: pathID asSymbol);
+				at: #right put: (OrderedCollection with: pathID asSymbol);
+				yourself);
+			yourself ].
+		
     tile := self pathTiles at: pathID.
     
     ^ tile detect: [ :eachTile | 

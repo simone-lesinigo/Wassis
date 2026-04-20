@@ -145,6 +145,13 @@ WSNode >> isCollapsed: anObject [
 ]
 
 { #category : 'testing' }
+WSNode >> isEmptyNode [
+	
+	^ self tileInWhichCollapsed isEmptyTile 
+
+]
+
+{ #category : 'testing' }
 WSNode >> isNotCollapsed [
 	
 	^ self isCollapsed not

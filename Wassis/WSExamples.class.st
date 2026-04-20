@@ -129,7 +129,7 @@ WSExamples class >> exampleGetClasses2 [
 WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
-	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-14-04-2026_14h23m44s.fuel'.
+	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-20-04-2026_21h35m11s.fuel'.
 	adaptiveSolver solver createVisualization 
 ]
 
@@ -188,7 +188,7 @@ WSExamples class >> exampleRunRectangularGrid [
 			withTopology: WS2DRectangularGridTopology 
 			andSwSystem: swSystem.
 	
-	adaptiveSolver run
+	adaptiveSolver run.
 		
 
 ]

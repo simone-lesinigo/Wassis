@@ -85,6 +85,12 @@ WSTopology >> createTileset [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'accessing' }
+WSTopology >> getAllPathIDs [ 
+	
+	^ self swSystem classesPathIDs
+]
+
 { #category : 'creation' }
 WSTopology >> initializeWith: aSwSystem [
 

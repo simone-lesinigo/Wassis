@@ -86,9 +86,30 @@ WS2DRectangularGridTopology class >> verticalSymbols [
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
-    "Returns a Dictionary WSNode -> Dictionary(direction -> pathID)"
+
+
+	    "connectionDirections è ora pathID -> directions"
     
     | nodeEdges |
+
+    nodeEdges := Dictionary new.
+    slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
+    
+    connectionDirections keysAndValuesDo: [ :pathID :directions |
+        | bestDir secondaryDir slot |
+        bestDir := directions 
+            detect: [ :dir | slots anySatisfy: [ :s | s value = dir ] ]
+            ifNone: [ nil ].
+        
+        bestDir ifNotNil: [
+            secondaryDir := directions detect: [ :dir | dir ~= bestDir ] ifNone: [ nil ].
+            slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
+            (nodeEdges at: slot key) at: bestDir put: pathID.
+            slots remove: slot ] ].
+    
+    ^ nodeEdges
+        "Returns a Dictionary WSNode -> Dictionary(direction -> pathID)"
+"    | nodeEdges |
     nodeEdges := Dictionary new.
     slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
     
@@ -105,7 +126,7 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
             (nodeEdges at: slot key) at: bestDir put: pathID.
             slots remove: slot ] ].
     
-    ^ nodeEdges
+    ^ nodeEdges"
 ]
 
 { #category : 'directions' }
@@ -159,8 +180,33 @@ WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
     "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
+
+	 | pathIDToClasses connectionDirections sourceCenter |
+    connectionDirections := Dictionary new.
+    sourceCenter := aFootprint centerNode.
+    pathIDToClasses := Dictionary new.
     
-    | connectionDirections sourceCenter |
+    "Raggruppa le classi connesse per pathID"
+    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
+        | pathID |
+        pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
+        (pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) add: eachConnectedClass ].
+
+    "Per ogni pathID calcola la direzione verso il centroide del gruppo"
+    pathIDToClasses keysAndValuesDo: [ :pathID :classes |
+        | centroidColumn centroidRow centroidNode directions |
+		centroidColumn := ((classes collect: [ :c | (self classNodes at: c) centerNode column ]) 
+		    inject: 0 into: [ :sum :col | sum + col ]) / classes size.
+		centroidRow := ((classes collect: [ :c | (self classNodes at: c) centerNode row ])
+		    inject: 0 into: [ :sum :row | sum + row ]) / classes size.
+        "Crea un nodo virtuale per il centroide"
+        centroidNode := WSNode new position: {centroidRow rounded . centroidColumn rounded}.
+        directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
+        connectionDirections at: pathID put: directions ].
+    
+    ^ connectionDirections
+    
+"    | connectionDirections sourceCenter |
     connectionDirections := Dictionary new.
     sourceCenter := aFootprint centerNode.
     
@@ -170,7 +216,7 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
         directions := self preferredDirectionsFrom: sourceCenter to: targetCenter.
         connectionDirections at: eachConnectedClass put: directions ].
     
-    ^ connectionDirections
+    ^ connectionDirections"
 ]
 
 { #category : 'directions' }
@@ -283,6 +329,10 @@ WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
         { 4. 25. { path.  path.  empty. empty } }.
         { 5. 25. { empty. empty. path.  path  } }.
         { 6. 25. { empty. path.  empty. path  } }.
+		  { 7. 1. { path. path.  empty. path  } }.
+		  { 8. 1. { path. empty.  path. path  } }.
+		  { 9. 1. { path. path.  path. empty  } }.
+		  { 10. 1. { empty. path.  path. path  } }.
     }.
     
 	pathTiles := (tileSpecs collect: [ :spec |

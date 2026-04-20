@@ -72,7 +72,7 @@ WSSolver >> fuelAfterMaterialization [
 { #category : 'accessing' }
 WSSolver >> getAllPathIDs [
 
-	^ self topology swSystem classesPathIDs
+	^ self topology getAllPathIDs
 ]
 
 { #category : 'accessing' }
@@ -145,13 +145,16 @@ WSSolver >> onContradiction [
 		ifTrue: [ WSMaxTriesReached signal.  ]
 ]
 
-{ #category : 'reification' }
+{ #category : 'pathReification' }
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
 	
 	self graph createPaths.
 	self graph setPathLengths.
-	self graph destroyLoops.
+	self graph destroyRandomLoops.
+	self graph destroyPathLoops.
+	self graph mergePathsWithSameID.
+	self graph correctPaths.
 	
 	
 	

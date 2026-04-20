@@ -30,6 +30,37 @@ WS2DSquareVisitor class >> drawInstructionsFor: aPathTileID on: aBuilder size: a
 ]
 
 { #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath10On: b size: s [
+
+	b absolute;
+		moveTo: 0 @ (s * 0.4);
+		lineTo: s @ (s * 0.4);
+		lineTo: s @ (s * 0.6);
+		lineTo: 0 @ (s * 0.6);
+		closePath;
+		moveTo: (s * 0.4) @ (s * 0.6);
+		lineTo: (s * 0.6) @ (s * 0.6);
+		lineTo: (s * 0.6) @ s;
+		lineTo: (s * 0.4) @ s;
+		closePath
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath11On: b size: s [
+	b absolute;
+		moveTo: (s * 0.4) @ 0;
+		lineTo: (s * 0.6) @ 0;
+		lineTo: (s * 0.6) @ s;
+		lineTo: (s * 0.4) @ s;
+		closePath;
+		moveTo: 0 @ (s * 0.4);
+		lineTo: s @ (s * 0.4);
+		lineTo: s @ (s * 0.6);
+		lineTo: 0 @ (s * 0.6);
+		closePath
+]
+
+{ #category : 'drawing' }
 WS2DSquareVisitor class >> drawPath1On: b size: s [
     
 	b absolute;
@@ -102,6 +133,55 @@ WS2DSquareVisitor class >> drawPath6On: b size: s [
 		lineTo: 0 @ (s * 0.6);
 		lineTo: (s * 0.4) @ (s * 0.6);
 		closePath                 
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath7On: b size: s [
+
+    b absolute;
+        moveTo: (s * 0.4) @ 0;
+        lineTo: (s * 0.6) @ 0;
+        lineTo: (s * 0.6) @ s;
+        lineTo: (s * 0.4) @ s;
+        closePath;
+
+        moveTo: 0 @ (s * 0.4);
+        lineTo: (s * 0.4) @ (s * 0.4);
+        lineTo: (s * 0.4) @ (s * 0.6);
+        lineTo: 0 @ (s * 0.6);
+        closePath
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath8On: b size: s [
+
+    b absolute;
+        moveTo: (s * 0.4) @ 0;
+        lineTo: (s * 0.6) @ 0;
+        lineTo: (s * 0.6) @ s;
+        lineTo: (s * 0.4) @ s;
+        closePath;
+        moveTo: (s * 0.6) @ (s * 0.4);
+        lineTo: s @ (s * 0.4);
+        lineTo: s @ (s * 0.6);
+        lineTo: (s * 0.6) @ (s * 0.6);
+        closePath
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath9On: b size: s [
+
+	b absolute;
+		moveTo: 0 @ (s * 0.4);
+		lineTo: s @ (s * 0.4);
+		lineTo: s @ (s * 0.6);
+		lineTo: 0 @ (s * 0.6);
+		closePath;
+		moveTo: (s * 0.4) @ 0;
+		lineTo: (s * 0.6) @ 0;
+		lineTo: (s * 0.6) @ (s * 0.4);
+		lineTo: (s * 0.4) @ (s * 0.4);
+		closePath
 ]
 
 { #category : 'accessing' }

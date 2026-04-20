@@ -10,8 +10,9 @@ Class {
 		'firstNode',
 		'lastNode',
 		'pathID',
-		'class1',
-		'class2'
+		'sourceClasses',
+		'destinationClasses',
+		'touchedClasses'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -24,10 +25,28 @@ WSPath class >> withID: anID [
 	^ self new pathID: anID
 ]
 
+{ #category : 'accessing' }
+WSPath >> addDestinationClass: aNode [
+
+    self destinationClasses add: aNode.
+]
+
 { #category : 'adding' }
 WSPath >> addNode: aNode [
 
 	self nodes add: aNode
+]
+
+{ #category : 'accessing' }
+WSPath >> addSourceClass: aNode [
+
+    self sourceClasses add: aNode.
+]
+
+{ #category : 'adding' }
+WSPath >> addTouchedClass: aNode [
+
+	self touchedClasses add: aNode
 ]
 
 { #category : 'converting' }
@@ -36,34 +55,22 @@ WSPath >> asOrderedCollection [
 	self nodes: self nodes asOrderedCollection 
 ]
 
-{ #category : 'accessing' }
-WSPath >> class1 [
-
-	^ class1
-]
-
-{ #category : 'accessing' }
-WSPath >> class1: anObject [
-
-	class1 := anObject
-]
-
-{ #category : 'accessing' }
-WSPath >> class2 [
-
-	^ class2
-]
-
-{ #category : 'accessing' }
-WSPath >> class2: anObject [
-
-	class2 := anObject
-]
-
 { #category : 'private' }
 WSPath >> computeLength [
 
 	self length: self nodes size
+]
+
+{ #category : 'accessing' }
+WSPath >> destinationClasses [
+
+	^ destinationClasses 
+]
+
+{ #category : 'accessing' }
+WSPath >> destinationClasses: anObject [
+
+	destinationClasses  := anObject
 ]
 
 { #category : 'accessing' }
@@ -88,6 +95,9 @@ WSPath >> includes: aNode [
 WSPath >> initialize [ 
 	 super initialize.
 	 self nodes: IdentitySet new.
+	 self sourceClasses: OrderedCollection new.
+	 self destinationClasses: OrderedCollection new.
+	 self touchedClasses: OrderedCollection new
 ]
 
 { #category : 'accessing' }
@@ -136,4 +146,28 @@ WSPath >> pathID [
 WSPath >> pathID: anObject [
 
 	pathID := anObject
+]
+
+{ #category : 'accessing' }
+WSPath >> sourceClasses [
+
+	^ sourceClasses 
+]
+
+{ #category : 'accessing' }
+WSPath >> sourceClasses: anObject [
+
+	sourceClasses  := anObject
+]
+
+{ #category : 'accessing' }
+WSPath >> touchedClasses [
+
+	^ touchedClasses
+]
+
+{ #category : 'accessing' }
+WSPath >> touchedClasses: anObject [
+
+	touchedClasses := anObject
 ]

@@ -23,11 +23,13 @@ WSSoftwareSystem class >> createForClass: aClass usingStrategy: aStrategy [
 	instance := self new.
 	
 	dict := aStrategy createNodesFor: aClass.
+
 	instance avgNumOfConnectionsPerClass: (aStrategy createConnectionsOn: dict).
 	
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
 	
-	instance createPathIDsFromClasses.
+	"instance createPathIDsFromClasses."
+	instance createPathIDsFromClassesAllowinMerge. 
 	instance createAllConnectionsPerClass.
 	
 	^ instance
@@ -131,6 +133,30 @@ WSSoftwareSystem >> createPathIDsFromClasses [
 			self classesPathIDs at: (eachClass  -> target) ifAbsentPut: [ pathID ].
 					
 	] ]
+]
+
+{ #category : 'creation' }
+WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge [
+    "Classi connesse alla stessa destinazione condividono il pathID"
+    
+        | destinationToSources |
+    destinationToSources := Dictionary new.
+    
+    self classes do: [ :eachClass |
+        eachClass connectedWith do: [ :eachConnection |
+            | target |
+            target := eachConnection target.
+            (destinationToSources at: target ifAbsentPut: [ OrderedCollection new ])
+                add: eachClass ] ].
+ 
+    destinationToSources keysAndValuesDo: [ :destination :sources |
+        | allIDs pathID |
+        allIDs := ((sources collect: [ :s | s id ]) copyWith: destination id) asSortedCollection.
+
+        pathID := allIDs inject: '' into: [ :acc :id | acc , id printString ].
+        
+        sources do: [ :source |
+            self classesPathIDs at: (source -> destination) put: pathID ] ]
 ]
 
 { #category : 'initialization' }

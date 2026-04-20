@@ -106,7 +106,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	
 	self groupFootprintShapes.
 	
-	self canvas openOnceWithTitle: 'Wassis'.
+	self canvas openWithTitle: 'Wassis'.
 ]
 
 { #category : 'drag and drop' }
