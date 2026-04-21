@@ -89,7 +89,7 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
       andSwSystem: self swSystem).
 	
 	copyOfSolver := currentSolver veryDeepCopy.
-	copyOfSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (self topology new createEmptyTile) ] ].
+	copyOfSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (copyOfSolver topology createEmptyTile ) ] ].
 	copyOfSolver createVisualization.
 	self halt.
 	

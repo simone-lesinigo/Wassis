@@ -23,8 +23,9 @@ WS2DGridTopology class >> createOppositeDirections [
 
 { #category : 'accessing' }
 WS2DGridTopology class >> defaultOffset [
+	"Levels at which the moore neighbours of a class must be empty in the placement"
 	
-	^ 2
+	^ 3
 ]
 
 { #category : 'instance creation' }
@@ -86,8 +87,8 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 
     self classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
         | nodesToTile |
-        nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
-
+        nodesToTile := self createBorderClassTiles: eachClass forFootprint: eachFootprint.
+		  
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
             result add: (eachNode collapseTo: eachTile) ] ].
     
@@ -109,7 +110,7 @@ WS2DGridTopology >> createAllPathTiles [
 ]
 
 { #category : 'tileset' }
-WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
+WS2DGridTopology >> createBorderClassTiles: aClass forFootprint: aFootprint [
 
 	^ self subclassResponsibility 
 ]

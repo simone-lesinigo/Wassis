@@ -86,9 +86,6 @@ WS2DRectangularGridTopology class >> verticalSymbols [
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
-
-
-	    "connectionDirections è ora pathID -> directions"
     
     | nodeEdges |
 
@@ -108,25 +105,6 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
             slots remove: slot ] ].
     
     ^ nodeEdges
-        "Returns a Dictionary WSNode -> Dictionary(direction -> pathID)"
-"    | nodeEdges |
-    nodeEdges := Dictionary new.
-    slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
-    
-    connectionDirections keysAndValuesDo: [ :eachConnectedClass :directions |
-        | bestDir secondaryDir slot pathID |
-        bestDir := directions 
-            detect: [ :dir | slots anySatisfy: [ :s | s value = dir ] ]
-            ifNone: [ nil ].
-        
-        bestDir ifNotNil: [
-            secondaryDir := directions detect: [ :dir | dir ~= bestDir ] ifNone: [ nil ].
-            slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
-            pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
-            (nodeEdges at: slot key) at: bestDir put: pathID.
-            slots remove: slot ] ].
-    
-    ^ nodeEdges"
 ]
 
 { #category : 'directions' }
@@ -167,7 +145,7 @@ WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
     result := Dictionary new.
     ees := self class emptyEdgeSymbol.
     posDir := self class positionDirection.
-    
+
     nodeEdges keysAndValuesDo: [ :aNode :dirPathDict |
         | edges |
         edges := OrderedCollection new: 4 withAll: ees.
@@ -205,18 +183,6 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
         connectionDirections at: pathID put: directions ].
     
     ^ connectionDirections
-    
-"    | connectionDirections sourceCenter |
-    connectionDirections := Dictionary new.
-    sourceCenter := aFootprint centerNode.
-    
-    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
-        | targetCenter directions |
-        targetCenter := (self classNodes at: eachConnectedClass) centerNode.
-        directions := self preferredDirectionsFrom: sourceCenter to: targetCenter.
-        connectionDirections at: eachConnectedClass put: directions ].
-    
-    ^ connectionDirections"
 ]
 
 { #category : 'directions' }
@@ -233,16 +199,22 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 ]
 
 { #category : 'tileset' }
-WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
+WS2DRectangularGridTopology >> createBorderClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
-    | connectionDirections slots nodeEdges |
+    | connectionDirections slots nodes |
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 	 slots := self buildAvailableSlotsFor: aFootprint.
-	 nodeEdges := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
+	
+	 "Add border nodes"
+	 nodes := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
+	 "Add inner nodes"
+	 (aFootprint innerNodes: self) do: [ :eachNode | 
+		nodes at: eachNode put: Dictionary new
+	 ].
 
-    ^ self buildTiles: nodeEdges forClass: aClass
+    ^ self buildTiles: nodes forClass: aClass.
 ]
 
 { #category : 'matrix' }

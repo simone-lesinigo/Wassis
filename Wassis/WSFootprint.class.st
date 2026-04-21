@@ -45,6 +45,7 @@ WSFootprint >> centerNode [
 
 { #category : 'accessing' }
 WSFootprint >> innerNodes: aTopology [
+	"Return the nodes NOT on the perimeter of the footprint"
 
     ^ self nodes select: [ :aNode |
         (aTopology exposedDirectionsOf: aNode) isEmpty ]
