@@ -44,6 +44,13 @@ WSFootprint >> centerNode [
 ]
 
 { #category : 'accessing' }
+WSFootprint >> innerNodes: aTopology [
+
+    ^ self nodes select: [ :aNode |
+        (aTopology exposedDirectionsOf: aNode) isEmpty ]
+]
+
+{ #category : 'accessing' }
 WSFootprint >> nodes [
 
 	^ nodes
