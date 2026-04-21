@@ -32,7 +32,6 @@ WSHierarchyClassCollector >> createNodesFor: aClass [
 	
 	aClass withAllSuperAndSubclassesDo: 
 		[ :eachClass | 
-			"({ WSObject } includes: eachClass) ifFalse: [  "
 			dict at: eachClass put: (WSClass new id: id; name: eachClass name).
 			id := id + 1 ].
 	
