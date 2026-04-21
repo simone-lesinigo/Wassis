@@ -57,9 +57,9 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'visualization' }
 WSSolver >> createTemporaryVisualization [
-	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are grey"
+	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are displayd as lightGray"
 	
 	| copyOfSelf |
 	copyOfSelf := self veryDeepCopy.
@@ -194,7 +194,9 @@ WSSolver >> solveGraph [
 			self step.
 			self graph addOneToCollapsedNodes
 		] on: WSContradiction 
-			 do: [ self onContradiction ]
+		  do: [ 
+			self createTemporaryVisualization.
+			self onContradiction ]
 	]
 ]
 

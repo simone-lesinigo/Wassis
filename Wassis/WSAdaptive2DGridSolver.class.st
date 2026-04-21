@@ -25,7 +25,7 @@ WSAdaptive2DGridSolver >> computeInitialSize [
 	| nOfClasses |
 	nOfClasses := self swSystem classes size.
 	
-	^ (nOfClasses * 0.5) rounded 
+	^ (nOfClasses * 1.5) rounded 
 ]
 
 { #category : 'visualization' }
