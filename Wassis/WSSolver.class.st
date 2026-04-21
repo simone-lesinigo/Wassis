@@ -57,6 +57,18 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
+{ #category : 'as yet unclassified' }
+WSSolver >> createTemporaryVisualization [
+	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are grey"
+	
+	| copyOfSelf |
+	copyOfSelf := self veryDeepCopy.
+	copyOfSelf graph nodes do: [ :each | 
+		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology createUncollapsedTile ) ] ].
+	copyOfSelf createVisualization.
+	self halt.
+]
+
 { #category : 'visualization' }
 WSSolver >> createVisualization [ 
 	

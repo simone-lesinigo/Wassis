@@ -321,3 +321,10 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
 	
 	
 ]
+
+{ #category : 'visiting' }
+WS2DSquareVisitor >> visitUncollapsedTile: emptyTile [
+
+	^  RSBitmap new 
+			form: (self class generateSolidFormWithColor: Color lightGray)
+]

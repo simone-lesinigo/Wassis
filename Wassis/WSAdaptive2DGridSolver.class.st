@@ -36,6 +36,12 @@ WSAdaptive2DGridSolver >> createGraphVisualization [
 	visualizer createVisualization.
 ]
 
+{ #category : 'visualization' }
+WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
+	
+	aSolver createTemporaryVisualization
+]
+
 { #category : 'logging' }
 WSAdaptive2DGridSolver >> logGridSize: size [
 
@@ -83,15 +89,12 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize [
-	| currentSolver copyOfSolver |
+	| currentSolver |
 	currentSolver := (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
       andSwSystem: self swSystem).
 	
-	copyOfSolver := currentSolver veryDeepCopy.
-	copyOfSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (copyOfSolver topology createEmptyTile ) ] ].
-	copyOfSolver createVisualization.
-	self halt.
+	self createTemporaryVisualizationFor: currentSolver.
 	
    currentSolver run.
 

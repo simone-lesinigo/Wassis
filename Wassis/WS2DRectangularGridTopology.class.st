@@ -333,6 +333,18 @@ WS2DRectangularGridTopology >> createTileEdgesFrom: anOrderedCollection [
   ).
 ]
 
+{ #category : 'tileset' }
+WS2DRectangularGridTopology >> createUncollapsedTile [
+	
+	^ WSUncollapsedTile new
+		id: 0;
+		weight: 1;
+		edges: (self createTileEdgesFrom: (OrderedCollection new: 4 withAll: nil))
+		
+		
+	
+]
+
 { #category : 'collapse' }
 WS2DRectangularGridTopology >> exposedDirectionsOf: aNode [
     "Return the directions of aNode that face outside the footprint"
