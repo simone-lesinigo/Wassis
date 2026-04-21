@@ -25,7 +25,7 @@ WSAdaptive2DGridSolver >> computeInitialSize [
 	| nOfClasses |
 	nOfClasses := self swSystem classes size.
 	
-	^ (nOfClasses * 1.5) rounded 
+	^ (nOfClasses * 0.5) rounded 
 ]
 
 { #category : 'visualization' }
@@ -40,10 +40,9 @@ WSAdaptive2DGridSolver >> createGraphVisualization [
 WSAdaptive2DGridSolver >> logGridSize: size [
 
 	Transcript 
-		show: 'New Grid with size: ';
-		show: size;
-		show: ' * ';
-		showCr: size.
+		show: 'New grid with size: ';
+		show: size; show: ' * '; show: size;
+		cr.
 ]
 
 { #category : 'running' }
@@ -54,12 +53,9 @@ WSAdaptive2DGridSolver >> run [
 		duration := [ 
 			self solveWithIncreasingSize.
 			Smalltalk garbageCollect.
-			"self save"
 		] timeToRun.
 	
-		Transcript 
-			show: 'Execution finished in ';
-			show: (duration asDuration); cr.
+		Transcript show: 'Execution finished in '; show: (duration asDuration); cr.
 			
 	] forkNamed: 'WaveFunctionCollapse'.
 ]
@@ -70,27 +66,33 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 	size:= self computeInitialSize.
    
 	[ self solutionFound ] whileFalse: [
-   		[ 
+   		[[ 
 			Smalltalk garbageCollect.
 			self logGridSize: size.
 			self solveWithSize: size.
-       ] on: WSMaxTriesReached, WSNoValidPlacementFound do: [ 
+       ] on: WSNoValidPlacementFound do: [
+			Transcript show: 'No valid placement found for this grid, trying with new one'; cr; cr. 
         	size := size + 1 
-       ].
+       ]] on: WSMaxTriesReached do: [
+			Transcript show: 'Max n of tries reached for this grid'; cr; cr. 
+			size := size + 1
+		].
 	]
+
 ]
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize [
-	| currentSolver |
+	| currentSolver copyOfSolver |
 	currentSolver := (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
       andSwSystem: self swSystem).
 	
-"	currentSolver graph nodes: currentSolver graph nodes flattened.
-	currentSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (self topology new createEmptyTile) ] ].
-	currentSolver createVisualization.
-	self halt."
+	copyOfSolver := currentSolver veryDeepCopy.
+	copyOfSolver graph nodes do: [ :each | each isCollapsed ifFalse: [ each collapseTo: (self topology new createEmptyTile) ] ].
+	copyOfSolver createVisualization.
+	self halt.
+	
    currentSolver run.
 
 	self solver: currentSolver.

@@ -18,14 +18,16 @@ Class {
 
 { #category : 'default-settings' }
 WSBacktracking class >> defaultMaxNOfRegeneratedGraph [
+	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
 	
-	^ 80
+	^ 5
 ]
 
 { #category : 'default-settings' }
 WSBacktracking class >> defaultmaxNOfTriesPerGraph [
+	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 	
-	^ 10
+	^ 2
 ]
 
 { #category : 'instance creation' }
