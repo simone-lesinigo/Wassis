@@ -31,11 +31,31 @@ WSMDSLayoutStrategy class >> computeForClasses: classes withDimension: aDimensio
 { #category : 'calculating' }
 WSMDSLayoutStrategy >> applyDoubleCentering [
 	"Calculate double centering on the matrix. It means that both its row means and column means become zero"
+	
+    | n rowMeans grandMean |
+    n := self matrix rows size.
+    
+    rowMeans := (1 to: n) collect: [ :i | 
+        (self matrix rowAt: i) average ].
+    
+    grandMean := rowMeans average.
+
+    1 to: n do: [ :i |
+        1 to: n do: [ :j |
+            | val |
+            val := self matrix at: i at: j.
+            val := (val - (rowMeans at: i) - (rowMeans at: j) + grandMean).
+            self matrix at: i at: j put: (val * -0.5)
+        ]
+    ].
+"	""Calculate double centering on the matrix. It means that both its row means and column means become zero""
 	| centeringMatrix intermediate |
 	centeringMatrix := self createCenteringMatrix.
+	Transcript show:'Finished centering matrix'.
 	intermediate := centeringMatrix * self matrix * centeringMatrix.
+	Transcript show:'Finished intermediate'.
 	
-	self matrix: ((0 - (1/2)) * intermediate)
+	self matrix: ((0 - (1/2)) * intermediate)"
 	
 ]
 
@@ -63,14 +83,18 @@ WSMDSLayoutStrategy >> classes: anObject [
 
 { #category : 'calculating' }
 WSMDSLayoutStrategy >> computeEmbedding [
-	
-	self squareDistanceMatrix.
-	self applyDoubleCentering.
-	self calculateEigenValuesAndVecotors.
-	self createPositionMatrix 
-	
 
-	
+    self squareDistanceMatrix.
+    Transcript show: '--> Distance matrix squared'; cr.
+
+    self applyDoubleCentering.
+    Transcript show: '--> Double centering applied'; cr.
+
+    self calculateEigenValuesAndVecotors.
+    Transcript show: '--> Eigenvalues and vectors calculated'; cr.
+
+    self createPositionMatrix.
+    Transcript show: '--> Position matrix created'; cr.
 ]
 
 { #category : 'calculating' }
@@ -288,14 +312,29 @@ WSMDSLayoutStrategy >> replaceInfiniteValues [
 WSMDSLayoutStrategy >> run [
     "Run MDS: build distance matrix, apply Floyd-Warshall, compute embedding"
     
+    Transcript show: 'Started calculating position'; cr.
+    
     self initializeDistanceMatrix.
+    Transcript show: '-> Distance matrix initialized'; cr.
+    
     self fillDirectConnections.
+    Transcript show: '-> Direct connections filled'; cr.
+    
     self executeFloydWarshall.
-	 self replaceInfiniteValues.
+    Transcript show: '-> Floyd-Warshall algorithm completed'; cr.
+    
+    self replaceInfiniteValues.
+    Transcript show: '-> Infinite values replaced'; cr.
+    
     self computeEmbedding.
-	 self normalizeMatrix.
-	
-	^ self matrix
+    Transcript show: '-> Embedding computed'; cr.
+    
+    self normalizeMatrix.
+    Transcript show: '-> Matrix normalized'; cr.
+    
+    Transcript show: 'Finished calculating position'; cr.
+    
+    ^ self matrix
 ]
 
 { #category : 'calculating' }

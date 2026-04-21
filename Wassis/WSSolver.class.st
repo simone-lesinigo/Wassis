@@ -62,6 +62,7 @@ WSSolver >> createTemporaryVisualization [
 	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are displayd as lightGray"
 	
 	| copyOfSelf |
+	Transcript show: 'Started Creating visualization'.
 	copyOfSelf := self veryDeepCopy.
 	copyOfSelf graph nodes do: [ :each | 
 		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology createUncollapsedTile ) ] ].

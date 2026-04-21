@@ -24,7 +24,7 @@ WSAdaptive2DGridSolver >> computeInitialSize [
 	<toDo> "Improve the formula to compute the initial size"
 	| nOfClasses |
 	nOfClasses := self swSystem classes size.
-	
+	Transcript show: 'Number of classes: ', nOfClasses asString; cr.
 	^ (nOfClasses * 1.5) rounded 
 ]
 
