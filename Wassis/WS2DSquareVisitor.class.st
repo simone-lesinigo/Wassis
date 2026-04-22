@@ -6,7 +6,7 @@ Class {
 	#superclass : 'WSTileVisitor',
 	#classInstVars : [
 		'formCache',
-		'size'
+		'tileSize'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -220,7 +220,7 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 	"Create the form for a path tile"
 	
     | surface standardForm formSize |
-	 formSize := self size.
+	 formSize := self tileSize.
     surface := AthensCairoSurface extent:  formSize @  formSize.
     surface drawDuring: [ :canvas | | path |
         canvas setPaint: Color white.
@@ -243,7 +243,7 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 	"Generate a square filled with aColor"
 	
     | standardForm formSize |
-	 formSize := self size.
+	 formSize := self tileSize.
     standardForm := Form extent: formSize @ formSize depth: 32.
     
     standardForm fillColor: aColor.
@@ -256,9 +256,15 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 ]
 
 { #category : 'accessing' }
-WS2DSquareVisitor class >> size [ 
-	
-	^ size ifNil: [ 50 ]
+WS2DSquareVisitor class >> tileSize [
+
+	^ tileSize ifNil: [ self tileSize: 50; tileSize ]
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> tileSize: anObject [
+
+	tileSize := anObject
 ]
 
 { #category : 'adding' }

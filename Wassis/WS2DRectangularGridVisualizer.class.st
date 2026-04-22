@@ -75,6 +75,7 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	tile := aNode tileInWhichCollapsed.
 
 	shape := tile accept: self tileVisitor.			
+	shape position: (self positionOnCanvasForNode: aNode).
 						
 	tile buildPopup ifNotNil: [ :popup | shape @ popup ].
 	self addClickTo: shape.
@@ -95,14 +96,9 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	WS2DSquareVisitor clearCache.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
-	aSolver getFlattenedNodes do: [ :eachNode | self createShapeFor: eachNode ].
+	aSolver getFlattenedNodes do: [ :eachNode | eachNode isNotEmptyNode ifTrue: [ self createShapeFor: eachNode ]  ].
 	
 	self registerMouseHoverForPaths.
-
-	RSGridLayout new
-		gapSize: 0;
-		lineItemsCount: aSolver topology nColumns;
-		on: self canvas nodes.
 	
 	self groupFootprintShapes.
 	
@@ -184,7 +180,7 @@ WS2DRectangularGridVisualizer >> positionOnCanvasForNode: aNode [
 	 "Returns the center position that a node should have on the canvas"
 	
     | tileSize col row half |
-    tileSize := self tileSize.
+    tileSize := self tileVisitor class tileSize.
     half := tileSize / 2.
     col := aNode column - 1.
     row := aNode row - 1.
@@ -269,12 +265,6 @@ WS2DRectangularGridVisualizer >> registerMouseHoverForPaths [
         | pathShapes |
         pathShapes := path nodes collect: [ :node | self nodesShapes at: node ].
         self addGroupHoverTo: pathShapes ]
-]
-
-{ #category : 'accessing' }
-WS2DRectangularGridVisualizer >> tileSize [
-
-    ^ self nodesShapes anyOne extent x
 ]
 
 { #category : 'update' }

@@ -83,18 +83,19 @@ WSMDSLayoutStrategy >> classes: anObject [
 
 { #category : 'calculating' }
 WSMDSLayoutStrategy >> computeEmbedding [
+    | t |
 
-    self squareDistanceMatrix.
-    Transcript show: '--> Distance matrix squared'; cr.
+    t := [ self squareDistanceMatrix ] timeToRun.
+    Transcript show: '--> Distance matrix squared: ', t asDuration asString; cr.
 
-    self applyDoubleCentering.
-    Transcript show: '--> Double centering applied'; cr.
+    t := [ self applyDoubleCentering ] timeToRun.
+    Transcript show: '--> Double centering applied: ', t asDuration asString; cr.
 
-    self calculateEigenValuesAndVecotors.
-    Transcript show: '--> Eigenvalues and vectors calculated'; cr.
+    t := [ self calculateEigenValuesAndVecotors ] timeToRun.
+    Transcript show: '--> Eigenvalues and vectors calculated: ', t asDuration asString; cr.
 
-    self createPositionMatrix.
-    Transcript show: '--> Position matrix created'; cr.
+    t := [ self createPositionMatrix ] timeToRun.
+    Transcript show: '--> Position matrix created: ', t asDuration asString; cr.
 ]
 
 { #category : 'calculating' }
@@ -311,28 +312,29 @@ WSMDSLayoutStrategy >> replaceInfiniteValues [
 { #category : 'running' }
 WSMDSLayoutStrategy >> run [
     "Run MDS: build distance matrix, apply Floyd-Warshall, compute embedding"
+    | t |
     
-    Transcript show: 'Started calculating position'; cr.
+    Transcript show: '--- Started calculating position ---'; cr.
     
-    self initializeDistanceMatrix.
-    Transcript show: '-> Distance matrix initialized'; cr.
-    
-    self fillDirectConnections.
-    Transcript show: '-> Direct connections filled'; cr.
-    
-    self executeFloydWarshall.
-    Transcript show: '-> Floyd-Warshall algorithm completed'; cr.
-    
-    self replaceInfiniteValues.
-    Transcript show: '-> Infinite values replaced'; cr.
-    
-    self computeEmbedding.
-    Transcript show: '-> Embedding computed'; cr.
-    
-    self normalizeMatrix.
-    Transcript show: '-> Matrix normalized'; cr.
-    
-    Transcript show: 'Finished calculating position'; cr.
+    t := [ self initializeDistanceMatrix ] timeToRun.
+    Transcript show: '-> Distance matrix initialized: ', t asDuration asString; cr.
+
+    t := [ self fillDirectConnections ] timeToRun.
+    Transcript show: '-> Direct connections filled: ', t asDuration asString; cr.
+
+    t := [ self executeFloydWarshall ] timeToRun.
+    Transcript show: '-> Floyd-Warshall algorithm completed: ', t asDuration asString; cr.
+
+    t := [ self replaceInfiniteValues ] timeToRun.
+    Transcript show: '-> Infinite values replaced: ', t asDuration asString; cr.
+
+    t := [ self computeEmbedding ] timeToRun.
+    Transcript show: '-> Embedding computed: ', t asDuration asString; cr.
+
+    t := [ self normalizeMatrix ] timeToRun.
+    Transcript show: '-> Matrix normalized: ', t asDuration asString; cr.
+
+    Transcript show: '--- Finished calculating position ---'; cr.
     
     ^ self matrix
 ]

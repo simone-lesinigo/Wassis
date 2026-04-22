@@ -65,7 +65,7 @@ WSSolver >> createTemporaryVisualization [
 	Transcript show: 'Started Creating visualization'.
 	copyOfSelf := self veryDeepCopy.
 	copyOfSelf graph nodes do: [ :each | 
-		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology createUncollapsedTile ) ] ].
+		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology createEmptyTile ) ] ].
 	copyOfSelf createVisualization.
 	self halt.
 ]
@@ -196,7 +196,7 @@ WSSolver >> solveGraph [
 			self graph addOneToCollapsedNodes
 		] on: WSContradiction 
 		  do: [ 
-			self createTemporaryVisualization.
+			"self createTemporaryVisualization."
 			self onContradiction ]
 	]
 ]

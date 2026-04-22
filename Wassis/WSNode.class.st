@@ -158,6 +158,12 @@ WSNode >> isNotCollapsed [
 ]
 
 { #category : 'testing' }
+WSNode >> isNotEmptyNode [
+
+	^ self isEmptyNode not
+]
+
+{ #category : 'testing' }
 WSNode >> isPathNode [ 
 	
 	^ self tileInWhichCollapsed isPathTile 

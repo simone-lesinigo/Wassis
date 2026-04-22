@@ -85,6 +85,12 @@ WSExamples class >> exampleFindToDo [
 	    thenCollect: [ :p | p method ].
 ]
 
+{ #category : 'garbageCollect' }
+WSExamples class >> exampleGarbageCollect [
+	
+	10 timesRepeat: [ Smalltalk garbageCollect ]
+]
+
 { #category : 'finding' }
 WSExamples class >> exampleGetClasses [
 	| res |
@@ -180,7 +186,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: WSObject 
+		createForClass: InstructionClient 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 
