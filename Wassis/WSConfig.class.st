@@ -16,7 +16,7 @@ Class {
 	#tag : 'Config'
 }
 
-{ #category : '2DGrid-accessing' }
+{ #category : 'accessing-2DGrid' }
 WSConfig class >> gridSafetyMooreRadius [
 
 	^ gridSafetyMooreRadius
@@ -34,7 +34,7 @@ WSConfig class >> initialize [
 	self loadDefaults
 ]
 
-{ #category : 'default-settings' }
+{ #category : 'loading' }
 WSConfig class >> loadDefaults [ 
 	
 	"WSBacktracking"
@@ -48,7 +48,7 @@ WSConfig class >> loadDefaults [
 	self squareVisitorTileSize: 50.
 ]
 
-{ #category : 'backtracking-accessing' }
+{ #category : 'accessing-backtracking' }
 WSConfig class >> maxNumberOfRegeneratedGraph [
 
 	^ maxNumberOfRegeneratedGraph
@@ -60,7 +60,7 @@ WSConfig class >> maxNumberOfRegeneratedGraph: anObject [
 	maxNumberOfRegeneratedGraph := anObject
 ]
 
-{ #category : 'backtracking-accessing' }
+{ #category : 'accessing-backtracking' }
 WSConfig class >> maxNumberOfTriesPerGraph [
 
 	^ maxNumberOfTriesPerGraph
@@ -78,7 +78,7 @@ WSConfig class >> resetInstance [
 	uniqueInstance := nil
 ]
 
-{ #category : '2DGrid-accessing' }
+{ #category : 'accessing-2DGrid' }
 WSConfig class >> squareVisitorTileSize [
 
 	^ squareVisitorTileSize
