@@ -13,6 +13,10 @@ BaselineOfWassis >> baseline: spec [
             baseline: 'PolyMath'
             with: [ spec repository: 'github://PolyMathOrg/PolyMath' ].
 
+		  spec 
+				baseline: 'NeoJSON'
+				 with: [ spec repository: 'github://svenvc/NeoJSON/repository' ].
+
 		  spec
             baseline: 'Roassal'
             with: [ 
@@ -22,7 +26,7 @@ BaselineOfWassis >> baseline: spec [
 
         spec 
             package: 'Wassis' 
-            with: [ spec requires: #('PolyMath' 'Roassal') ];
+            with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON') ];
 
 			   package: 'Wassis-Tests'
 			   with: [ spec requires: #('Wassis') ].
