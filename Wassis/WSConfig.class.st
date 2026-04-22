@@ -36,6 +36,7 @@ WSConfig class >> initialize [
 
 { #category : 'loading' }
 WSConfig class >> loadDefaults [
+
 	 | config |
     config := self readConfigFile.
     
@@ -78,7 +79,7 @@ WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 WSConfig class >> readConfigFile [
 	"Read the JSON that contains the configs"
 	| file |
-    file := '/Users/Simo/Desktop/Wassis/config.json' asFileReference.
+    file := (WSObject rootPath, 'config.json') asFileReference.
     
     ^ (file exists and: [ file contents isNotEmpty ])
         ifTrue: [ 

@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Root'
 }
+
+{ #category : 'accessing' }
+WSObject class >> rootPath [
+
+	^ '/Users/Simo/Desktop/Wassis/'
+]
