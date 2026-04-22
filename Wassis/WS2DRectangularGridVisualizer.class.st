@@ -93,7 +93,6 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self clear.
 	self solver: aSolver.
 
-	WS2DSquareVisitor clearCache.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
 	aSolver getFlattenedNodes do: [ :eachNode | eachNode isNotEmptyNode ifTrue: [ self createShapeFor: eachNode ]  ].

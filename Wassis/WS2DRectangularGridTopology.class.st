@@ -4,6 +4,9 @@ It creates the graph for a rectangular grid. You can set the dimension with a po
 Class {
 	#name : 'WS2DRectangularGridTopology',
 	#superclass : 'WS2DGridTopology',
+	#instVars : [
+		'emptyTile'
+	],
 	#category : 'Wassis-Topology',
 	#package : 'Wassis',
 	#tag : 'Topology'
@@ -343,6 +346,18 @@ WS2DRectangularGridTopology >> createUncollapsedTile [
 		
 		
 	
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridTopology >> emptyTile [
+
+	^ emptyTile ifNil: [ self emptyTile: self createEmptyTile; emptyTile  ]
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridTopology >> emptyTile: anObject [
+
+	emptyTile := anObject
 ]
 
 { #category : 'collapse' }

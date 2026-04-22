@@ -22,10 +22,10 @@ WS2DGridTopology class >> createOppositeDirections [
 ]
 
 { #category : 'accessing' }
-WS2DGridTopology class >> defaultOffset [
+WS2DGridTopology class >> safetyMooreRadius [
 	"Levels at which the moore neighbours of a class must be empty in the placement"
 	
-	^ 3
+	^ WSConfig uniqueInstance gridSafetyMooreRadius
 ]
 
 { #category : 'instance creation' }
@@ -433,13 +433,13 @@ WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n in: aGrid [
     (aGrid 
 		isValidTopLeft: target 
 		forSize: n 
-		withOffset: self class defaultOffset) 
+		withOffset: self class safetyMooreRadius) 
 			ifTrue: [ ^ target ].
     
     ^ aGrid 
 		searchOutwardFrom: target 
 		forSize: n 
-		defaultOffset: self class defaultOffset
+		defaultOffset: self class safetyMooreRadius
 ]
 
 { #category : 'removing' }

@@ -12,6 +12,12 @@ Class {
 	#tag : 'Visualization'
 }
 
+{ #category : 'cleanup' }
+WSTileVisitor class >> clearCache [ 
+
+	^ self subclassResponsibility 
+]
+
 { #category : 'colors' }
 WSTileVisitor class >> createColorWheelWithSize: aNumber [
 	"Create a color wheel with the given size and then shuffles it"
@@ -23,7 +29,7 @@ WSTileVisitor class >> createColorWheelWithSize: aNumber [
 WSTileVisitor class >> withPathIDs: aPathIDsArray [
 	
 	| colorWheel pathIDColorDictionary |
-	
+	self clearCache.
 	colorWheel := self createColorWheelWithSize: ((aPathIDsArray size) * 4 / 2).
 	
 	pathIDColorDictionary := Dictionary new.

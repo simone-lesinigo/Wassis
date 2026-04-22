@@ -94,7 +94,7 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
     	withTopology: (self topology withGrid: aSize @ aSize) 
       andSwSystem: self swSystem).
 	
-	self createTemporaryVisualizationFor: currentSolver.
+	"self createTemporaryVisualizationFor: currentSolver."
    currentSolver run.
 
 	self solver: currentSolver.

@@ -62,10 +62,10 @@ WSSolver >> createTemporaryVisualization [
 	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are displayd as lightGray"
 	
 	| copyOfSelf |
-	Transcript show: 'Started Creating visualization'.
+	Transcript show: 'Started creating temporary visualization'; cr; cr.
 	copyOfSelf := self veryDeepCopy.
 	copyOfSelf graph nodes do: [ :each | 
-		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology createEmptyTile ) ] ].
+		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology emptyTile) ] ].
 	copyOfSelf createVisualization.
 	self halt.
 ]
@@ -148,13 +148,13 @@ WSSolver >> onContradiction [
 
 	bt restartFromClassesGraphForSolver: self.
 
-	(bt nOfContradicitonsPerGraph) > (bt maxNOfTriesPerGraph) ifFalse: [ ^ self ].
+	(bt nOfContradicitonsPerGraph) > (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
 
 	bt restartFromEmptyGraphForSolver: self.
 	Transcript show: 'Tries: ';
-	showCr: (bt nOfRegeneratedGraph) * (bt maxNOfTriesPerGraph).
+	showCr: (bt nOfRegeneratedGraph) * (bt maxNumberOfTriesPerGraph).
 	
-	bt nOfRegeneratedGraph >= bt maxNOfRegeneratedGraph 
+	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
 		ifTrue: [ WSMaxTriesReached signal.  ]
 ]
 

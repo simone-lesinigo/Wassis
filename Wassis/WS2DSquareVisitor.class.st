@@ -5,8 +5,7 @@ Class {
 	#name : 'WS2DSquareVisitor',
 	#superclass : 'WSTileVisitor',
 	#classInstVars : [
-		'formCache',
-		'tileSize'
+		'formCache'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -258,13 +257,7 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 { #category : 'accessing' }
 WS2DSquareVisitor class >> tileSize [
 
-	^ tileSize ifNil: [ self tileSize: 50; tileSize ]
-]
-
-{ #category : 'accessing' }
-WS2DSquareVisitor class >> tileSize: anObject [
-
-	tileSize := anObject
+	^ WSConfig uniqueInstance squareVisitorTileSize
 ]
 
 { #category : 'adding' }

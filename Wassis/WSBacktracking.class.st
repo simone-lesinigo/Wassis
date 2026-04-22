@@ -6,8 +6,6 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'classesGraphCheckpoint',
-		'maxNOfTriesPerGraph',
-		'maxNOfRegeneratedGraph',
 		'nOfContradicitonsPerGraph',
 		'nOfRegeneratedGraph'
 	],
@@ -17,17 +15,17 @@ Class {
 }
 
 { #category : 'default-settings' }
-WSBacktracking class >> defaultMaxNOfRegeneratedGraph [
+WSBacktracking class >> maxNumberOfRegeneratedGraph [
 	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
 	
-	^ 10
+	^ WSConfig uniqueInstance maxNumberOfRegeneratedGraph 
 ]
 
 { #category : 'default-settings' }
-WSBacktracking class >> defaultmaxNOfTriesPerGraph [
+WSBacktracking class >> maxNumberOfTriesPerGraph [
 	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 	
-	^ 10
+	^ WSConfig uniqueInstance maxNumberOfTriesPerGraph 
 ]
 
 { #category : 'instance creation' }
@@ -66,33 +64,20 @@ WSBacktracking >> initialize [
 	super initialize.
 	self 
 		nOfContradicitonsPerGraph: 0;
-		nOfRegeneratedGraph: 0;
-		maxNOfTriesPerGraph: self class defaultmaxNOfTriesPerGraph;
-		maxNOfRegeneratedGraph: self class defaultMaxNOfRegeneratedGraph
+		nOfRegeneratedGraph: 0
 ]
 
 { #category : 'accessing' }
-WSBacktracking >> maxNOfRegeneratedGraph [
-
-	^ maxNOfRegeneratedGraph
+WSBacktracking >> maxNumberOfRegeneratedGraph [
+	
+	^ self class maxNumberOfRegeneratedGraph
 ]
 
 { #category : 'accessing' }
-WSBacktracking >> maxNOfRegeneratedGraph: anObject [
-
-	maxNOfRegeneratedGraph := anObject
-]
-
-{ #category : 'accessing' }
-WSBacktracking >> maxNOfTriesPerGraph [
-
-	^ maxNOfTriesPerGraph
-]
-
-{ #category : 'accessing' }
-WSBacktracking >> maxNOfTriesPerGraph: anObject [
-
-	maxNOfTriesPerGraph := anObject
+WSBacktracking >> maxNumberOfTriesPerGraph [
+	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
+	
+	^ self class maxNumberOfTriesPerGraph
 ]
 
 { #category : 'accessing' }
