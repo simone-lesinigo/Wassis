@@ -176,9 +176,9 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
     "Per ogni pathID calcola la direzione verso il centroide del gruppo"
     pathIDToClasses keysAndValuesDo: [ :pathID :classes |
         | centroidColumn centroidRow centroidNode directions |
-		centroidColumn := ((classes collect: [ :c | (self classNodes at: c) centerNode column ]) 
+		centroidColumn := ((classes collect: [ :c | (self classFootprint at: c) centerNode column ]) 
 		    inject: 0 into: [ :sum :col | sum + col ]) / classes size.
-		centroidRow := ((classes collect: [ :c | (self classNodes at: c) centerNode row ])
+		centroidRow := ((classes collect: [ :c | (self classFootprint at: c) centerNode row ])
 		    inject: 0 into: [ :sum :row | sum + row ]) / classes size.
         "Crea un nodo virtuale per il centroide"
         centroidNode := WSNode new position: {centroidRow rounded . centroidColumn rounded}.
@@ -433,7 +433,7 @@ WS2DRectangularGridTopology >> rebuildClassNodes: aGraph [
 	                ifAbsentPut: [ eachNode footPrint ].
 	        ]
 	].
-	self classNodes: classNodesDict
+	self classFootprint: classNodesDict
 ]
 
 { #category : 'removing' }

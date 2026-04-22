@@ -89,13 +89,12 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
-
 	self clear.
 	self solver: aSolver.
 
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
-	aSolver getFlattenedNodes do: [ :eachNode | eachNode isNotEmptyNode ifTrue: [ self createShapeFor: eachNode ]  ].
+	aSolver getNotEmptyNodes do: [ :eachNode |  self createShapeFor: eachNode  ].
 	
 	self registerMouseHoverForPaths.
 	
@@ -108,7 +107,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
 	"Groups in a RSComposite the shapes of the same class"
 
-	self solver getClassNodes keysAndValuesDo: [ :aClass :aFootprint |
+	self solver getClassFootprint keysAndValuesDo: [ :aClass :aFootprint |
 			| footprintShapes composite |
 			footprintShapes := aFootprint nodes collect: [ :aNode |
 				                   self nodesShapes at: aNode ].

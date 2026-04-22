@@ -64,10 +64,8 @@ WSSolver >> createTemporaryVisualization [
 	| copyOfSelf |
 	Transcript show: 'Started creating temporary visualization'; cr; cr.
 	copyOfSelf := self veryDeepCopy.
-	copyOfSelf graph nodes do: [ :each | 
-		each isCollapsed ifFalse: [ each collapseTo: (copyOfSelf topology emptyTile) ] ].
 	copyOfSelf createVisualization.
-	self halt.
+	
 ]
 
 { #category : 'visualization' }
@@ -95,15 +93,37 @@ WSSolver >> getAllPaths [
 ]
 
 { #category : 'accessing' }
-WSSolver >> getClassNodes [
+WSSolver >> getClassFootprint [
 
-	^ self topology classNodes 
+	^ self topology classFootprint 
+]
+
+{ #category : 'accessing' }
+WSSolver >> getClassNodes [
+	"Returns an ordered collection of the class nodes"
+	
+	^ self getClassFootprint flatCollect: [ :eachFootprint | eachFootprint nodes ]
+
 ]
 
 { #category : 'accessing' }
 WSSolver >> getFlattenedNodes [
+	"Get all the nodes"
 
 	^ self graph getFlattenedNodes 
+]
+
+{ #category : 'accessing' }
+WSSolver >> getNotEmptyNodes [
+	"Get all the nodes that didnt collapse into an empty tile"
+
+    ^ self getPathNodes , self getClassNodes
+]
+
+{ #category : 'accessing' }
+WSSolver >> getPathNodes [
+	
+	^ self graph getPathNodes
 ]
 
 { #category : 'accessing' }

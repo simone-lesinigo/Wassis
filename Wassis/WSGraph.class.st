@@ -212,7 +212,7 @@ WSGraph >> createPaths [
     visitedPathNodes := Set new.
     pathIDs do: [ :pathID | self paths at: pathID put: OrderedCollection new ].
     
-    self topology classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
+    self topology classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
         eachFootprint nodes do: [ :eachClassNode |
             | tileEdges |
             tileEdges := eachClassNode tileInWhichCollapsed edges.
@@ -300,8 +300,8 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
 	| footprint1 footprint2 shortestPath |
-	footprint1 := (self topology classNodes at: classes key).
-	footprint2 := (self topology classNodes at: classes value).
+	footprint1 := (self topology classFootprint at: classes key).
+	footprint2 := (self topology classFootprint at: classes value).
 
 	shortestPath := nil.
 	
@@ -371,6 +371,17 @@ WSGraph >> getFlattenedNodes [
 WSGraph >> getNeighboursOf: aNode atLevel: level [
 	
 	^ self structure getNeighboursOf: aNode atLevel: level
+]
+
+{ #category : 'accessing' }
+WSGraph >> getPathNodes [
+	"Returns an ordered collection of the path nodes"
+	^ self paths flatCollect: [ :each | each nodes ]
+"	| res |
+	res := OrderedCollection new.
+	self paths do: [ :eachPath | res addAll: eachPath nodes ].
+	
+	^ res"
 ]
 
 { #category : '2DGrid' }
@@ -541,8 +552,8 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
-		generatedPath sourceClasses: (((self topology classNodes at: classes key) borderNodes: self topology) first).
-		generatedPath destinationClasses: (((self topology classNodes at: classes value) borderNodes: self topology) first).
+		generatedPath sourceClasses: (((self topology classFootprint at: classes key) borderNodes: self topology) first).
+		generatedPath destinationClasses: (((self topology classFootprint at: classes value) borderNodes: self topology) first).
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
 	]. 
 

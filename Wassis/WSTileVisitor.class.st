@@ -30,6 +30,7 @@ WSTileVisitor class >> withPathIDs: aPathIDsArray [
 	
 	| colorWheel pathIDColorDictionary |
 	self clearCache.
+	
 	colorWheel := self createColorWheelWithSize: ((aPathIDsArray size) * 4 / 2).
 	
 	pathIDColorDictionary := Dictionary new.

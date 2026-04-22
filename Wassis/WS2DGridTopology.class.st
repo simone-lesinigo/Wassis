@@ -9,7 +9,7 @@ Class {
 		'nRows',
 		'nColumns',
 		'layoutMatrix',
-		'classNodes'
+		'classFootprint'
 	],
 	#category : 'Wassis-Topology',
 	#package : 'Wassis',
@@ -62,19 +62,19 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
             each isCollapsed: true.
             each footPrint: footprint ].
         
-        self classNodes at: eachClass put: footprint ]
+        self classFootprint at: eachClass put: footprint ]
 ]
 
 { #category : 'accessing' }
-WS2DGridTopology >> classNodes [
+WS2DGridTopology >> classFootprint [
 
-	^ classNodes
+	^ classFootprint
 ]
 
 { #category : 'accessing' }
-WS2DGridTopology >> classNodes: anObject [
+WS2DGridTopology >> classFootprint: anObject [
 
-	classNodes := anObject
+	classFootprint := anObject
 ]
 
 { #category : 'collapse' }
@@ -86,7 +86,7 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
     Transcript show: 'Started placing classes'; cr.
     self assignNodesToClassesIn: aGrid.
 		Transcript show: 'Finished placing classes'; cr.
-    self classNodes keysAndValuesDo: [ :eachClass :eachFootprint |
+    self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
         | nodesToTile |
         nodesToTile := self createBorderClassTiles: eachClass forFootprint: eachFootprint.
 		  
@@ -293,7 +293,7 @@ WS2DGridTopology >> getPerimeterNodesForFootprintAt: topLeftNode size: n onGraph
 WS2DGridTopology >> initialize [ 
 	
 	super initialize.
-	self classNodes: Dictionary new
+	self classFootprint: Dictionary new
 ]
 
 { #category : 'creation' }
@@ -331,7 +331,7 @@ WS2DGridTopology >> isValidPosition: aPoint [
 WS2DGridTopology >> isValidToMove: aClass toNode: aNode onGraph: aGraph [
 
 	| row col n perimeterNodes |
-	n := (self classNodes at: aClass) sideLength.
+	n := (self classFootprint at: aClass) sideLength.
 	row := aNode row.
 	col := aNode column.
 	(aGraph isInBoundsRow: row + n - 1 column: col + n - 1) ifFalse: [
@@ -375,7 +375,7 @@ WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
 	| touchedNodes footprint oldNodes newNodes |
 	aGraph topology: self.
 	touchedNodes := OrderedCollection new.
-	footprint := self classNodes at: aClass.
+	footprint := self classFootprint at: aClass.
 	touchedNodes addAll: footprint nodes.
 	
 	 oldNodes := footprint nodes veryDeepCopy .
