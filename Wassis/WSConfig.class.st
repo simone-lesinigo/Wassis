@@ -35,17 +35,19 @@ WSConfig class >> initialize [
 ]
 
 { #category : 'loading' }
-WSConfig class >> loadDefaults [ 
-	
-	"WSBacktracking"
-	self maxNumberOfTriesPerGraph: 2. 
-	self maxNumberOfRegeneratedGraph: 2. 
-	
-	"WS2DGridTopology"
-	self gridSafetyMooreRadius: 3.
-	
-	"WS2DSquareVisitor"
-	self squareVisitorTileSize: 50.
+WSConfig class >> loadDefaults [
+	 | config |
+    config := self readConfigFile.
+    
+    "WSBacktracing"
+    self maxNumberOfTriesPerGraph: (config atPath: {'WSBacktracking' . 'maxNumberOfTriesPerGraph'} default: 10).
+    self maxNumberOfRegeneratedGraph: (config atPath: {'WSBacktracking' . 'maxNumberOfRegeneratedGraph'} default: 10).
+    
+    "WS2DGridTopology"
+    self gridSafetyMooreRadius: (config atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 3).
+    
+    "WS2DSquareVisitor"
+    self squareVisitorTileSize: (config atPath:  {'WS2DSquareVisitor' . 'squareVisitorTileSize'} default: 50).
 ]
 
 { #category : 'accessing-backtracking' }
@@ -70,6 +72,20 @@ WSConfig class >> maxNumberOfTriesPerGraph [
 WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 
 	maxNumberOfTriesPerGraph := anObject
+]
+
+{ #category : 'loading' }
+WSConfig class >> readConfigFile [
+	"Read the JSON that contains the configs"
+	| file |
+    file := '/Users/Simo/Desktop/Wassis/config.json' asFileReference.
+    
+    ^ (file exists and: [ file contents isNotEmpty ])
+        ifTrue: [ 
+            (NeoJSONReader on: file contents readStream) 
+                mapClass: NeoJSONObject; 
+                next ]
+        ifFalse: [ NeoJSONObject new ].
 ]
 
 { #category : 'reset' }
