@@ -376,12 +376,9 @@ WSGraph >> getNeighboursOf: aNode atLevel: level [
 { #category : 'accessing' }
 WSGraph >> getPathNodes [
 	"Returns an ordered collection of the path nodes"
-	^ self paths flatCollect: [ :each | each nodes ]
-"	| res |
-	res := OrderedCollection new.
-	self paths do: [ :eachPath | res addAll: eachPath nodes ].
 	
-	^ res"
+	^ self paths flatCollect: [ :eachPath | eachPath nodes ]
+
 ]
 
 { #category : '2DGrid' }

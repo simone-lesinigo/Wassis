@@ -66,7 +66,7 @@ WSMDSLayoutStrategy >> calculateEigenValuesAndVecotors [
 	aux := self matrix eigen.
 	
 	self eigenvalues: aux values.
-	self eigenvectors: aux vectors
+	self eigenvectors: aux vectors.
 ]
 
 { #category : 'accessing' }
