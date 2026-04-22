@@ -93,7 +93,7 @@ WSConfig class >> squareVisitorTileSize: anObject [
 { #category : 'accessing' }
 WSConfig class >> uniqueInstance [
 
-	^ uniqueInstance := self initialize 
+	^ uniqueInstance ifNil: [ uniqueInstance := self initialize ]
 ]
 
 { #category : 'private' }

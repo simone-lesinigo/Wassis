@@ -53,6 +53,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
+	WSConfig resetInstance.
 	"self createGraphVisualization."
    [ 
 		| duration |
