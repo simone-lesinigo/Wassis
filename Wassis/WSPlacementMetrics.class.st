@@ -3,7 +3,7 @@ Metrics about the placement of the classes on the grid
 "
 Class {
 	#name : 'WSPlacementMetrics',
-	#superclass : 'WSMetrics',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'classDistances'
 	],

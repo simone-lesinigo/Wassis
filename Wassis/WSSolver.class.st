@@ -26,6 +26,7 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	^ self new
 		graph: graph;
 		topology: aTopology;
+		metrics: WSMetrics new;
 		backtracking: (WSBacktracking newWithGraph: graph)
 
 		

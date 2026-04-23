@@ -3,7 +3,7 @@ Time metrics
 "
 Class {
 	#name : 'WSPerformanceMetrics',
-	#superclass : 'WSMetrics',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'mdsTime',
 		'placementTime',

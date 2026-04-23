@@ -3,7 +3,7 @@ Metrics about the paths
 "
 Class {
 	#name : 'WSPathMetrics',
-	#superclass : 'WSMetrics',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'totalNumberOfPaths'
 	],

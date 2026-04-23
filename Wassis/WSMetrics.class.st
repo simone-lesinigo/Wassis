@@ -1,15 +1,16 @@
 "
-Collection of all the metrics in Wassis
+Container of all the metrics in Wassis
 "
 Class {
 	#name : 'WSMetrics',
-	#superclass : 'WSObject',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'graphMetrics',
 		'pathMetrics',
 		'performanceMetrics',
 		'placementMetrics',
-		'softwareMetrics'
+		'softwareMetrics',
+		'tilesetMetrics'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
@@ -37,6 +38,7 @@ WSMetrics >> initialize [
 	self performanceMetrics: WSPerformanceMetrics new.
 	self placementMetrics: WSPlacementMetrics new.
 	self softwareMetrics: WSSoftwareMetrics new.
+	self tilesetMetrics: WSTilesetMetrics new
 ]
 
 { #category : 'accessing' }
@@ -85,4 +87,16 @@ WSMetrics >> softwareMetrics [
 WSMetrics >> softwareMetrics: anObject [
 
 	softwareMetrics := anObject
+]
+
+{ #category : 'accessing' }
+WSMetrics >> tilesetMetrics [
+
+	^ tilesetMetrics
+]
+
+{ #category : 'accessing' }
+WSMetrics >> tilesetMetrics: anObject [
+
+	tilesetMetrics := anObject
 ]

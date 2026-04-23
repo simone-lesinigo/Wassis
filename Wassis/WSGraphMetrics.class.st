@@ -3,7 +3,7 @@ Metrics about the graph
 "
 Class {
 	#name : 'WSGraphMetrics',
-	#superclass : 'WSMetrics',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'totalNumberOfNodes',
 		'numberOfPathNodes',

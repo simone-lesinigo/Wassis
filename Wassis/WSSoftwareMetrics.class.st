@@ -3,7 +3,7 @@ Metrics about the software system that is being visualized
 "
 Class {
 	#name : 'WSSoftwareMetrics',
-	#superclass : 'WSMetrics',
+	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'numberOfClasses',
 		'avgNumOfConnectionsPerClass',
