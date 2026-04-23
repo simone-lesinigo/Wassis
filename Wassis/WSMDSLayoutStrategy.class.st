@@ -11,21 +11,74 @@ Class {
 		'eigenvectors',
 		'dimension'
 	],
+	#classInstVars : [
+		'swSystemHash',
+		'cachedPositionMatrix',
+		'cachedDimension'
+	],
 	#category : 'Wassis-Placement',
 	#package : 'Wassis',
 	#tag : 'Placement'
 }
 
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> cachedDimension [
+
+	^ cachedDimension
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> cachedDimension: anObject [
+
+	cachedDimension := anObject
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> cachedPositionMatrix [
+
+	^ cachedPositionMatrix
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> cachedPositionMatrix: anObject [
+
+	cachedPositionMatrix := anObject
+]
+
 { #category : 'instance creation' }
-WSMDSLayoutStrategy class >> computeForClasses: classes withDimension: aDimension [
+WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimension [
+	"Compute the matrix with the position calculated by MDS"
 	
 	| instance dict |
-	instance := self new.
-	dict := Dictionary new.
-	classes do: [ :eachClass | dict at: eachClass id put: eachClass ].
-	instance classes: dict; dimension: aDimension.
 	
-	^ instance run
+	(self cachedPositionMatrix isNil 
+		or: [ swSystem hash ~= self swSystemHash 
+			or: [ aDimension ~= self cachedDimension ]]) ifTrue: [  
+			
+				self swSystemHash: swSystem hash.
+				self cachedDimension: aDimension.
+				
+				instance := self new.
+				dict := Dictionary new.
+				swSystem classes do: [ :eachClass | dict at: eachClass id put: eachClass ].
+				instance classes: dict; dimension: aDimension.
+				
+				self cachedPositionMatrix: instance run.
+	].
+
+	^ self cachedPositionMatrix 
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> swSystemHash [
+
+	^ swSystemHash
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> swSystemHash: anObject [
+
+	swSystemHash := anObject
 ]
 
 { #category : 'calculating' }

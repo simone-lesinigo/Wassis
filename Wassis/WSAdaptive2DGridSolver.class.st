@@ -96,7 +96,6 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
       andSwSystem: self swSystem).
 	
 	currentSolver addInitialMetrics.
-	self halt.
 	
 	"self createTemporaryVisualizationFor: currentSolver."
    currentSolver run.
