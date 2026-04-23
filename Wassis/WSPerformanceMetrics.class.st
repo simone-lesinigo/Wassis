@@ -6,10 +6,11 @@ Class {
 	#superclass : 'WSAbstractMetrics',
 	#instVars : [
 		'mdsTime',
-		'placementTime',
 		'wfcTime',
 		'visualizationTime',
-		'totalTime'
+		'solverTotalTime',
+		'totalTime',
+		'wastedTime'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
@@ -29,15 +30,15 @@ WSPerformanceMetrics >> mdsTime: anObject [
 ]
 
 { #category : 'accessing' }
-WSPerformanceMetrics >> placementTime [
+WSPerformanceMetrics >> solverTotalTime [
 
-	^ placementTime
+	^ solverTotalTime
 ]
 
 { #category : 'accessing' }
-WSPerformanceMetrics >> placementTime: anObject [
+WSPerformanceMetrics >> solverTotalTime: anObject [
 
-	placementTime := anObject
+	solverTotalTime := anObject
 ]
 
 { #category : 'accessing' }
@@ -62,6 +63,18 @@ WSPerformanceMetrics >> visualizationTime [
 WSPerformanceMetrics >> visualizationTime: anObject [
 
 	visualizationTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> wastedTime [
+
+	^ wastedTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> wastedTime: anObject [
+
+	wastedTime := anObject
 ]
 
 { #category : 'accessing' }

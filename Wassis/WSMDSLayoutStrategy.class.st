@@ -14,7 +14,8 @@ Class {
 	#classInstVars : [
 		'swSystemHash',
 		'cachedPositionMatrix',
-		'cachedDimension'
+		'cachedDimension',
+		'computationTime'
 	],
 	#category : 'Wassis-Placement',
 	#package : 'Wassis',
@@ -45,6 +46,18 @@ WSMDSLayoutStrategy class >> cachedPositionMatrix: anObject [
 	cachedPositionMatrix := anObject
 ]
 
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> computationTime [
+
+	^ computationTime
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy class >> computationTime: anObject [
+
+	computationTime := anObject
+]
+
 { #category : 'instance creation' }
 WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimension [
 	"Compute the matrix with the position calculated by MDS"
@@ -61,9 +74,9 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 				instance := self new.
 				dict := Dictionary new.
 				swSystem classes do: [ :eachClass | dict at: eachClass id put: eachClass ].
-				instance classes: dict; dimension: aDimension.
 				
-				self cachedPositionMatrix: instance run.
+				instance classes: dict; dimension: aDimension.
+				self computationTime: [ self cachedPositionMatrix: instance run ] timeToRun
 	].
 
 	^ self cachedPositionMatrix 

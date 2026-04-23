@@ -56,13 +56,16 @@ WSAdaptive2DGridSolver >> run [
 	WSConfig resetInstance.
 	"self createGraphVisualization."
    [ 
-		| duration |
-		duration := [ 
+		| totalTime |
+		totalTime := [ 
 			self solveWithIncreasingSize.
 			Smalltalk garbageCollect.
 		] timeToRun.
 	
-		Transcript show: 'Execution finished in '; show: (duration asDuration); cr.
+	  self updatePerformanceMetricsWithTime: totalTime.
+	  self solver inspect.
+	
+	  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
 			
 	] forkNamed: 'WaveFunctionCollapse'.
 ]
@@ -98,8 +101,20 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
 	currentSolver addInitialMetrics.
 	
 	"self createTemporaryVisualizationFor: currentSolver."
-   currentSolver run.
+   currentSolver getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
 	self solver: currentSolver.
 	self solutionFound: true
+]
+
+{ #category : 'metrics' }
+WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
+
+	| performanceMetrics |
+	performanceMetrics := self solver getPerformanceMetrics.
+	performanceMetrics 
+		totalTime: totalTime;
+		mdsTime: WSMDSLayoutStrategy computationTime;
+		wastedTime: (totalTime - (performanceMetrics solverTotalTime) - (performanceMetrics mdsTime))
+	
 ]

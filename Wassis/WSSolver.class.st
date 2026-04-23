@@ -19,7 +19,6 @@ Class {
 WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 
 	| graph |
-	
 	aTopology initializeWith: aSwSystem.
 	graph := aTopology createGraph.
 	
@@ -39,7 +38,7 @@ WSSolver >> addInitialGraphMetrics [
 	"Add the total number of nodes and the dimension"
 	
 	| graphMetrics |
-	graphMetrics := self metrics graphMetrics.
+	graphMetrics := self getGraphMetrics.
 	
 	graphMetrics totalNumberOfNodes: self graph nodes size.
 	graphMetrics dimension: self graph structure dimension
@@ -60,7 +59,7 @@ WSSolver >> addInitialPathMetrics [
 	"Add only the number of direct, merging and total paths"
 	
 	| pathMetrics dict nOfDirect |
-	pathMetrics := self metrics pathMetrics.
+	pathMetrics := self getPathMetrics.
 	
 	dict := ((self topology swSystem classesPathIDs) values groupedBy: [ :each | each ] ) collect: [ :group | group size ].
 	nOfDirect := (dict select: [ :each | each = 1 ]) size.
@@ -78,7 +77,7 @@ WSSolver >> addSoftwareMetrics [
 	| swSystem swMetrics counter |
 	counter := 0.
 	swSystem := self topology swSystem.
-	swMetrics := self metrics softwareMetrics .
+	swMetrics := self getSoftwareMetrics.
 	
 	swMetrics numberOfClasses: swSystem classes size.
 	
@@ -102,7 +101,7 @@ WSSolver >> addTilesetMetrics [
 	
 	| numberOfTiles |
 	numberOfTiles := self topology tileset tiles size.
-	self metrics tilesetMetrics numberOfTiles: numberOfTiles 
+	self getTilesetMetrics numberOfTiles: numberOfTiles 
 ]
 
 { #category : 'accessing' }
@@ -132,7 +131,7 @@ WSSolver >> clearAllPathsOf: aClass [
 
 { #category : 'visualization' }
 WSSolver >> createTemporaryVisualization [
-	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are displayd as lightGray"
+	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are not displayed"
 	
 	| copyOfSelf |
 	Transcript show: 'Started creating temporary visualization'; cr; cr.
@@ -186,6 +185,12 @@ WSSolver >> getFlattenedNodes [
 	^ self graph getFlattenedNodes 
 ]
 
+{ #category : 'metrics' }
+WSSolver >> getGraphMetrics [ 
+	
+	^ self metrics graphMetrics
+]
+
 { #category : 'accessing' }
 WSSolver >> getNotEmptyNodes [
 	"Get all the nodes that didnt collapse into an empty tile"
@@ -193,10 +198,40 @@ WSSolver >> getNotEmptyNodes [
     ^ self getPathNodes , self getClassNodes
 ]
 
+{ #category : 'metrics' }
+WSSolver >> getPathMetrics [ 
+	
+	^ self metrics pathMetrics 
+]
+
 { #category : 'accessing' }
 WSSolver >> getPathNodes [
 	
 	^ self graph getPathNodes
+]
+
+{ #category : 'metrics' }
+WSSolver >> getPerformanceMetrics [
+	
+	^ self metrics performanceMetrics 
+]
+
+{ #category : 'metrics' }
+WSSolver >> getPlacementMetrics [ 
+	
+	^ self metrics placementMetrics 
+]
+
+{ #category : 'metrics' }
+WSSolver >> getSoftwareMetrics [ 
+	
+	^ self metrics softwareMetrics 
+]
+
+{ #category : 'metrics' }
+WSSolver >> getTilesetMetrics [ 
+	
+	^ self metrics tilesetMetrics 
 ]
 
 { #category : 'accessing' }
@@ -284,10 +319,16 @@ WSSolver >> reifyWFCPaths [
 WSSolver >> run [
 	"Run the WFC algorithm on the graph" 
 	
-	self solveGraph.
+	| performanceMetrics |
+	performanceMetrics := self metrics performanceMetrics.
+	
+	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	self reifyWFCPaths.
+	self updateGraphMetrics.
 	self topology rebuildClassNodes: self graph.
-	self createVisualization
+	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun.
+	
+	
 ]
 
 { #category : 'running' }
@@ -301,7 +342,6 @@ WSSolver >> solveGraph [
 			self graph addOneToCollapsedNodes
 		] on: WSContradiction 
 		  do: [ 
-			"self createTemporaryVisualization."
 			self onContradiction ]
 	]
 ]
@@ -331,6 +371,26 @@ WSSolver >> topology [
 WSSolver >> topology: anObject [
 
 	topology := anObject
+]
+
+{ #category : 'metrics' }
+WSSolver >> updateGraphMetrics [
+	
+	| graphMetrics classNodes pathNodes |
+	graphMetrics := self getGraphMetrics.
+	
+	classNodes := 0.
+	self topology classFootprint do: [ :eachFootprint | classNodes := classNodes + eachFootprint nodes size ].
+	
+	pathNodes := 0.
+	self graph paths do: [ :eachPath | pathNodes := pathNodes + eachPath nodes size ].
+	
+	graphMetrics 
+		numberOfClassNodes: classNodes; 
+		numberOfPathNodes: pathNodes; 
+		numberOfEmptyNodes: (graphMetrics totalNumberOfNodes - classNodes - pathNodes )
+	
+	
 ]
 
 { #category : 'visualization' }
