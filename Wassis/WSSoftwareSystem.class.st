@@ -7,7 +7,6 @@ Class {
 	#instVars : [
 		'classes',
 		'classesPathIDs',
-		'avgNumOfConnectionsPerClass',
 		'allConnectionsPerClass'
 	],
 	#category : 'Wassis-SoftwareSystem',

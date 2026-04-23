@@ -34,6 +34,68 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 
 ]
 
+{ #category : 'metrics' }
+WSSolver >> addInitialGraphMetrics [
+	"Add the total number of nodes and the dimension"
+	
+	| graphMetrics |
+	graphMetrics := self metrics graphMetrics.
+	
+	graphMetrics totalNumberOfNodes: self graph nodes size.
+	graphMetrics dimension: self graph structure dimension
+]
+
+{ #category : 'metrics' }
+WSSolver >> addInitialMetrics [
+	
+	self addInitialPathMetrics.
+	self addInitialGraphMetrics.
+	self addSoftwareMetrics.
+	self addTilesetMetrics.
+	
+]
+
+{ #category : 'metrics' }
+WSSolver >> addInitialPathMetrics [
+	"Add only the number of paths"
+	
+	self metrics pathMetrics totalNumberOfPaths: (self topology swSystem classesPathIDs asSet size)
+]
+
+{ #category : 'metrics' }
+WSSolver >> addSoftwareMetrics [
+	"Add number of classes, number of connection per class, avg number of connections per class"
+	
+	| swSystem swMetrics counter |
+	counter := 0.
+	swSystem := self topology swSystem.
+	swMetrics := self metrics softwareMetrics .
+	
+	swMetrics numberOfClasses: swSystem classes size.
+	
+	swSystem allConnectionsPerClass keysAndValuesDo: [ :eachClass :allConnections | 
+		| size |
+		size := allConnections size.
+		swMetrics numberOfConnectionsPerClass at: eachClass put: size.
+		counter := counter + size.
+	].
+
+	swMetrics avgNumOfConnectionsPerClass: (counter / (swMetrics numberOfClasses))
+	
+	
+	
+	
+]
+
+{ #category : 'metrics' }
+WSSolver >> addTilesetMetrics [
+	"Add the number of tiles in the tileset"
+	
+	| numberOfTiles |
+	numberOfTiles := self topology tileset tiles size.
+	self metrics tilesetMetrics numberOfTiles: numberOfTiles 
+]
+
 { #category : 'accessing' }
 WSSolver >> backtracking [
 

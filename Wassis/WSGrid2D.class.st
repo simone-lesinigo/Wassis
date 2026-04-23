@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'matrix',
 		'nRows',
-		'nColumns'
+		'nColumns',
+		'dimension'
 	],
 	#category : 'Wassis-Structure',
 	#package : 'Wassis',
@@ -20,6 +21,7 @@ WSGrid2D class >> withRows: rows andColumns: columns [
 	^ self new
 		nRows: rows;
 		nColumns: columns;
+		dimension: (Array with: rows with: columns);
 		matrix: ((1 to: rows) collect: [ :i | Array new: columns ]);
 		yourself
 ]
@@ -54,6 +56,18 @@ WSGrid2D >> collectFootprintFrom: originNode size: sideLength [
         0 to: sideLength - 1 do: [ :dc |
             result add: (self atRow: (row + dr) atColumn: (col + dc)) ] ].
     ^ result
+]
+
+{ #category : 'accessing' }
+WSGrid2D >> dimension [
+
+	^ dimension
+]
+
+{ #category : 'accessing' }
+WSGrid2D >> dimension: anObject [
+
+	dimension := anObject
 ]
 
 { #category : 'enumerating' }

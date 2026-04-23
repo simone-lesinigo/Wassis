@@ -8,12 +8,25 @@ Class {
 		'totalNumberOfNodes',
 		'numberOfPathNodes',
 		'numberOfClassNodes',
-		'numberOfEmptyNodes'
+		'numberOfEmptyNodes',
+		'dimension'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
 	#tag : 'Metrics'
 }
+
+{ #category : 'accessing' }
+WSGraphMetrics >> dimension [
+
+	^ dimension
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> dimension: anObject [
+
+	dimension := anObject
+]
 
 { #category : 'accessing' }
 WSGraphMetrics >> numberOfClassNodes [
