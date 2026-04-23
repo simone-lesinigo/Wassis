@@ -57,9 +57,18 @@ WSSolver >> addInitialMetrics [
 
 { #category : 'metrics' }
 WSSolver >> addInitialPathMetrics [
-	"Add only the number of paths"
+	"Add only the number of direct, merging and total paths"
 	
-	self metrics pathMetrics totalNumberOfPaths: (self topology swSystem classesPathIDs asSet size)
+	| pathMetrics dict nOfDirect |
+	pathMetrics := self metrics pathMetrics.
+	
+	dict := ((self topology swSystem classesPathIDs) values groupedBy: [ :each | each ] ) collect: [ :group | group size ].
+	nOfDirect := (dict select: [ :each | each = 1 ]) size.
+	
+	pathMetrics numberOfDirectPaths: nOfDirect.
+	pathMetrics numberOfMergingPaths: (dict size - nOfDirect).
+	pathMetrics totalNumberOfPaths: (pathMetrics numberOfDirectPaths + pathMetrics numberOfMergingPaths).
+
 ]
 
 { #category : 'metrics' }
