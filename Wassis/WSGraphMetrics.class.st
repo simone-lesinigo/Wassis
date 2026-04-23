@@ -1,0 +1,64 @@
+"
+Metrics about the graph
+"
+Class {
+	#name : 'WSGraphMetrics',
+	#superclass : 'WSMetrics',
+	#instVars : [
+		'totalNumberOfNodes',
+		'numberOfPathNodes',
+		'numberOfClassNodes',
+		'numberOfEmptyNodes'
+	],
+	#category : 'Wassis-Metrics',
+	#package : 'Wassis',
+	#tag : 'Metrics'
+}
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfClassNodes [
+
+	^ numberOfClassNodes
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfClassNodes: anObject [
+
+	numberOfClassNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfEmptyNodes [
+
+	^ numberOfEmptyNodes
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfEmptyNodes: anObject [
+
+	numberOfEmptyNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfPathNodes [
+
+	^ numberOfPathNodes
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfPathNodes: anObject [
+
+	numberOfPathNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> totalNumberOfNodes [
+
+	^ totalNumberOfNodes
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> totalNumberOfNodes: anObject [
+
+	totalNumberOfNodes := anObject
+]

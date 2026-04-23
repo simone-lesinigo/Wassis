@@ -1,0 +1,77 @@
+"
+Time metrics
+"
+Class {
+	#name : 'WSPerformanceMetrics',
+	#superclass : 'WSMetrics',
+	#instVars : [
+		'mdsTime',
+		'placementTime',
+		'wfcTime',
+		'visualizationTime',
+		'totalTime'
+	],
+	#category : 'Wassis-Metrics',
+	#package : 'Wassis',
+	#tag : 'Metrics'
+}
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> mdsTime [
+
+	^ mdsTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> mdsTime: anObject [
+
+	mdsTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> placementTime [
+
+	^ placementTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> placementTime: anObject [
+
+	placementTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> totalTime [
+
+	^ totalTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> totalTime: anObject [
+
+	totalTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> visualizationTime [
+
+	^ visualizationTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> visualizationTime: anObject [
+
+	visualizationTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> wfcTime [
+
+	^ wfcTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> wfcTime: anObject [
+
+	wfcTime := anObject
+]

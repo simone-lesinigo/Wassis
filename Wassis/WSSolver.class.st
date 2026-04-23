@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'graph',
 		'backtracking',
-		'topology'
+		'topology',
+		'metrics'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -142,6 +143,18 @@ WSSolver >> graph: anObject [
 WSSolver >> isValidToMove: aClass toNode: aNode [
 	
 	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph.
+]
+
+{ #category : 'accessing' }
+WSSolver >> metrics [
+
+	^ metrics
+]
+
+{ #category : 'accessing' }
+WSSolver >> metrics: anObject [
+
+	metrics := anObject
 ]
 
 { #category : 'drag and drop' }
