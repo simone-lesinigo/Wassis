@@ -202,7 +202,7 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 ]
 
 { #category : 'tileset' }
-WS2DRectangularGridTopology >> createBorderClassTiles: aClass forFootprint: aFootprint [
+WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
     | connectionDirections slots nodes |

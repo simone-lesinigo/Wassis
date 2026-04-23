@@ -22,7 +22,7 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	
 	aTopology initializeWith: aSwSystem.
 	graph := aTopology createGraph.
-
+	
 	^ self new
 		graph: graph;
 		topology: aTopology;

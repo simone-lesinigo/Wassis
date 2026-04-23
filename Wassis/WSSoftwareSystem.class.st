@@ -17,14 +17,14 @@ Class {
 
 { #category : 'instance creation' }
 WSSoftwareSystem class >> createForClass: aClass usingStrategy: aStrategy [
-	"Create the necessary WFCClass objects using the selected strategy"
+	"Create the necessary WSClass objects using the selected strategy"
 	
 	| instance dict |
 	instance := self new.
 	
 	dict := aStrategy createNodesFor: aClass.
 
-	instance avgNumOfConnectionsPerClass: (aStrategy createConnectionsOn: dict).
+	aStrategy createConnectionsOn: dict.
 	
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
 	
@@ -65,18 +65,6 @@ WSSoftwareSystem >> allConnectionsPerClass [
 WSSoftwareSystem >> allConnectionsPerClass: anObject [
 
 	allConnectionsPerClass := anObject
-]
-
-{ #category : 'accessing' }
-WSSoftwareSystem >> avgNumOfConnectionsPerClass [
-
-	^ avgNumOfConnectionsPerClass
-]
-
-{ #category : 'accessing' }
-WSSoftwareSystem >> avgNumOfConnectionsPerClass: anObject [
-
-	avgNumOfConnectionsPerClass := anObject
 ]
 
 { #category : 'accessing' }

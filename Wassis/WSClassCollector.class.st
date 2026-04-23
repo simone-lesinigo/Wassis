@@ -4,19 +4,10 @@ Abstract strategy to create the correct WFClass with the desired connections
 Class {
 	#name : 'WSClassCollector',
 	#superclass : 'WSObject',
-	#instVars : [
-		'totalNumberOfConnections'
-	],
-	#category : 'Wassis-SoftwareSystem',
+	#category : 'Wassis-Scraping',
 	#package : 'Wassis',
-	#tag : 'SoftwareSystem'
+	#tag : 'Scraping'
 }
-
-{ #category : 'adding' }
-WSClassCollector >> addOneConnection [
-
-	self totalNumberOfConnections: self totalNumberOfConnections + 1
-]
 
 { #category : 'creation' }
 WSClassCollector >> createConnectionsOn: aDictionary [
@@ -28,23 +19,4 @@ WSClassCollector >> createConnectionsOn: aDictionary [
 WSClassCollector >> createNodesFor: aClass [
 	
 	^ self subclassResponsibility 
-]
-
-{ #category : 'initialization' }
-WSClassCollector >> initialize [ 
-	
-	super initialize.
-	self totalNumberOfConnections: 0 
-]
-
-{ #category : 'accessing' }
-WSClassCollector >> totalNumberOfConnections [
-
-	^ totalNumberOfConnections
-]
-
-{ #category : 'accessing' }
-WSClassCollector >> totalNumberOfConnections: anObject [
-
-	totalNumberOfConnections := anObject
 ]

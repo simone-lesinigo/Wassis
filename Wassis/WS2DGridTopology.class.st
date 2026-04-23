@@ -88,7 +88,7 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 		Transcript show: 'Finished placing classes'; cr.
     self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
         | nodesToTile |
-        nodesToTile := self createBorderClassTiles: eachClass forFootprint: eachFootprint.
+        nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
 		  
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
             result add: (eachNode collapseTo: eachTile) ] ].
@@ -111,7 +111,7 @@ WS2DGridTopology >> createAllPathTiles [
 ]
 
 { #category : 'tileset' }
-WS2DGridTopology >> createBorderClassTiles: aClass forFootprint: aFootprint [
+WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 
 	^ self subclassResponsibility 
 ]
