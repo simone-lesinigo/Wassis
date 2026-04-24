@@ -57,6 +57,13 @@ WSClass >> connectedWith: anObject [
 	connectedWith := anObject
 ]
 
+{ #category : 'accessing' }
+WSClass >> getConnectedWithClasses [
+	"Get the classes that are in connectedWith"
+
+	^ self connectedWith collect: [ :eachConnection |eachConnection target ]
+]
+
 { #category : 'comparing' }
 WSClass >> hash [
     ^ self id hash bitXor: self name hash

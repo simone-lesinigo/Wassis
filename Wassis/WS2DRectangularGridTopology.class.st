@@ -158,6 +158,25 @@ WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
     ^ result
 ]
 
+{ #category : 'metrics' }
+WS2DRectangularGridTopology >> calculateDistancesBetweenClasses [
+	"Calculate the Manhattan distance between all the classes that are connected"
+
+	| dict |
+	dict := Dictionary new.
+	
+	self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
+		eachClass getConnectedWithClasses do: [ :eachConnectedClass |
+			| connectedClassFootprint distance |
+			connectedClassFootprint := (self classFootprint at: eachConnectedClass).
+			distance := (self manhattanDistanceBetweenFootprint: eachFootprint andFootprint: connectedClassFootprint).
+			dict at:( eachClass -> eachConnectedClass) put: distance
+		]
+	].
+
+	^ dict
+]
+
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
     "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
@@ -383,6 +402,37 @@ WS2DRectangularGridTopology >> initialize [
 
 	super initialize.
 	self visualizer:WS2DRectangularGridVisualizer new
+]
+
+{ #category : 'metrics' }
+WS2DRectangularGridTopology >> manhattanDistanceBetweenFootprint: footprint1 andFootprint: footprint2 [
+	"Caluclates the manhattan distance between two footprints"
+
+	| minDistance |
+	minDistance := SmallInteger maxVal.
+
+	(footprint1 borderNodes: self) do: [ :eachBorderNodes1 |
+			(footprint2 borderNodes: self) do: [ :eachBorderNodes2 |
+					| currentDistance |
+					currentDistance := self manhattanDistanceBetweenNode: eachBorderNodes1 andNode: eachBorderNodes2.					
+					minDistance := (minDistance min: currentDistance).
+					
+					minDistance <= WSConfig gridSafetyMooreRadius ifTrue: [ ^ minDistance ]
+			] ].
+			
+	^ minDistance 
+]
+
+{ #category : 'metrics' }
+WS2DRectangularGridTopology >> manhattanDistanceBetweenNode: node1 andNode: node2 [
+	"Calculate the manhattan distance between two nodes"
+	
+	 | dist |
+    dist := ((node1 position first - node2 position first) abs) + 
+            ((node1 position second - node2 position second) abs).
+    
+    ^ dist isZero ifTrue: [ 0 ] ifFalse: [ dist - 1 ]
+
 ]
 
 { #category : 'directions' }

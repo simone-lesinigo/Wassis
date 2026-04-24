@@ -51,6 +51,7 @@ WSSolver >> addInitialMetrics [
 	self addInitialGraphMetrics.
 	self addSoftwareMetrics.
 	self addTilesetMetrics.
+	self addPlacementMetrics.
 	
 ]
 
@@ -68,6 +69,12 @@ WSSolver >> addInitialPathMetrics [
 	pathMetrics numberOfMergingPaths: (dict size - nOfDirect).
 	pathMetrics totalNumberOfPaths: (pathMetrics numberOfDirectPaths + pathMetrics numberOfMergingPaths).
 
+]
+
+{ #category : 'metrics' }
+WSSolver >> addPlacementMetrics [
+	
+	self getPlacementMetrics classDistances: (self topology calculateDistancesBetweenClasses)
 ]
 
 { #category : 'metrics' }
@@ -375,6 +382,7 @@ WSSolver >> topology: anObject [
 
 { #category : 'metrics' }
 WSSolver >> updateGraphMetrics [
+	"Set the number of empty, path and class nodes"
 	
 	| graphMetrics classNodes pathNodes |
 	graphMetrics := self getGraphMetrics.
