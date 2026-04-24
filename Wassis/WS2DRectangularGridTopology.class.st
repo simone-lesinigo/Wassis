@@ -169,8 +169,12 @@ WS2DRectangularGridTopology >> calculateDistancesBetweenClasses [
 		eachClass getConnectedWithClasses do: [ :eachConnectedClass |
 			| connectedClassFootprint distance |
 			connectedClassFootprint := (self classFootprint at: eachConnectedClass).
-			distance := (self manhattanDistanceBetweenFootprint: eachFootprint andFootprint: connectedClassFootprint).
-			dict at:( eachClass -> eachConnectedClass) put: distance
+			distance := (self 
+								manhattanDistanceBetweenFootprint: eachFootprint 
+								andFootprint: connectedClassFootprint).
+			dict 
+				at:(eachClass -> eachConnectedClass) 
+				put: (distance isZero ifTrue: [ 0 ] ifFalse: [ distance - 1 ])
 		]
 	].
 
@@ -414,7 +418,10 @@ WS2DRectangularGridTopology >> manhattanDistanceBetweenFootprint: footprint1 and
 	(footprint1 borderNodes: self) do: [ :eachBorderNodes1 |
 			(footprint2 borderNodes: self) do: [ :eachBorderNodes2 |
 					| currentDistance |
-					currentDistance := self manhattanDistanceBetweenNode: eachBorderNodes1 andNode: eachBorderNodes2.					
+					currentDistance := self 
+						manhattanDistanceBetweenNode: eachBorderNodes1 
+						andNode: eachBorderNodes2.		
+											
 					minDistance := (minDistance min: currentDistance).
 					
 					minDistance <= WSConfig gridSafetyMooreRadius ifTrue: [ ^ minDistance ]
@@ -427,11 +434,9 @@ WS2DRectangularGridTopology >> manhattanDistanceBetweenFootprint: footprint1 and
 WS2DRectangularGridTopology >> manhattanDistanceBetweenNode: node1 andNode: node2 [
 	"Calculate the manhattan distance between two nodes"
 	
-	 | dist |
-    dist := ((node1 position first - node2 position first) abs) + 
-            ((node1 position second - node2 position second) abs).
+	 ^ ((node1 position first - node2 position first) abs) + 
+      ((node1 position second - node2 position second) abs).
     
-    ^ dist isZero ifTrue: [ 0 ] ifFalse: [ dist - 1 ]
 
 ]
 
