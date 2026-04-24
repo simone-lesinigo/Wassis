@@ -5,6 +5,7 @@ Class {
 	#name : 'WSSolver',
 	#superclass : 'WSObject',
 	#instVars : [
+		'id',
 		'graph',
 		'backtracking',
 		'topology',
@@ -74,7 +75,12 @@ WSSolver >> addInitialPathMetrics [
 { #category : 'metrics' }
 WSSolver >> addPlacementMetrics [
 	
-	self getPlacementMetrics classDistances: (self topology calculateDistancesBetweenClasses)
+	| placementMetrics |
+	placementMetrics := self getPlacementMetrics.
+	placementMetrics 
+		classDistances: (self topology calculateDistancesBetweenClasses);
+		avgConnectedClassesDistance: (self calculateAvgConnectedClassesDistance)
+
 ]
 
 { #category : 'metrics' }
@@ -121,6 +127,36 @@ WSSolver >> backtracking [
 WSSolver >> backtracking: anObject [
 
 	backtracking := anObject
+]
+
+{ #category : 'metrics' }
+WSSolver >> calculateAverageNeighborDistanceFor: aClass [
+	"Calculate the avg distance of each class considering all the class it is connected to"
+
+    | connections distances classDistances |
+	 classDistances := self getPlacementMetrics classDistances.
+
+    connections := classDistances keys select: [ :assoc | 
+        assoc key = aClass or: [ assoc value = aClass ] ].
+    
+    connections ifEmpty: [ ^ 0 ].
+    
+    distances := connections collect: [ :assoc | classDistances at: assoc ].
+
+    ^ distances average
+]
+
+{ #category : 'metrics' }
+WSSolver >> calculateAvgConnectedClassesDistance [
+
+	| dict |
+	dict := Dictionary new.
+	
+	self topology swSystem classes do: [ :eachClass | 
+		dict at: eachClass put: (self calculateAverageNeighborDistanceFor: eachClass)
+	].
+	
+	^ dict
 ]
 
 { #category : 'pathOptimization' }
@@ -192,7 +228,7 @@ WSSolver >> getFlattenedNodes [
 	^ self graph getFlattenedNodes 
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getGraphMetrics [ 
 	
 	^ self metrics graphMetrics
@@ -205,7 +241,7 @@ WSSolver >> getNotEmptyNodes [
     ^ self getPathNodes , self getClassNodes
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getPathMetrics [ 
 	
 	^ self metrics pathMetrics 
@@ -217,25 +253,25 @@ WSSolver >> getPathNodes [
 	^ self graph getPathNodes
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getPerformanceMetrics [
 	
 	^ self metrics performanceMetrics 
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getPlacementMetrics [ 
 	
 	^ self metrics placementMetrics 
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getSoftwareMetrics [ 
 	
 	^ self metrics softwareMetrics 
 ]
 
-{ #category : 'metrics' }
+{ #category : 'metrics-accessing' }
 WSSolver >> getTilesetMetrics [ 
 	
 	^ self metrics tilesetMetrics 
@@ -251,6 +287,18 @@ WSSolver >> graph [
 WSSolver >> graph: anObject [
 
 	graph := anObject
+]
+
+{ #category : 'accessing' }
+WSSolver >> id [
+
+	^ id
+]
+
+{ #category : 'accessing' }
+WSSolver >> id: anObject [
+
+	id := anObject
 ]
 
 { #category : 'testing' }

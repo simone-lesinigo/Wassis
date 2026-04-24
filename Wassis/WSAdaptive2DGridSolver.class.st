@@ -19,6 +19,14 @@ WSAdaptive2DGridSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	
 ]
 
+{ #category : 'cleanup' }
+WSAdaptive2DGridSolver >> cleanupInitialization [
+	
+	WSConfig resetInstance.
+	WSMDSLayoutStrategy resetCache
+	
+]
+
 { #category : 'calculating' }
 WSAdaptive2DGridSolver >> computeInitialSize [
 	<toDo> "Improve the formula to compute the initial size"
@@ -53,7 +61,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
-	WSConfig resetInstance.
+	self cleanupInitialization.
 	"self createGraphVisualization."
    [ 
 		| totalTime |
@@ -72,14 +80,18 @@ WSAdaptive2DGridSolver >> run [
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithIncreasingSize [
-	| size |
+	"Create new solvers with increasing size"
+
+	| size solverID |
 	size:= self computeInitialSize.
+	solverID := 1.
    
 	[ self solutionFound ] whileFalse: [
    		[[ 
 			Smalltalk garbageCollect.
 			self logGridSize: size.
-			self solveWithSize: size.
+			self solveWithSize: size andID: solverID.
+			solverID := solverID + 1.
        ] on: WSNoValidPlacementFound do: [
 			Transcript show: 'No valid placement found for this grid, trying with new one'; cr; cr. 
         	size := size + 1 
@@ -93,6 +105,7 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 
 { #category : 'resolving' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize [
+
 	| currentSolver |
 	currentSolver := (WSSolver 
     	withTopology: (self topology withGrid: aSize @ aSize) 
@@ -107,14 +120,40 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize [
 	self solutionFound: true
 ]
 
+{ #category : 'resolving' }
+WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
+	| currentSolver |
+	currentSolver := (WSSolver 
+    	withTopology: (self topology withGrid: aSize @ aSize) 
+      andSwSystem: self swSystem
+		andID: aID).
+	
+	currentSolver addInitialMetrics.
+	
+	"self createTemporaryVisualizationFor: currentSolver."
+   currentSolver getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
+
+	self solver: currentSolver.
+	self solutionFound: true
+]
+
 { #category : 'metrics' }
 WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
+	"Update the performance metrics when the execution is completed"
 
 	| performanceMetrics |
 	performanceMetrics := self solver getPerformanceMetrics.
 	performanceMetrics 
 		totalTime: totalTime;
-		mdsTime: WSMDSLayoutStrategy computationTime;
-		wastedTime: (totalTime - (performanceMetrics solverTotalTime) - (performanceMetrics mdsTime))
+		mdsTime: WSMDSLayoutStrategy computationTime.
+	
+	"Only the first solver calculates the MDS matrix position, for the other is cached"
+	self solver id ~= 1 ifTrue: [ 
+		performanceMetrics solverTotalTime: (performanceMetrics solverTotalTime + performanceMetrics mdsTime).
+	].
+	
+	performanceMetrics wastedTime: (totalTime - (performanceMetrics solverTotalTime)).
+	
+	
 	
 ]
