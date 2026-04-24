@@ -82,6 +82,15 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 	^ self cachedPositionMatrix 
 ]
 
+{ #category : 'cleanup' }
+WSMDSLayoutStrategy class >> resetCache [
+	
+	self swSystemHash: nil.
+	self cachedPositionMatrix: nil.
+	self cachedDimension: nil
+	
+]
+
 { #category : 'accessing' }
 WSMDSLayoutStrategy class >> swSystemHash [
 

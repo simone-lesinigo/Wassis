@@ -49,11 +49,12 @@ WSEmptyTile >> buildPopup [
 
 { #category : 'initialization' }
 WSEmptyTile >> initialize [ 
-	
+		
 	super initialize.
+	
 	self 
 		id: self class defaultID;
-		weight: self class defaultWeight 
+		weight: self class defaultWeight.
 ]
 
 { #category : 'testing' }

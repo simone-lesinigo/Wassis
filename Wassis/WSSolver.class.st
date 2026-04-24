@@ -34,6 +34,25 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 
 ]
 
+{ #category : 'instance creation' }
+WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
+
+	| graph |
+	aTopology initializeWith: aSwSystem.
+	graph := aTopology createGraph.
+	
+	^ self new
+		id: aID;
+		graph: graph;
+		topology: aTopology;
+		metrics: WSMetrics new;
+		backtracking: (WSBacktracking newWithGraph: graph)
+
+		
+		
+
+]
+
 { #category : 'metrics' }
 WSSolver >> addInitialGraphMetrics [
 	"Add the total number of nodes and the dimension"

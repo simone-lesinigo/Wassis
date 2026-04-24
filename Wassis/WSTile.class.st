@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'id',
 		'edges',
-		'weight'
+		'weight',
+		'weightPerLogWeight'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -81,7 +82,14 @@ WSTile >> weight [
 ]
 
 { #category : 'accessing' }
-WSTile >> weight: anObject [
+WSTile >> weight: aNumber [
 
-	weight := anObject
+	weight := aNumber.
+	weightPerLogWeight := (aNumber * (aNumber ln))
+]
+
+{ #category : 'accessing' }
+WSTile >> weightPerLogWeight [
+
+	^ weightPerLogWeight
 ]

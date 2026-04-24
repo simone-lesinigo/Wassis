@@ -297,14 +297,15 @@ WSNode >> tileInWhichCollapsed: anObject [
 { #category : 'updating' }
 WSNode >> updateEntropyRemovingTiles: aTilesArray [
 	"The node updates its own entropy by removing the tiles in aTilesArray"
-	<toDo> "Ottimizzazione: salvare in ogni tile all'inizio (tile weight * (tile weight ln) in modo da non doverla ricalcolare ogni volta"
+
 	| deltaWeight deltaWeightLog |
 	deltaWeight := 0.
 	deltaWeightLog := 0.
 
 	aTilesArray do: [ :tile |
 		deltaWeight := deltaWeight + tile weight.
-		deltaWeightLog := deltaWeightLog + (tile weight * (tile weight ln)) ]. 
+		deltaWeightLog := deltaWeightLog + tile weightPerLogWeight 
+	]. 
 
 	self sumOfWeights: (self sumOfWeights - deltaWeight).
 	self sumOfWeightsLog: (self sumOfWeightsLog - deltaWeightLog).

@@ -27,14 +27,6 @@ WSClassTile class >> withClass: aClass andEdges: edges [
 		edges: edges
 ]
 
-{ #category : 'instance creation' }
-WSClassTile class >> withID: anID andEdges: edges [
-	
-	^ self new
-		id: anID;
-		edges: edges
-]
-
 { #category : 'visualization' }
 WSClassTile >> accept: aVisitor [
 
@@ -61,7 +53,7 @@ WSClassTile >> buildPopup [
 WSClassTile >> initialize [ 
 	
 	super initialize.
-	self weight: self class defaultWeight 
+	self weight: self class defaultWeight.
 ]
 
 { #category : 'testing' }

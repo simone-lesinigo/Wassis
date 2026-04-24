@@ -227,8 +227,8 @@ WS2DGridTopology >> createTileset [
 	"Create the tileset for the rectangular topology"
 	
 	| emptyTile pathTiles |
-	emptyTile := self createEmptyTile .
-	pathTiles := self createAllPathTiles .
+	emptyTile := self createEmptyTile.
+	pathTiles := self createAllPathTiles.
 	
 	self tileset addTile: emptyTile.
 	self tileset addTiles: pathTiles.

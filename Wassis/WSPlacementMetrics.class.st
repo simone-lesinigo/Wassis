@@ -5,12 +5,25 @@ Class {
 	#name : 'WSPlacementMetrics',
 	#superclass : 'WSAbstractMetrics',
 	#instVars : [
-		'classDistances'
+		'classDistances',
+		'avgConnectedClassesDistance'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
 	#tag : 'Metrics'
 }
+
+{ #category : 'accessing' }
+WSPlacementMetrics >> avgConnectedClassesDistance [
+
+	^ avgConnectedClassesDistance
+]
+
+{ #category : 'accessing' }
+WSPlacementMetrics >> avgConnectedClassesDistance: anObject [
+
+	avgConnectedClassesDistance := anObject
+]
 
 { #category : 'accessing' }
 WSPlacementMetrics >> classDistances [
