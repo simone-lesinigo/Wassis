@@ -91,33 +91,17 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 			Smalltalk garbageCollect.
 			self logGridSize: size.
 			self solveWithSize: size andID: solverID.
-			solverID := solverID + 1.
        ] on: WSNoValidPlacementFound do: [
 			Transcript show: 'No valid placement found for this grid, trying with new one'; cr; cr. 
-        	size := size + 1 
+        	size := size + 1.
+			solverID := solverID + 1.
        ]] on: WSMaxTriesReached do: [
 			Transcript show: 'Max n of tries reached for this grid'; cr; cr. 
-			size := size + 1
+			size := size + 1.
+			solverID := solverID + 1.
 		].
 	]
 
-]
-
-{ #category : 'resolving' }
-WSAdaptive2DGridSolver >> solveWithSize: aSize [
-
-	| currentSolver |
-	currentSolver := (WSSolver 
-    	withTopology: (self topology withGrid: aSize @ aSize) 
-      andSwSystem: self swSystem).
-	
-	currentSolver addInitialMetrics.
-	
-	"self createTemporaryVisualizationFor: currentSolver."
-   currentSolver getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
-
-	self solver: currentSolver.
-	self solutionFound: true
 ]
 
 { #category : 'resolving' }
@@ -147,7 +131,7 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 		totalTime: totalTime;
 		mdsTime: WSMDSLayoutStrategy computationTime.
 	
-	"Only the first solver calculates the MDS matrix position, for the other is cached"
+	"Only the first solver calculates the MDS position matrix, for the others is cached"
 	self solver id ~= 1 ifTrue: [ 
 		performanceMetrics solverTotalTime: (performanceMetrics solverTotalTime + performanceMetrics mdsTime).
 	].

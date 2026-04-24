@@ -158,19 +158,11 @@ WSMDSLayoutStrategy >> classes: anObject [
 
 { #category : 'calculating' }
 WSMDSLayoutStrategy >> computeEmbedding [
-    | t |
 
-    t := [ self squareDistanceMatrix ] timeToRun.
-    Transcript show: '--> Distance matrix squared: ', t asDuration asString; cr.
-
-    t := [ self applyDoubleCentering ] timeToRun.
-    Transcript show: '--> Double centering applied: ', t asDuration asString; cr.
-
-    t := [ self calculateEigenValuesAndVecotors ] timeToRun.
-    Transcript show: '--> Eigenvalues and vectors calculated: ', t asDuration asString; cr.
-
-    t := [ self createPositionMatrix ] timeToRun.
-    Transcript show: '--> Position matrix created: ', t asDuration asString; cr.
+	self squareDistanceMatrix.  
+	self applyDoubleCentering.  
+	self calculateEigenValuesAndVecotors. 
+	self createPositionMatrix 
 ]
 
 { #category : 'calculating' }
@@ -387,29 +379,13 @@ WSMDSLayoutStrategy >> replaceInfiniteValues [
 { #category : 'running' }
 WSMDSLayoutStrategy >> run [
     "Run MDS: build distance matrix, apply Floyd-Warshall, compute embedding"
-    | t |
     
-    Transcript show: '--- Started calculating position ---'; cr.
-    
-    t := [ self initializeDistanceMatrix ] timeToRun.
-    Transcript show: '-> Distance matrix initialized: ', t asDuration asString; cr.
-
-    t := [ self fillDirectConnections ] timeToRun.
-    Transcript show: '-> Direct connections filled: ', t asDuration asString; cr.
-
-    t := [ self executeFloydWarshall ] timeToRun.
-    Transcript show: '-> Floyd-Warshall algorithm completed: ', t asDuration asString; cr.
-
-    t := [ self replaceInfiniteValues ] timeToRun.
-    Transcript show: '-> Infinite values replaced: ', t asDuration asString; cr.
-
-    t := [ self computeEmbedding ] timeToRun.
-    Transcript show: '-> Embedding computed: ', t asDuration asString; cr.
-
-    t := [ self normalizeMatrix ] timeToRun.
-    Transcript show: '-> Matrix normalized: ', t asDuration asString; cr.
-
-    Transcript show: '--- Finished calculating position ---'; cr.
+	self initializeDistanceMatrix.
+	self fillDirectConnections.
+   self executeFloydWarshall.
+	self replaceInfiniteValues. 
+   self computeEmbedding. 
+   self normalizeMatrix. 
     
     ^ self matrix
 ]
