@@ -18,14 +18,14 @@ Class {
 WSBacktracking class >> maxNumberOfRegeneratedGraph [
 	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
 	
-	^ WSConfig uniqueInstance maxNumberOfRegeneratedGraph 
+	^ WSConfig maxNumberOfRegeneratedGraph 
 ]
 
 { #category : 'default-settings' }
 WSBacktracking class >> maxNumberOfTriesPerGraph [
 	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 	
-	^ WSConfig uniqueInstance maxNumberOfTriesPerGraph 
+	^ WSConfig maxNumberOfTriesPerGraph 
 ]
 
 { #category : 'instance creation' }

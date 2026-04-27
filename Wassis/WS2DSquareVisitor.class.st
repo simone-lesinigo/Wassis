@@ -274,7 +274,7 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 { #category : 'accessing' }
 WS2DSquareVisitor class >> tileSize [
 
-	^ WSConfig uniqueInstance squareVisitorTileSize
+	^ WS2DRectangularGridConfig squareVisitorTileSize
 ]
 
 { #category : 'adding' }

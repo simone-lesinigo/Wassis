@@ -4,18 +4,10 @@ Config of all the parameters of the algorithm
 Class {
 	#name : 'WSConfig',
 	#superclass : 'WSObject',
-	#classInstVars : [
-		'uniqueInstance',
-		'configFile',
-		'maxNumberOfTriesPerGraph',
-		'maxNumberOfRegeneratedGraph',
-		'gridSafetyMooreRadius',
-		'squareVisitorTileSize',
-		'emptyTileWeight',
-		'cornerTileWeight',
-		'straightTileWeight',
-		'crossingTileWeight',
-		'mergingTileWeight'
+	#classVars : [
+		'ConfigFile',
+		'MaxNumberOfRegeneratedGraph',
+		'MaxNumberOfTriesPerGraph'
 	],
 	#category : 'Wassis-Config',
 	#package : 'Wassis',
@@ -25,125 +17,47 @@ Class {
 { #category : 'accessing' }
 WSConfig class >> configFile [
 
-	^ configFile
+	ConfigFile ifNil: [ self readConfigFile ].
+
+	^ ConfigFile
 ]
 
-{ #category : 'private' }
+{ #category : 'private - accessing' }
 WSConfig class >> configFile: anObject [
 
-	configFile := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> cornerTileWeight [
-
-	^ cornerTileWeight
-]
-
-{ #category : 'private' }
-WSConfig class >> cornerTileWeight: anObject [
-
-	cornerTileWeight := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> crossingTileWeight [
-
-	^ crossingTileWeight
-]
-
-{ #category : 'private' }
-WSConfig class >> crossingTileWeight: anObject [
-
-	crossingTileWeight := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> emptyTileWeight [
-
-	^ emptyTileWeight
-]
-
-{ #category : 'private' }
-WSConfig class >> emptyTileWeight: anObject [
-
-	emptyTileWeight := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> gridSafetyMooreRadius [
-
-	^ gridSafetyMooreRadius
-]
-
-{ #category : 'private' }
-WSConfig class >> gridSafetyMooreRadius: anObject [
-
-	gridSafetyMooreRadius := anObject
-]
-
-{ #category : 'class initialization' }
-WSConfig class >> initialize [ 
-	
-	self readConfigFile.
-	self loadDefaults
-]
-
-{ #category : 'loading' }
-WSConfig class >> loadDefaults [
-    
-    "WSBacktracing"
-    self maxNumberOfTriesPerGraph: (configFile atPath: {'WSBacktracking' . 'maxNumberOfTriesPerGraph'} default: 10).
-    self maxNumberOfRegeneratedGraph: (configFile atPath: {'WSBacktracking' . 'maxNumberOfRegeneratedGraph'} default: 10).
-    
-    "WS2DGridTopology"
-    self gridSafetyMooreRadius: (configFile atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 3).
-
-	 "WS2DRectangularGridTopology"
-    self gridSafetyMooreRadius: (configFile atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 3).
-    self squareVisitorTileSize: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'squareVisitorTileSize'} default: 50).
-
-	 self emptyTileWeight: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'empty'} default: 4000).
-	 self cornerTileWeight: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'corner'} default: 25).
-	 self straightTileWeight: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'straight'} default: 50).
-	 self crossingTileWeight: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'crossing'} default: 0).
-	 self mergingTileWeight: (configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'merging'} default: 0).
+	ConfigFile := anObject
 ]
 
 { #category : 'accessing-backtracking' }
 WSConfig class >> maxNumberOfRegeneratedGraph [
 
-	^ maxNumberOfRegeneratedGraph
+	MaxNumberOfRegeneratedGraph ifNil: [ 
+		self maxNumberOfRegeneratedGraph: (self configFile atPath: {'WSBacktracking' . 'maxNumberOfRegeneratedGraph'} default: 10)
+	].
+
+	^ MaxNumberOfRegeneratedGraph 
 ]
 
-{ #category : 'private' }
+{ #category : 'private - accessing' }
 WSConfig class >> maxNumberOfRegeneratedGraph: anObject [
 
-	maxNumberOfRegeneratedGraph := anObject
+	MaxNumberOfRegeneratedGraph := anObject
 ]
 
 { #category : 'accessing-backtracking' }
 WSConfig class >> maxNumberOfTriesPerGraph [
 
-	^ maxNumberOfTriesPerGraph
+	MaxNumberOfTriesPerGraph ifNil: [ 
+		self maxNumberOfTriesPerGraph: (self configFile atPath: {'WSBacktracking' . 'maxNumberOfTriesPerGraph'} default: 10)
+	].
+
+	^ MaxNumberOfTriesPerGraph
 ]
 
-{ #category : 'private' }
+{ #category : 'private - accessing' }
 WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 
-	maxNumberOfTriesPerGraph := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> mergingTileWeight [
-
-	^ mergingTileWeight
-]
-
-{ #category : 'private' }
-WSConfig class >> mergingTileWeight: anObject [
-
-	mergingTileWeight := anObject
+	MaxNumberOfTriesPerGraph := anObject
 ]
 
 { #category : 'loading' }
@@ -161,44 +75,12 @@ WSConfig class >> readConfigFile [
 	        ifFalse: [ NeoJSONObject new ]).
 ]
 
-{ #category : 'reset' }
-WSConfig class >> resetInstance [ 
+{ #category : 'class initialization' }
+WSConfig class >> reset [
 	
-	uniqueInstance := nil
-]
-
-{ #category : 'accessing' }
-WSConfig class >> squareVisitorTileSize [
-
-	^ squareVisitorTileSize
-]
-
-{ #category : 'private' }
-WSConfig class >> squareVisitorTileSize: anObject [
-
-	squareVisitorTileSize := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> straightTileWeight [
-
-	^ straightTileWeight
-]
-
-{ #category : 'private' }
-WSConfig class >> straightTileWeight: anObject [
-
-	straightTileWeight := anObject
-]
-
-{ #category : 'accessing' }
-WSConfig class >> uniqueInstance [
-
-	^ uniqueInstance ifNil: [ uniqueInstance := self initialize ]
-]
-
-{ #category : 'private' }
-WSConfig class >> uniqueInstance: anObject [
-
-	uniqueInstance := anObject
+	self configFile: nil.
+	self maxNumberOfRegeneratedGraph: nil.
+	self maxNumberOfTriesPerGraph: nil.
+	
+	self withAllSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]

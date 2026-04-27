@@ -54,7 +54,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 { #category : 'cleanup' }
 WSAdaptive2DGridSolver >> resetEnvironment [
 	
-	WSConfig resetInstance.
+	WSConfig reset.
 	WSMDSLayoutStrategy resetCache
 	
 ]

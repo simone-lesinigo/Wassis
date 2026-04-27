@@ -25,7 +25,7 @@ WS2DGridTopology class >> createOppositeDirections [
 WS2DGridTopology class >> safetyMooreRadius [
 	"Levels at which the moore neighbours of a class must be empty in the placement"
 	
-	^ WSConfig uniqueInstance gridSafetyMooreRadius
+	^ WS2DGridConfig gridSafetyMooreRadius
 ]
 
 { #category : 'instance creation' }
