@@ -85,7 +85,7 @@ WSTile >> weight [
 WSTile >> weight: aNumber [
 
 	weight := aNumber.
-	weightPerLogWeight := (aNumber * (aNumber ln))
+	weightPerLogWeight := aNumber isZero ifTrue: [ 0 ] ifFalse: [ (aNumber * (aNumber ln)) ]
 ]
 
 { #category : 'accessing' }

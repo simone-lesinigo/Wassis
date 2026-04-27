@@ -18,7 +18,7 @@ WSEmptyTile class >> defaultID [
 { #category : 'default-settings' }
 WSEmptyTile class >> defaultWeight [
 	
-	 ^ 4000
+	 ^ 40000
 ]
 
 { #category : 'instance creation' }

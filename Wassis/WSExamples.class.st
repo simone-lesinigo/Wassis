@@ -122,10 +122,10 @@ WSExamples class >> exampleGetClasses2 [
 	        usingStrategy: WSHierarchyClassCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between: 2 and: 15) 
-	    	and: [ (connections allSatisfy: [ :row | row value size < 8 ])  
+	    ((sw classes size between: 10 and: 20) 
+	    	"and: [ (connections allSatisfy: [ :row | row value size < 8 ])  
 		 		and: [ (connections select: [ :row | row value size > 4 ]) size >= 2 ] 
-			]
+			]"
 		) ifTrue: [ res add: eachClass ] ].
 	
 	res inspect
@@ -182,11 +182,11 @@ WSExamples class >> exampleRunHexagonalGrid [
 
 { #category : 'WSSolver' }
 WSExamples class >> exampleRunRectangularGrid [
-"InstructionClient" "McReader" "TaAbstractComposition"
+"InstructionClient" "MCReader" "TaAbstractComposition"
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient 
+		createForClass: Warning 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

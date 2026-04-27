@@ -106,7 +106,7 @@ WS2DGridTopology >> createAllPathTiles [
 	
 	self swSystem classesPathIDs do: [ :pathID |
 			pathTiles addAll: (self createPathTilesWithID: pathID) ].
-	
+
 	^ pathTiles 
 ]
 
@@ -206,7 +206,6 @@ WS2DGridTopology >> createMockNode [
 	 | node |
     node := WSNode new possibleTiles: (self tileset tiles veryDeepCopy).
     node updateShannonEntropyFromScratch.
-
     ^ node
 ]
 

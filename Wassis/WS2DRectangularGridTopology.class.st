@@ -321,17 +321,22 @@ WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
     path  := aSymbol.
     
     tileSpecs := {
-        { 1. 50. { empty. path.  path.  empty } }.
-        { 2. 50. { path.  empty. empty. path  } }.
-        { 3. 25. { path.  empty. path.  empty } }.
-        { 4. 25. { path.  path.  empty. empty } }.
-        { 5. 25. { empty. empty. path.  path  } }.
-        { 6. 25. { empty. path.  empty. path  } }.
-		  { 7. 1. { path. path.  empty. path  } }.
-		  { 8. 1. { path. empty.  path. path  } }.
-		  { 9. 1. { path. path.  path. empty  } }.
-		  { 10. 1. { empty. path.  path. path  } }.
-    }.
+        { 1. 500. { empty. path.  path.  empty } }.
+        { 2. 500. { path.  empty. empty. path  } }.
+        { 3. 250. { path.  empty. path.  empty } }.
+        { 4. 250. { path.  path.  empty. empty } }.
+        { 5. 250. { empty. empty. path.  path  } }.
+        { 6. 250. { empty. path.  empty. path  } }.
+		  { 7. 0. { path. path.  empty. path  } }.
+		  { 8. 0. { path. empty.  path. path  } }.
+		  { 9. 0. { path. path.  path. empty  } }.
+		  { 10. 0. { empty. path.  path. path  } }.
+		  { 11. 0. { path. path.  path. path  } }.
+    } asOrderedCollection .
+
+	tileSpecs addAll: (self swSystem classesPathIDs 
+	    select: [ :pathID | pathID ~= aSymbol ]
+	    thenCollect: [ :pathID | { 12. 0. { pathID. path. path. pathID } } ]).
     
 	pathTiles := (tileSpecs collect: [ :spec |
 		WSPathTile 

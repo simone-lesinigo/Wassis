@@ -46,6 +46,23 @@ WS2DSquareVisitor class >> drawPath10On: b size: s [
 
 { #category : 'drawing' }
 WS2DSquareVisitor class >> drawPath11On: b size: s [
+
+	b absolute;
+		moveTo: (s * 0.4) @ 0;
+		lineTo: (s * 0.6) @ 0;
+		lineTo: (s * 0.6) @ s;
+		lineTo: (s * 0.4) @ s;
+		closePath;
+		moveTo: 0 @ (s * 0.4);
+		lineTo: s @ (s * 0.4);
+		lineTo: s @ (s * 0.6);
+		lineTo: 0 @ (s * 0.6);
+		closePath
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> drawPath12On: b size: s [
+
 	b absolute;
 		moveTo: (s * 0.4) @ 0;
 		lineTo: (s * 0.6) @ 0;

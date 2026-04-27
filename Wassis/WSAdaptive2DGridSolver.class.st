@@ -19,14 +19,6 @@ WSAdaptive2DGridSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	
 ]
 
-{ #category : 'cleanup' }
-WSAdaptive2DGridSolver >> cleanupInitialization [
-	
-	WSConfig resetInstance.
-	WSMDSLayoutStrategy resetCache
-	
-]
-
 { #category : 'calculating' }
 WSAdaptive2DGridSolver >> computeInitialSize [
 	<toDo> "Improve the formula to compute the initial size"
@@ -59,9 +51,17 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 		cr.
 ]
 
+{ #category : 'cleanup' }
+WSAdaptive2DGridSolver >> resetEnvironment [
+	
+	WSConfig resetInstance.
+	WSMDSLayoutStrategy resetCache
+	
+]
+
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
-	self cleanupInitialization.
+	self resetEnvironment.
 	"self createGraphVisualization."
    [ 
 		| totalTime |

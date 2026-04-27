@@ -397,6 +397,7 @@ WSSolver >> run [
 	performanceMetrics := self metrics performanceMetrics.
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
+	"self createVisualization. self halt."
 	self reifyWFCPaths.
 	self updateGraphMetrics.
 	self topology rebuildClassNodes: self graph.

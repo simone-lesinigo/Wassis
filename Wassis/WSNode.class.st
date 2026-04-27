@@ -319,7 +319,9 @@ WSNode >> updateShannonEntropy [
 	| shannonEntropy sumOfW sumOfWLn |
 	sumOfW := self sumOfWeights.
 	sumOfWLn := self sumOfWeightsLog.
-
+	
+	sumOfW <= 0 ifTrue: [ self entropy: 0. ^ 0 ].
+	
 	shannonEntropy := sumOfW ln - (sumOfWLn / sumOfW).
 	self entropy: shannonEntropy.
 
@@ -335,13 +337,13 @@ WSNode >> updateShannonEntropyFromScratch [
 	sumOfWLn := 0.
 
 	self possibleTiles do: [ :tile |
-			| tileWeight |
-			tileWeight := tile weight.
 
-			sumOfW := sumOfW + tileWeight.
-			sumOfWLn := sumOfWLn + (tileWeight * tileWeight ln) ].
+			sumOfW := sumOfW + tile weight.
+			sumOfWLn := sumOfWLn + tile weightPerLogWeight ].
 
-	shannonEntropy := sumOfW ln - (sumOfWLn / sumOfW).
+	shannonEntropy := sumOfW <= 0
+        ifTrue: [ 0 ]
+        ifFalse: [ sumOfW ln - (sumOfWLn / sumOfW) ].
 
 	self sumOfWeights: sumOfW.
 	self sumOfWeightsLog: sumOfWLn.

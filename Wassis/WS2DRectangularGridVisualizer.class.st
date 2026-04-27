@@ -89,12 +89,13 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
-	
+	<toDO> "Change again to the optimized version"
 	self clear.
 	self solver: aSolver.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
 	
-	aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ].
+	aSolver graph nodes do: [ :eachNode | self createShapeFor: eachNode  ].
+	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
 	self registerMouseHoverForPaths.
 	
