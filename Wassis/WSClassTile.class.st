@@ -15,7 +15,7 @@ Class {
 { #category : 'default-settings' }
 WSClassTile class >> defaultWeight [
 	
-	^ 1
+	^ WSConfig classTileWeight 
 ]
 
 { #category : 'instance creation' }

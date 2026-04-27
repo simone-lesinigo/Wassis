@@ -315,28 +315,32 @@ WS2DRectangularGridTopology >> createEmptyTile [
 { #category : 'tileset' }
 WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
     "Given a pathID (a symbol) create the path tiles to connect two classes"
-    | empty path tileSpecs pathTiles |
+    | empty path tileSpecs pathTiles straightTileWeight mergingTileWeight crossingTileWeight cornerTileWeight |
     
     empty := self class emptyEdgeSymbol.
     path  := aSymbol.
+	 straightTileWeight := WS2DRectangularGridConfig straightTileWeight.
+	 mergingTileWeight := WS2DRectangularGridConfig mergingTileWeight.
+	 crossingTileWeight := WS2DRectangularGridConfig crossingTileWeight.
+	 cornerTileWeight := WS2DRectangularGridConfig cornerTileWeight.
     
     tileSpecs := {
-        { 1. 500. { empty. path.  path.  empty } }.
-        { 2. 500. { path.  empty. empty. path  } }.
-        { 3. 250. { path.  empty. path.  empty } }.
-        { 4. 250. { path.  path.  empty. empty } }.
-        { 5. 250. { empty. empty. path.  path  } }.
-        { 6. 250. { empty. path.  empty. path  } }.
-		  { 7. 0. { path. path.  empty. path  } }.
-		  { 8. 0. { path. empty.  path. path  } }.
-		  { 9. 0. { path. path.  path. empty  } }.
-		  { 10. 0. { empty. path.  path. path  } }.
-		  { 11. 0. { path. path.  path. path  } }.
+        { 1. straightTileWeight . { empty. path.  path.  empty } }.
+        { 2. straightTileWeight . { path.  empty. empty. path  } }.
+        { 3. cornerTileWeight . { path.  empty. path.  empty } }.
+        { 4. cornerTileWeight . { path.  path.  empty. empty } }.
+        { 5. cornerTileWeight . { empty. empty. path.  path  } }.
+        { 6. cornerTileWeight . { empty. path.  empty. path  } }.
+		  { 7. mergingTileWeight. { path. path.  empty. path  } }.
+		  { 8. mergingTileWeight. { path. empty.  path. path  } }.
+		  { 9. mergingTileWeight. { path. path.  path. empty  } }.
+		  { 10. mergingTileWeight. { empty. path.  path. path  } }.
+		  { 11. mergingTileWeight. { path. path.  path. path  } }.
     } asOrderedCollection .
 
 	tileSpecs addAll: (self swSystem classesPathIDs 
 	    select: [ :pathID | pathID ~= aSymbol ]
-	    thenCollect: [ :pathID | { 12. 0. { pathID. path. path. pathID } } ]).
+	    thenCollect: [ :pathID | { 12. crossingTileWeight. { pathID. path. path. pathID } } ]).
     
 	pathTiles := (tileSpecs collect: [ :spec |
 		WSPathTile 
@@ -345,7 +349,7 @@ WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
 			withEdges: (self createTileEdgesFrom: (spec last))
 			withPathID: aSymbol
    	]).
-
+	self halt.
 	self tileset pathTiles at: aSymbol put: pathTiles. 
 
 	^ pathTiles 

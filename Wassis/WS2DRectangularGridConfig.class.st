@@ -7,7 +7,6 @@ Class {
 	#classVars : [
 		'CornerTileWeight',
 		'CrossingTileWeight',
-		'EmptyTileWeight',
 		'MergingTileWeight',
 		'SquareVisitorTileSize',
 		'StraightTileWeight'
@@ -22,7 +21,7 @@ WS2DRectangularGridConfig class >> cornerTileWeight [
 	
 	CornerTileWeight ifNil: [ 
 		self cornerTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'corner'} default: 25).
+			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'cornerTilesWeight'} default: 25).
 	].
 
 	^ CornerTileWeight
@@ -39,7 +38,7 @@ WS2DRectangularGridConfig class >> crossingTileWeight [
 	
 	CrossingTileWeight ifNil: [ 
 		self crossingTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'crossing'} default: 0).
+			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'crossingTilesWeight'} default: 0).
 	].
 
 	^ CrossingTileWeight
@@ -52,28 +51,11 @@ WS2DRectangularGridConfig class >> crossingTileWeight: anObject [
 ]
 
 { #category : 'accessing' }
-WS2DRectangularGridConfig class >> emptyTileWeight [
-	
-	EmptyTileWeight ifNil: [ 
-		self emptyTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'empty'} default: 4000).
-	].
-
-	^ EmptyTileWeight
-]
-
-{ #category : 'private - accessing' }
-WS2DRectangularGridConfig class >> emptyTileWeight: anObject [
-
-	EmptyTileWeight := anObject
-]
-
-{ #category : 'accessing' }
 WS2DRectangularGridConfig class >> mergingTileWeight [
 	
 	MergingTileWeight ifNil: [  
 		 self mergingTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'merging'} default: 0).
+			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'mergingTilesWeight'} default: 0).
 	].
 
 	^ MergingTileWeight
@@ -119,7 +101,7 @@ WS2DRectangularGridConfig class >> straightTileWeight [
 	
 	StraightTileWeight ifNil: [  
 		 self straightTileWeight: (
-			self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'tileWeights' . 'straight'} default: 50).
+			self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'straightTilesWeight'} default: 50).
 	].
 
 	^ StraightTileWeight

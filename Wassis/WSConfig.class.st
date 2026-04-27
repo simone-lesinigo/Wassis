@@ -5,7 +5,9 @@ Class {
 	#name : 'WSConfig',
 	#superclass : 'WSObject',
 	#classVars : [
+		'ClassTileWeight',
 		'ConfigFile',
+		'EmptyTileWeight',
 		'MaxNumberOfRegeneratedGraph',
 		'MaxNumberOfTriesPerGraph'
 	],
@@ -13,6 +15,25 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Config'
 }
+
+{ #category : 'accessing' }
+WSConfig class >> classTileWeight [
+	
+	ClassTileWeight ifNil: [ 
+		self emptyTileWeight: 
+			(self configFile atPath:  {'WSTile' . 'classTileWeight' } default: 1).
+	].
+
+	^ ClassTileWeight
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> classTileWeight: anObject [
+	
+	ClassTileWeight := anObject
+	
+	
+]
 
 { #category : 'accessing' }
 WSConfig class >> configFile [
@@ -26,6 +47,23 @@ WSConfig class >> configFile [
 WSConfig class >> configFile: anObject [
 
 	ConfigFile := anObject
+]
+
+{ #category : 'accessing' }
+WSConfig class >> emptyTileWeight [
+	
+	EmptyTileWeight ifNil: [ 
+		self emptyTileWeight: 
+			(self configFile atPath:  {'WSTile' . 'emptyTileWeight' } default: 4000).
+	].
+
+	^ EmptyTileWeight
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> emptyTileWeight: anObject [
+
+	EmptyTileWeight := anObject
 ]
 
 { #category : 'accessing-backtracking' }
@@ -81,6 +119,8 @@ WSConfig class >> reset [
 	self configFile: nil.
 	self maxNumberOfRegeneratedGraph: nil.
 	self maxNumberOfTriesPerGraph: nil.
+	self emptyTileWeight: nil.
+	self classTileWeight: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]

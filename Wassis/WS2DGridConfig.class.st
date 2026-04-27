@@ -32,6 +32,5 @@ WS2DGridConfig class >> gridSafetyMooreRadius: anObject [
 { #category : 'class initialization' }
 WS2DGridConfig class >> reset [ 
 	
-	"self configFile: nil."
 	self gridSafetyMooreRadius: nil
 ]
