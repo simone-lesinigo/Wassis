@@ -152,22 +152,22 @@ WS2DRectangularGridTopology >> buildTileSpecsForPathID: aPathID [
 	crossingTileWeight := WS2DRectangularGridConfig crossingTileWeight.
 	
 	tileSpecs := {
-        { 1. straightTileWeight . { empty. aPathID.  aPathID.  empty } }.
-        { 2. straightTileWeight . { aPathID.  empty. empty. aPathID  } }.
-        { 3. cornerTileWeight . { aPathID.  empty. aPathID.  empty } }.
-        { 4. cornerTileWeight . { aPathID.  aPathID.  empty. empty } }.
-        { 5. cornerTileWeight . { empty. empty. aPathID.  aPathID  } }.
-        { 6. cornerTileWeight . { empty. aPathID.  empty. aPathID  } }.
-		  { 7. mergingTileWeight. { aPathID. aPathID.  empty. aPathID  } }.
-		  { 8. mergingTileWeight. { aPathID. empty.  aPathID. aPathID  } }.
-		  { 9. mergingTileWeight. { aPathID. aPathID.  aPathID. empty  } }.
-		  { 10. mergingTileWeight. { empty. aPathID.  aPathID. aPathID  } }.
-		  { 11. mergingTileWeight. { aPathID. aPathID.  aPathID. aPathID  } }.
+        { 1.  straightTileWeight . { empty. aPathID. aPathID. empty } . { aPathID } }.
+        { 2.  straightTileWeight . { aPathID. empty. empty. aPathID  } . { aPathID } }.
+        { 3.  cornerTileWeight   . { aPathID. empty. aPathID. empty  } . { aPathID } }.
+        { 4.  cornerTileWeight   . { aPathID. aPathID. empty. empty  } . { aPathID } }.
+        { 5.  cornerTileWeight   . { empty. empty. aPathID. aPathID  } . { aPathID } }.
+        { 6.  cornerTileWeight   . { empty. aPathID. empty. aPathID  } . { aPathID } }.
+        { 7.  mergingTileWeight  . { aPathID. aPathID. empty. aPathID } . { aPathID } }.
+        { 8.  mergingTileWeight  . { aPathID. empty. aPathID. aPathID } . { aPathID } }.
+        { 9.  mergingTileWeight  . { aPathID. aPathID. aPathID. empty } . { aPathID } }.
+        { 10. mergingTileWeight  . { empty. aPathID. aPathID. aPathID } . { aPathID } }.
+        { 11. mergingTileWeight  . { aPathID. aPathID. aPathID. aPathID } . { aPathID } }.
     } asOrderedCollection.
 
 	tileSpecs addAll: (self swSystem classesPathIDs 
-	    select: [ :pathID | pathID ~= aPathID ]
-	    thenCollect: [ :pathID | { 12. crossingTileWeight. { pathID. aPathID. aPathID. pathID } } ]).
+	    select: [ :eachPathID | eachPathID ~= aPathID ]
+	    thenCollect: [ :eachPathID | { 12. crossingTileWeight. { eachPathID. aPathID. aPathID. eachPathID } . { aPathID . eachPathID }} ]).
 	
 	^ tileSpecs 
 	
@@ -358,8 +358,8 @@ WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
 		WSPathTile 
 			withID: spec first
 			withWeight: spec second
-			withEdges: (self createTileEdgesFrom: (spec last))
-			withPathID: aSymbol
+			withEdges: (self createTileEdgesFrom: (spec third))
+			withPathIDs: spec fourth
      ]).
 
 	self tileset pathTiles at: aSymbol put: pathTiles. 

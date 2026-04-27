@@ -232,6 +232,55 @@ WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
 ]
 
 { #category : 'rendering' }
+WS2DSquareVisitor class >> renderCrossingFormForID: aPathTileID withColor: aColor andColor: aSecondColor [
+    | surface standardForm formSize half thickness |
+    formSize := self tileSize.
+    half := formSize / 2.
+    thickness := formSize * 0.2. 
+    
+    surface := AthensCairoSurface extent: formSize @ formSize.
+    surface drawDuring: [ :canvas |
+        "Sfondo bianco"
+        canvas setPaint: Color white.
+        canvas drawShape: (0 @ 0 extent: formSize @ formSize).
+        
+        "Rettangolo verticale - primo colore"
+        canvas setPaint: aColor.
+        canvas drawShape: ((canvas createPath: [ :b |
+            b absolute;
+                moveTo: (formSize * 0.4) @ 0;
+                lineTo: (formSize * 0.6) @ 0;
+                lineTo: (formSize * 0.6) @ formSize;
+                lineTo: (formSize * 0.4) @ formSize;
+                closePath ])).
+        
+        "Rettangolo orizzontale - secondo colore"
+        canvas setPaint: aSecondColor.
+        canvas drawShape: (canvas createPath: [ :b |
+            b absolute;
+                moveTo: 0 @ (formSize * 0.4);
+                lineTo: formSize @ (formSize * 0.4);
+                lineTo: formSize @ (formSize * 0.6);
+                lineTo: 0 @ (formSize * 0.6);
+                closePath ]).
+        
+        "Quadrato centrale - nero"
+        canvas setPaint: Color black.
+        canvas drawShape: (canvas createPath: [ :b |
+            b absolute;
+                moveTo: (formSize * 0.4) @ (formSize * 0.4);
+                lineTo: (formSize * 0.6) @ (formSize * 0.4);
+                lineTo: (formSize * 0.6) @ (formSize * 0.6);
+                lineTo: (formSize * 0.4) @ (formSize * 0.6);
+                closePath ]).
+    ].
+    
+    standardForm := Form extent: formSize @ formSize depth: 32.
+    surface asForm displayOn: standardForm.
+    ^ standardForm
+]
+
+{ #category : 'rendering' }
 WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 	"Create the form for a path tile"
 	
@@ -313,13 +362,23 @@ WS2DSquareVisitor >> visitEmptyTile: emptyTile [
 WS2DSquareVisitor >> visitPathTile: pathTile [
 	<toDo> "Choose path color based on the type of relation"
 	
-	| shape normalForm highlightedForm |
-
+	| shape normalForm highlightedForm color |
+   
 	shape := RSBitmap new.
+	"--------------------------------------------------------------------------------------"
+	color := self pathIDColorDictionary at: pathTile pathID.
+	normalForm := pathTile id = 12
+        ifTrue: [ 
+            self class renderCrossingFormForID: pathTile id 
+                withColor: (self pathIDColorDictionary at: pathTile secondaryPathID)
+                andColor: color ]
+        ifFalse: [ 
+            self class renderFormForID: pathTile id withColor: color ].
+	"--------------------------------------------------------------------------------------"
 	
-	normalForm := (self class 
+"	normalForm := (self class 
 		generateFormForID: pathTile id 
-		withColor: (self pathIDColorDictionary at: pathTile pathID)).
+		withColor: (self pathIDColorDictionary at: pathTile pathID))."
 	
 	highlightedForm := (self class 
 		generateFormForID: pathTile id 

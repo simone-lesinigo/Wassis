@@ -5,7 +5,7 @@ Class {
 	#name : 'WSPathTile',
 	#superclass : 'WSTile',
 	#instVars : [
-		'pathID'
+		'pathIDs'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -13,13 +13,13 @@ Class {
 }
 
 { #category : 'instance creation' }
-WSPathTile class >> withID: anID withWeight: aWeight withEdges: edges withPathID: aPathID [
+WSPathTile class >> withID: anID withWeight: aWeight withEdges: edges withPathIDs: pathIDs [
 	
 	^ self new
 		id: anID;
       weight: aWeight;
       edges: edges;
-		pathID: aPathID
+		pathIDs: pathIDs
 ]
 
 { #category : 'visualization' }
@@ -53,6 +53,18 @@ WSPathTile >> buildPopup [
 ]
 
 { #category : 'testing' }
+WSPathTile >> isCrossing [
+
+	^ self pathIDs size > 1
+]
+
+{ #category : 'testing' }
+WSPathTile >> isNotCrossing [
+
+	^ self isCrossing not
+]
+
+{ #category : 'testing' }
 WSPathTile >> isPathTile [ 
 	
 	^ true
@@ -79,11 +91,23 @@ WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
 { #category : 'accessing' }
 WSPathTile >> pathID [
 
-	^ pathID
+	^ pathIDs first 
 ]
 
 { #category : 'accessing' }
-WSPathTile >> pathID: anObject [
+WSPathTile >> pathIDs [
 
-	pathID := anObject
+	^ pathIDs
+]
+
+{ #category : 'accessing' }
+WSPathTile >> pathIDs: anObject [
+
+	pathIDs := anObject
+]
+
+{ #category : 'accessing' }
+WSPathTile >> secondaryPathID [
+
+	self isCrossing ifTrue: [ ^ self pathIDs second ]
 ]
