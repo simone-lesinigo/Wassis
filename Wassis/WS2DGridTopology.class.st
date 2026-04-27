@@ -83,9 +83,8 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
     
     | result |
     result := OrderedCollection new.
-    Transcript show: 'Started placing classes'; cr.
     self assignNodesToClassesIn: aGrid.
-		Transcript show: 'Finished placing classes'; cr.
+
     self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
         | nodesToTile |
         nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.

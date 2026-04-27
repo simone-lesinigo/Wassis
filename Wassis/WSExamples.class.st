@@ -186,7 +186,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient 
+		createForClass: TaAbstractComposition
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

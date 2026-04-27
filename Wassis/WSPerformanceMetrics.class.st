@@ -22,7 +22,7 @@ Class {
 WSPerformanceMetrics >> initialize [ 
 	
 	super initialize.
-	self totalNumberOfTries: 0
+	self totalNumberOfTries: 1
 ]
 
 { #category : 'accessing' }

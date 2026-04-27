@@ -322,11 +322,9 @@ WSSolver >> onContradiction [
 	
 	bt restartFromClassesGraphForSolver: self.
 
-	(bt nOfContradicitonsPerGraph) > (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
+	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
 
 	bt restartFromEmptyGraphForSolver: self.
-	"Transcript show: 'Tries: ';
-	show: (bt nOfRegeneratedGraph) * (bt maxNumberOfTriesPerGraph); cr."
 	
 	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
 		ifTrue: [ WSMaxTriesReached signal.  ]
@@ -358,7 +356,7 @@ WSSolver >> run [
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	Transcript show: 'Solution found'; cr.
-	"self createVisualization. self halt."
+	self createVisualization. self halt.
 	self reifyWFCPaths.
 	self updateGraphMetrics.
 	self topology rebuildClassNodes: self graph.
