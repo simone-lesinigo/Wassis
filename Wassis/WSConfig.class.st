@@ -20,7 +20,7 @@ Class {
 WSConfig class >> classTileWeight [
 	
 	ClassTileWeight ifNil: [ 
-		self emptyTileWeight: 
+		self classTileWeight: 
 			(self configFile atPath:  {'WSTile' . 'classTileWeight'} default: 1).
 	].
 

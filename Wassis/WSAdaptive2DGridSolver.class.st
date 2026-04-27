@@ -4,6 +4,9 @@ Increase the size of the 2D grid
 Class {
 	#name : 'WSAdaptive2DGridSolver',
 	#superclass : 'WSAdaptiveSolver',
+	#instVars : [
+		'metrics'
+	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
 	#tag : 'Core'
@@ -39,7 +42,8 @@ WSAdaptive2DGridSolver >> createGraphVisualization [
 { #category : 'visualization' }
 WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
 	
-	aSolver createTemporaryVisualization
+	aSolver createTemporaryVisualization.
+	self halt.
 ]
 
 { #category : 'logging' }
@@ -61,20 +65,23 @@ WSAdaptive2DGridSolver >> resetEnvironment [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
+	
+	metrics := WSMetrics new.
 	self resetEnvironment.
 	"self createGraphVisualization."
    [ 
-		| totalTime |
-		totalTime := [ 
-			self solveWithIncreasingSize.
-			Smalltalk garbageCollect.
-		] timeToRun.
-	
-	  self updatePerformanceMetricsWithTime: totalTime.
-	  self solver inspect.
-	
-	  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
-			
+		WSCurrentMetrics value: metrics during: [
+			| totalTime |
+			totalTime := [ 
+				self solveWithIncreasingSize.
+				Smalltalk garbageCollect.
+			] timeToRun.
+		
+		  self updatePerformanceMetricsWithTime: totalTime.
+		  self inspect.
+		
+		  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
+		]	
 	] forkNamed: 'WaveFunctionCollapse'.
 ]
 
@@ -115,7 +122,7 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	currentSolver addInitialMetrics.
 	
 	"self createTemporaryVisualizationFor: currentSolver."
-   currentSolver getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
+   WSCurrentMetrics getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
 	self solver: currentSolver.
 	self solutionFound: true
@@ -126,7 +133,8 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 	"Update the performance metrics when the execution is completed"
 
 	| performanceMetrics |
-	performanceMetrics := self solver getPerformanceMetrics.
+	performanceMetrics := WSCurrentMetrics getPerformanceMetrics.
+
 	performanceMetrics 
 		totalTime: totalTime;
 		mdsTime: WSMDSLayoutStrategy computationTime.

@@ -10,12 +10,20 @@ Class {
 		'visualizationTime',
 		'solverTotalTime',
 		'totalTime',
-		'wastedTime'
+		'wastedTime',
+		'totalNumberOfTries'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
 	#tag : 'Metrics'
 }
+
+{ #category : 'initialization' }
+WSPerformanceMetrics >> initialize [ 
+	
+	super initialize.
+	self totalNumberOfTries: 0
+]
 
 { #category : 'accessing' }
 WSPerformanceMetrics >> mdsTime [
@@ -39,6 +47,18 @@ WSPerformanceMetrics >> solverTotalTime [
 WSPerformanceMetrics >> solverTotalTime: anObject [
 
 	solverTotalTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> totalNumberOfTries [
+
+	^ totalNumberOfTries
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> totalNumberOfTries: anObject [
+
+	totalNumberOfTries := anObject
 ]
 
 { #category : 'accessing' }

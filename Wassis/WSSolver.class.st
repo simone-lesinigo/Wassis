@@ -8,8 +8,7 @@ Class {
 		'id',
 		'graph',
 		'backtracking',
-		'topology',
-		'metrics'
+		'topology'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -26,7 +25,6 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 	^ self new
 		graph: graph;
 		topology: aTopology;
-		metrics: WSMetrics new;
 		backtracking: (WSBacktracking newWithGraph: graph)
 
 		
@@ -45,7 +43,6 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 		id: aID;
 		graph: graph;
 		topology: aTopology;
-		metrics: WSMetrics new;
 		backtracking: (WSBacktracking newWithGraph: graph)
 
 		
@@ -58,7 +55,7 @@ WSSolver >> addInitialGraphMetrics [
 	"Add the total number of nodes and the dimension"
 	
 	| graphMetrics |
-	graphMetrics := self getGraphMetrics.
+	graphMetrics := WSCurrentMetrics getGraphMetrics.
 	
 	graphMetrics totalNumberOfNodes: self graph nodes size.
 	graphMetrics dimension: self graph structure dimension
@@ -80,7 +77,7 @@ WSSolver >> addInitialPathMetrics [
 	"Add only the number of direct, merging and total paths"
 	
 	| pathMetrics dict nOfDirect |
-	pathMetrics := self getPathMetrics.
+	pathMetrics := WSCurrentMetrics getPathMetrics.
 	
 	dict := ((self topology swSystem classesPathIDs) values groupedBy: [ :each | each ] ) collect: [ :group | group size ].
 	nOfDirect := (dict select: [ :each | each = 1 ]) size.
@@ -91,11 +88,21 @@ WSSolver >> addInitialPathMetrics [
 
 ]
 
+{ #category : 'error handling' }
+WSSolver >> addOneToTotalNumberOfTries [
+	
+	| pm |
+	pm := WSCurrentMetrics getPerformanceMetrics.
+	pm totalNumberOfTries: (pm totalNumberOfTries + 1).
+	
+	Transcript show: 'Tries: '; show: (pm totalNumberOfTries); cr.
+]
+
 { #category : 'metrics' }
 WSSolver >> addPlacementMetrics [
 	
 	| placementMetrics |
-	placementMetrics := self getPlacementMetrics.
+	placementMetrics := WSCurrentMetrics getPlacementMetrics.
 	placementMetrics 
 		classDistances: (self topology calculateDistancesBetweenClasses);
 		avgConnectedClassesDistance: (self calculateAvgConnectedClassesDistance)
@@ -109,7 +116,7 @@ WSSolver >> addSoftwareMetrics [
 	| swSystem swMetrics counter |
 	counter := 0.
 	swSystem := self topology swSystem.
-	swMetrics := self getSoftwareMetrics.
+	swMetrics := WSCurrentMetrics getSoftwareMetrics.
 	
 	swMetrics numberOfClasses: swSystem classes size.
 	
@@ -133,7 +140,7 @@ WSSolver >> addTilesetMetrics [
 	
 	| numberOfTiles |
 	numberOfTiles := self topology tileset tiles size.
-	self getTilesetMetrics numberOfTiles: numberOfTiles 
+	WSCurrentMetrics getTilesetMetrics numberOfTiles: numberOfTiles 
 ]
 
 { #category : 'accessing' }
@@ -153,7 +160,7 @@ WSSolver >> calculateAverageNeighborDistanceFor: aClass [
 	"Calculate the avg distance of each class considering all the class it is connected to"
 
     | connections distances classDistances |
-	 classDistances := self getPlacementMetrics classDistances.
+	 classDistances := WSCurrentMetrics getPlacementMetrics classDistances.
 
     connections := classDistances keys select: [ :assoc | 
         assoc key = aClass or: [ assoc value = aClass ] ].
@@ -247,12 +254,6 @@ WSSolver >> getFlattenedNodes [
 	^ self graph getFlattenedNodes 
 ]
 
-{ #category : 'metrics-accessing' }
-WSSolver >> getGraphMetrics [ 
-	
-	^ self metrics graphMetrics
-]
-
 { #category : 'accessing' }
 WSSolver >> getNotEmptyNodes [
 	"Get all the nodes that didnt collapse into an empty tile"
@@ -260,40 +261,10 @@ WSSolver >> getNotEmptyNodes [
     ^ self getPathNodes , self getClassNodes
 ]
 
-{ #category : 'metrics-accessing' }
-WSSolver >> getPathMetrics [ 
-	
-	^ self metrics pathMetrics 
-]
-
 { #category : 'accessing' }
 WSSolver >> getPathNodes [
 	
 	^ self graph getPathNodes
-]
-
-{ #category : 'metrics-accessing' }
-WSSolver >> getPerformanceMetrics [
-	
-	^ self metrics performanceMetrics 
-]
-
-{ #category : 'metrics-accessing' }
-WSSolver >> getPlacementMetrics [ 
-	
-	^ self metrics placementMetrics 
-]
-
-{ #category : 'metrics-accessing' }
-WSSolver >> getSoftwareMetrics [ 
-	
-	^ self metrics softwareMetrics 
-]
-
-{ #category : 'metrics-accessing' }
-WSSolver >> getTilesetMetrics [ 
-	
-	^ self metrics tilesetMetrics 
 ]
 
 { #category : 'accessing' }
@@ -326,18 +297,6 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph.
 ]
 
-{ #category : 'accessing' }
-WSSolver >> metrics [
-
-	^ metrics
-]
-
-{ #category : 'accessing' }
-WSSolver >> metrics: anObject [
-
-	metrics := anObject
-]
-
 { #category : 'drag and drop' }
 WSSolver >> moveClass: aClass toNode: aNode [
 	"Move aClass to its new position"
@@ -359,14 +318,15 @@ WSSolver >> onContradiction [
 
 	| bt |
 	bt := self backtracking.
-
+	self addOneToTotalNumberOfTries.
+	
 	bt restartFromClassesGraphForSolver: self.
 
 	(bt nOfContradicitonsPerGraph) > (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
 
 	bt restartFromEmptyGraphForSolver: self.
-	Transcript show: 'Tries: ';
-	showCr: (bt nOfRegeneratedGraph) * (bt maxNumberOfTriesPerGraph).
+	"Transcript show: 'Tries: ';
+	show: (bt nOfRegeneratedGraph) * (bt maxNumberOfTriesPerGraph); cr."
 	
 	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
 		ifTrue: [ WSMaxTriesReached signal.  ]
@@ -394,9 +354,10 @@ WSSolver >> run [
 	"Run the WFC algorithm on the graph" 
 	
 	| performanceMetrics |
-	performanceMetrics := self metrics performanceMetrics.
+	performanceMetrics := WSCurrentMetrics getPerformanceMetrics.
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
+	Transcript show: 'Solution found'; cr.
 	"self createVisualization. self halt."
 	self reifyWFCPaths.
 	self updateGraphMetrics.
@@ -453,7 +414,7 @@ WSSolver >> updateGraphMetrics [
 	"Set the number of empty, path and class nodes"
 	
 	| graphMetrics classNodes pathNodes |
-	graphMetrics := self getGraphMetrics.
+	graphMetrics := WSCurrentMetrics getGraphMetrics.
 	
 	classNodes := 0.
 	self topology classFootprint do: [ :eachFootprint | classNodes := classNodes + eachFootprint nodes size ].

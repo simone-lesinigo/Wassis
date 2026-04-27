@@ -141,6 +141,40 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
 ]
 
 { #category : 'tileset' }
+WS2DRectangularGridTopology >> buildTileSpecsForPathID: aPathID [
+	"Build the specification of the path tiles for a certain ID"
+	
+	| empty straightTileWeight cornerTileWeight mergingTileWeight crossingTileWeight tileSpecs |
+	empty := self class emptyEdgeSymbol.
+   straightTileWeight := WS2DRectangularGridConfig straightTileWeight.
+   cornerTileWeight := WS2DRectangularGridConfig cornerTileWeight.
+	mergingTileWeight := WS2DRectangularGridConfig mergingTileWeight.
+	crossingTileWeight := WS2DRectangularGridConfig crossingTileWeight.
+	
+	tileSpecs := {
+        { 1. straightTileWeight . { empty. aPathID.  aPathID.  empty } }.
+        { 2. straightTileWeight . { aPathID.  empty. empty. aPathID  } }.
+        { 3. cornerTileWeight . { aPathID.  empty. aPathID.  empty } }.
+        { 4. cornerTileWeight . { aPathID.  aPathID.  empty. empty } }.
+        { 5. cornerTileWeight . { empty. empty. aPathID.  aPathID  } }.
+        { 6. cornerTileWeight . { empty. aPathID.  empty. aPathID  } }.
+		  { 7. mergingTileWeight. { aPathID. aPathID.  empty. aPathID  } }.
+		  { 8. mergingTileWeight. { aPathID. empty.  aPathID. aPathID  } }.
+		  { 9. mergingTileWeight. { aPathID. aPathID.  aPathID. empty  } }.
+		  { 10. mergingTileWeight. { empty. aPathID.  aPathID. aPathID  } }.
+		  { 11. mergingTileWeight. { aPathID. aPathID.  aPathID. aPathID  } }.
+    } asOrderedCollection.
+
+	tileSpecs addAll: (self swSystem classesPathIDs 
+	    select: [ :pathID | pathID ~= aPathID ]
+	    thenCollect: [ :pathID | { 12. crossingTileWeight. { pathID. aPathID. aPathID. pathID } } ]).
+	
+	^ tileSpecs 
+	
+
+]
+
+{ #category : 'tileset' }
 WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
     "Returns a Dictionary WSNode -> WSClassTile"
     
@@ -315,41 +349,19 @@ WS2DRectangularGridTopology >> createEmptyTile [
 { #category : 'tileset' }
 WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
     "Given a pathID (a symbol) create the path tiles to connect two classes"
-    | empty path tileSpecs pathTiles straightTileWeight mergingTileWeight crossingTileWeight cornerTileWeight |
-    
-    empty := self class emptyEdgeSymbol.
-    path  := aSymbol.
-	 straightTileWeight := WS2DRectangularGridConfig straightTileWeight.
-	 mergingTileWeight := WS2DRectangularGridConfig mergingTileWeight.
-	 crossingTileWeight := WS2DRectangularGridConfig crossingTileWeight.
-	 cornerTileWeight := WS2DRectangularGridConfig cornerTileWeight.
-    
-    tileSpecs := {
-        { 1. straightTileWeight . { empty. path.  path.  empty } }.
-        { 2. straightTileWeight . { path.  empty. empty. path  } }.
-        { 3. cornerTileWeight . { path.  empty. path.  empty } }.
-        { 4. cornerTileWeight . { path.  path.  empty. empty } }.
-        { 5. cornerTileWeight . { empty. empty. path.  path  } }.
-        { 6. cornerTileWeight . { empty. path.  empty. path  } }.
-		  { 7. mergingTileWeight. { path. path.  empty. path  } }.
-		  { 8. mergingTileWeight. { path. empty.  path. path  } }.
-		  { 9. mergingTileWeight. { path. path.  path. empty  } }.
-		  { 10. mergingTileWeight. { empty. path.  path. path  } }.
-		  { 11. mergingTileWeight. { path. path.  path. path  } }.
-    } asOrderedCollection .
 
-	tileSpecs addAll: (self swSystem classesPathIDs 
-	    select: [ :pathID | pathID ~= aSymbol ]
-	    thenCollect: [ :pathID | { 12. crossingTileWeight. { pathID. path. path. pathID } } ]).
+    | tileSpecs pathTiles |
+   
+    tileSpecs := self buildTileSpecsForPathID: aSymbol.
     
-	pathTiles := (tileSpecs collect: [ :spec |
+	 pathTiles := (tileSpecs collect: [ :spec |
 		WSPathTile 
 			withID: spec first
 			withWeight: spec second
 			withEdges: (self createTileEdgesFrom: (spec last))
 			withPathID: aSymbol
-   	]).
-	self halt.
+     ]).
+
 	self tileset pathTiles at: aSymbol put: pathTiles. 
 
 	^ pathTiles 
@@ -433,7 +445,7 @@ WS2DRectangularGridTopology >> manhattanDistanceBetweenFootprint: footprint1 and
 											
 					minDistance := (minDistance min: currentDistance).
 					
-					minDistance <= WSConfig gridSafetyMooreRadius ifTrue: [ ^ minDistance ]
+					minDistance <= WS2DGridConfig gridSafetyMooreRadius ifTrue: [ ^ minDistance ]
 			] ].
 			
 	^ minDistance 
