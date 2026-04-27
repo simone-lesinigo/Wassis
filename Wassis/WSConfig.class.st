@@ -16,12 +16,12 @@ Class {
 	#tag : 'Config'
 }
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WSConfig class >> classTileWeight [
 	
 	ClassTileWeight ifNil: [ 
 		self emptyTileWeight: 
-			(self configFile atPath:  {'WSTile' . 'classTileWeight' } default: 1).
+			(self configFile atPath:  {'WSTile' . 'classTileWeight'} default: 1).
 	].
 
 	^ ClassTileWeight
@@ -49,12 +49,12 @@ WSConfig class >> configFile: anObject [
 	ConfigFile := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WSConfig class >> emptyTileWeight [
 	
 	EmptyTileWeight ifNil: [ 
 		self emptyTileWeight: 
-			(self configFile atPath:  {'WSTile' . 'emptyTileWeight' } default: 4000).
+			(self configFile atPath:  {'WSTile' . 'emptyTileWeight'} default: 4000).
 	].
 
 	^ EmptyTileWeight

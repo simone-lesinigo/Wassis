@@ -16,12 +16,12 @@ Class {
 	#tag : 'Config'
 }
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WS2DRectangularGridConfig class >> cornerTileWeight [
 	
 	CornerTileWeight ifNil: [ 
 		self cornerTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'cornerTilesWeight'} default: 25).
+			(self configFile atPath: (self tileWeightsPath, {'cornerTilesWeight'}) default: 25).
 	].
 
 	^ CornerTileWeight
@@ -33,12 +33,12 @@ WS2DRectangularGridConfig class >> cornerTileWeight: anObject [
 	CornerTileWeight := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WS2DRectangularGridConfig class >> crossingTileWeight [
 	
 	CrossingTileWeight ifNil: [ 
 		self crossingTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'crossingTilesWeight'} default: 0).
+			(self configFile atPath: (self tileWeightsPath, {'crossingTilesWeight'}) default: 0).
 	].
 
 	^ CrossingTileWeight
@@ -50,12 +50,12 @@ WS2DRectangularGridConfig class >> crossingTileWeight: anObject [
 	CrossingTileWeight := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WS2DRectangularGridConfig class >> mergingTileWeight [
 	
 	MergingTileWeight ifNil: [  
 		 self mergingTileWeight: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'mergingTilesWeight'} default: 0).
+			(self configFile atPath: (self tileWeightsPath, {'mergingTilesWeight'}) default: 0).
 	].
 
 	^ MergingTileWeight
@@ -96,12 +96,12 @@ WS2DRectangularGridConfig class >> squareVisitorTileSize: anObject [
 	SquareVisitorTileSize := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'accessing-tileWeight' }
 WS2DRectangularGridConfig class >> straightTileWeight [
 	
 	StraightTileWeight ifNil: [  
 		 self straightTileWeight: (
-			self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' . 'straightTilesWeight'} default: 50).
+			self configFile atPath: (self tileWeightsPath, {'straightTilesWeight'})  default: 50).
 	].
 
 	^ StraightTileWeight
@@ -111,4 +111,10 @@ WS2DRectangularGridConfig class >> straightTileWeight [
 WS2DRectangularGridConfig class >> straightTileWeight: anObject [
 
 	StraightTileWeight := anObject
+]
+
+{ #category : 'accessing-tileWeight' }
+WS2DRectangularGridConfig class >> tileWeightsPath [
+
+	^ { 'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'WS2DSquareTile' }
 ]
