@@ -82,5 +82,5 @@ WSConfig class >> reset [
 	self maxNumberOfRegeneratedGraph: nil.
 	self maxNumberOfTriesPerGraph: nil.
 	
-	self withAllSubclassesDo: [ :eachSubclass | eachSubclass reset ]
+	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]
