@@ -501,7 +501,7 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr [
 			  | originalForm form colorsToReplace |
 			
 			  (aPathTileID between: 1 and: 11) ifTrue: [ colorsToReplace := { Color black } ].
-			  aPathTileID = 12 ifTrue: [ colorsToReplace := { Color red. Color blue } ].
+			  aPathTileID = 12 ifTrue: [ colorsToReplace := { Color blue. Color red } ].
 			  (#( 13 14 ) includes: aPathTileID) ifTrue: [ colorsToReplace := { Color black. Color red } ].
 
 			  originalForm := self originalPathFormCache at: aPathTileID.
