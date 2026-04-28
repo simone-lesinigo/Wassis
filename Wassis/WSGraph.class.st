@@ -90,6 +90,7 @@ WSGraph >> allNodesCollapsed [
 { #category : 'pathReification' }
 WSGraph >> assignSourceAndDestination: aPath [
 	"Assign sources and destination to a path"
+	
     | touchedClasses touchedWSClasses |
     touchedClasses := aPath touchedClasses.
     touchedWSClasses := touchedClasses collect: [ :node | node tileInWhichCollapsed wsClass ].
@@ -148,14 +149,22 @@ WSGraph >> clearPathWithID: anID [
 
 { #category : 'pathOptimization' }
 WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNode [
-	"Collapse a node to the right path tile"
+    "Collapse a node to the right path tile, preserving existing path directions"
 
-    | dir |
-    dir := aNode outgoingEdges
+    | newDirs dirToPathID |
+    
+    newDirs := (aNode outgoingEdges
         select: [ :eachEdge | eachEdge target = prevNode or: [ eachEdge target = nextNode ] ]
-        thenCollect: [ :eachEdge | eachEdge direction ].
+        thenCollect: [ :eachEdge | eachEdge direction ]) asOrderedCollection.
+    
+    dirToPathID := aNode tileInWhichCollapsed edges veryDeepCopy.
+	 dirToPathID  keysAndValuesDo: [ :key : value |
+		dirToPathID at: key put: value first.
+	 ].
 
-    ^ aNode collapseTo: (self topology tileset tileForDirections: dir pathID: pathID)
+    newDirs do: [ :dir | dirToPathID at: dir put: pathID ].
+    
+    ^ aNode collapseTo: (self topology tileset tileForDirections: dirToPathID)
 ]
 
 { #category : 'collapse' }
@@ -180,9 +189,8 @@ WSGraph >> correctPaths [
 			directionsToCheck := OrderedCollection new.
 			
 			eachNode outgoingEdges do: [ :eachEdge |
-				| target tile |
-				target := eachEdge target.
-				tile := target tileInWhichCollapsed.
+				| tile |
+				tile := eachEdge target tileInWhichCollapsed.
 				((tile isPathTile) and: [ tile pathID = pathID ]) ifTrue: [ 
 					directionsToCheck add: eachEdge direction
 				].
@@ -191,14 +199,6 @@ WSGraph >> correctPaths [
 				]
 			].
 			eachNode collapseTo: (self topology tileset tileForDirections: directionsToCheck pathID: pathID)
-		
-"			directionsToCheck do: [ :eachDirection |
-				| edge |
-				edge := eachNode tileInWhichCollapsed edges at: eachDirection.
-				(edge includes: pathID) ifFalse: [ 
-					edge remove: self topology class emptyEdgeSymbol; add: pathID
-				] 
-			]"
 		]
 	].
 ]
@@ -213,7 +213,7 @@ WSGraph >> createPaths [
     pathIDs do: [ :pathID | self paths at: pathID put: OrderedCollection new ].
     
     self topology classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
-        eachFootprint nodes do: [ :eachClassNode |
+        (eachFootprint borderNodes: self topology) do: [ :eachClassNode |
             | tileEdges |
             tileEdges := eachClassNode tileInWhichCollapsed edges.
             
@@ -241,6 +241,43 @@ WSGraph >> createPaths [
 ]
 
 { #category : 'pathReification' }
+WSGraph >> deleteUselessCrossingFromAllPaths [
+	"While refining the paths, some crossing that are not needed remains. This method erases them from all paths"
+
+	self paths do: [ :eachCollectionOfPath | 
+		eachCollectionOfPath do: [ :eachPath | 
+			self deleteUselessCrossingFromPath: eachPath 
+		]
+	]
+]
+
+{ #category : 'pathReification' }
+WSGraph >> deleteUselessCrossingFromPath: aPath [
+    "While refining the paths, some crossing that are not needed remains. This method erases them"
+    | pathID |
+    pathID := aPath pathID.
+    
+    aPath crossingNodes do: [ :eachNode | 
+            | validDirections needsCollapse |
+            validDirections := OrderedCollection new.
+            needsCollapse := false.
+            
+            eachNode tileInWhichCollapsed edges keysAndValuesDo: [ :dir :symbols |
+                | neighbourTile oppositeDir |
+                neighbourTile := (eachNode neighbourAtDirection: dir) tileInWhichCollapsed.
+                oppositeDir := self topology oppositeDirections at: dir.
+                
+                 ((neighbourTile edges at: oppositeDir) includes: symbols first)
+                        ifTrue: [ validDirections add: dir ]
+                        ifFalse: [ needsCollapse := true ] ] .
+            
+            needsCollapse ifTrue: [ 
+                | correctTile |
+                correctTile := self topology tileset tileForDirections: validDirections pathID: pathID.
+                eachNode collapseTo: correctTile ] ] 
+]
+
+{ #category : 'pathReification' }
 WSGraph >> destroyPathLoops [
 	"Destroy the paths that degenerated in a loop and are connected to only 1 class"
 	
@@ -250,7 +287,7 @@ WSGraph >> destroyPathLoops [
 		collectionOfPaths do: [ :eachPath | 
 			eachPath touchedClasses size == 1 ifTrue: [ 
 				eachPath nodes do: [ :eachNode | 
-					eachNode ~= eachPath firstNode ifTrue: [ 
+					((eachNode ~= eachPath firstNode) and: [ eachNode isNotCrossingNode ]) ifTrue: [ 
 						eachNode collapseTo: emptyTile 
 					]
 				].
@@ -272,7 +309,7 @@ WSGraph >> destroyRandomLoops [
         tile := eachNode tileInWhichCollapsed.
         tile isPathTile ifTrue: [
             | allPaths isInAPath |
-            allPaths := self paths at: tile pathID.
+				allPaths := (tile pathIDs collect: [ :eachPathID | self paths at: eachPathID ]) flattened.
             isInAPath := allPaths anySatisfy: [ :eachPath | eachPath nodes includes: eachNode ].
             isInAPath ifFalse: [
                 eachNode collapseTo: emptyTile ] ] ]
@@ -338,7 +375,7 @@ WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
         aPath addTouchedClass: node.
         ^ self ].
     
-    (tile isPathTile and: [ tile pathID = aPathID ]) ifTrue: [
+    (tile isPathTile and: [ tile pathIDs includes: aPathID ]) ifTrue: [
         aPath addNode: node.
         reverseDir := anEdge reverseEdge direction.
         tile edges keysAndValuesDo: [ :dir :pathIDs |
@@ -454,21 +491,18 @@ WSGraph >> mergePathsWithSameID [
             collectionOfPaths doWithIndex: [ :pathA :i |
                 collectionOfPaths doWithIndex: [ :pathB :j |
                     (i < j) ifTrue: [
-                        | extraNodes |
-                        extraNodes := OrderedCollection new.
-                        extraNodes addAll: pathA nodes; addAll: pathB nodes.
-                        
                         pathA nodes do: [ :startNode |
                             pathB nodes do: [ :endNode |
                                 | path |
+										 (startNode isNotCrossingNode and: [ endNode isNotCrossingNode ]) ifTrue: [  
+						
                                 path := self
                                     runDijkstraFrom: startNode
-                                    to: endNode
-                                    withExtraNodes: extraNodes.
+                                    to: endNode.
                                 (path notEmpty and: [ path size < bestDistance ]) ifTrue: [
                                     bestDistance := path size.
                                     bestPair := pathA -> pathB.
-                                    bestShortestPath := path ] ] ] ] ] ].
+                                    bestShortestPath := path ] ] ] ] ] ] ].
 
             bestPair ifNotNil: [
                 | pathA pathB mergedPath |
@@ -668,6 +702,39 @@ WSGraph >> restoreMinEntropyHeap [
 	
 	
 	
+]
+
+{ #category : 'pathOptimization' }
+WSGraph >> runDijkstraFrom: startNode to: endNode [
+
+    | dijkstra dijkstraNodes dijkstraEdges shortestPath |
+    dijkstraEdges := OrderedCollection new.
+    dijkstraNodes := OrderedCollection new.
+    
+    dijkstraNodes addAll: (self nodes select: [ :eachNode | 
+		eachNode isNotClassNode 
+		and: ([eachNode isNotCrossingNode ]) ]).
+	
+	dijkstraNodes do: [ :eachNode |
+	    eachNode outgoingEdges do: [ :eachEdge |
+	        | targetNode weight |
+	        targetNode := eachEdge target.
+	        (dijkstraNodes includes: targetNode) ifTrue: [
+	            weight := targetNode isPathNode
+	                ifTrue: [ 100 ]
+	                ifFalse: [ 1 ].
+	            dijkstraEdges add: { eachNode . targetNode . weight } ] ] ].
+    
+    dijkstra := AIDijkstra new.
+    dijkstra nodes: dijkstraNodes.
+    dijkstra
+        edges: dijkstraEdges
+        from: #first
+        to: #second
+        weight: #third.
+    shortestPath := (dijkstra runFrom: startNode to: endNode) asOrderedCollection.
+
+    ^ shortestPath
 ]
 
 { #category : 'pathOptimization' }

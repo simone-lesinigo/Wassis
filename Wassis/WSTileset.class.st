@@ -46,24 +46,28 @@ WSTileset >> pathTiles: anObject [
 	pathTiles := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WSTileset >> tileForDirections: dirToPathID [
+	"Return the tile each edge contains the pathID in dirToPathID"
+
+	| pathIDs candidates |
+	pathIDs := Set new.
+	candidates := OrderedCollection new.
+	pathIDs addAll: (dirToPathID select: [ :eachValue | eachValue ~= '00' asSymbol ]).
+	
+	pathIDs do: [ :eachPathID | candidates addAll: (self pathTiles at: eachPathID) ].
+	
+	^ candidates detect: [ :eachTile |
+	    dirToPathID associations allSatisfy: [ :assoc |
+	        (eachTile edges at: assoc key) includes: assoc value ] ]
+	
+
+]
+
 { #category : 'adding' }
 WSTileset >> tileForDirections: directions pathID: pathID [
 	"Return the tile in which each direction in directions contain pathID"
-	<toDO> "Remove the directions = 4 control as the + tile should be in the tileset"
     | tile |
-
-directions size = 4 ifTrue: [ 
-		^ WSPathTile new 
-			id: 11;
-			weight: 1;
-			pathID: pathID;
-			edges: (Dictionary new
-				at: #up put: (OrderedCollection with: pathID asSymbol);
-				at: #down put: (OrderedCollection with: pathID asSymbol);
-				at: #left put: (OrderedCollection with: pathID asSymbol);
-				at: #right put: (OrderedCollection with: pathID asSymbol);
-				yourself);
-			yourself ].
 		
     tile := self pathTiles at: pathID.
     

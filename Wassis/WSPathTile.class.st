@@ -53,15 +53,15 @@ WSPathTile >> buildPopup [
 ]
 
 { #category : 'testing' }
-WSPathTile >> isCrossing [
+WSPathTile >> isCrossingTile [
 
 	^ self pathIDs size > 1
 ]
 
 { #category : 'testing' }
-WSPathTile >> isNotCrossing [
+WSPathTile >> isNotCrossingTile [
 
-	^ self isCrossing not
+	^ self isCrossingTile not
 ]
 
 { #category : 'testing' }
@@ -109,5 +109,5 @@ WSPathTile >> pathIDs: anObject [
 { #category : 'accessing' }
 WSPathTile >> secondaryPathID [
 
-	self isCrossing ifTrue: [ ^ self pathIDs second ]
+	self isCrossingTile ifTrue: [ ^ self pathIDs second ]
 ]

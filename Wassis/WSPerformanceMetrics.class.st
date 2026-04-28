@@ -11,7 +11,8 @@ Class {
 		'solverTotalTime',
 		'totalTime',
 		'wastedTime',
-		'totalNumberOfTries'
+		'totalNumberOfTries',
+		'pathReificationTime'
 	],
 	#category : 'Wassis-Metrics',
 	#package : 'Wassis',
@@ -35,6 +36,18 @@ WSPerformanceMetrics >> mdsTime [
 WSPerformanceMetrics >> mdsTime: anObject [
 
 	mdsTime := anObject
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> pathReificationTime [
+
+	^ pathReificationTime
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> pathReificationTime: anObject [
+
+	pathReificationTime := anObject
 ]
 
 { #category : 'accessing' }

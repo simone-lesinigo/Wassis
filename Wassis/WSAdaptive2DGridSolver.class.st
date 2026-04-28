@@ -76,9 +76,8 @@ WSAdaptive2DGridSolver >> run [
 				self solveWithIncreasingSize.
 				Smalltalk garbageCollect.
 			] timeToRun.
-		
 		  self updatePerformanceMetricsWithTime: totalTime.
-		  self inspect.
+		  self save.
 		
 		  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
 		]	

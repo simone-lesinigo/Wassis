@@ -97,11 +97,11 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	aSolver graph nodes do: [ :eachNode | self createShapeFor: eachNode  ].
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
-	self registerMouseHoverForPaths.
+	"self registerMouseHoverForPaths."
 	
 	"self groupFootprintShapes."
 	
-	self canvas openOnceWithTitle: 'Wassis'.
+	self canvas openWithTitle: 'Wassis'.
 ]
 
 { #category : 'drag and drop' }

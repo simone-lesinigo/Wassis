@@ -25,7 +25,7 @@ WSPath class >> withID: anID [
 	^ self new pathID: anID
 ]
 
-{ #category : 'accessing' }
+{ #category : 'adding' }
 WSPath >> addDestinationClass: aNode [
 
     self destinationClasses add: aNode.
@@ -37,7 +37,7 @@ WSPath >> addNode: aNode [
 	self nodes add: aNode
 ]
 
-{ #category : 'accessing' }
+{ #category : 'adding' }
 WSPath >> addSourceClass: aNode [
 
     self sourceClasses add: aNode.
@@ -59,6 +59,12 @@ WSPath >> asOrderedCollection [
 WSPath >> computeLength [
 
 	self length: self nodes size
+]
+
+{ #category : 'accessing' }
+WSPath >> crossingNodes [
+	
+	^ self nodes select: #isCrossingNode
 ]
 
 { #category : 'accessing' }

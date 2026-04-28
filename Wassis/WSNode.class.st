@@ -145,6 +145,14 @@ WSNode >> isCollapsed: anObject [
 ]
 
 { #category : 'testing' }
+WSNode >> isCrossingNode [ 
+	
+	| tile |
+	tile := self tileInWhichCollapsed.
+	^ tile isPathTile and: [ tile isCrossingTile ]
+]
+
+{ #category : 'testing' }
 WSNode >> isEmptyNode [
 	
 	^ self tileInWhichCollapsed isEmptyTile 
@@ -152,9 +160,21 @@ WSNode >> isEmptyNode [
 ]
 
 { #category : 'testing' }
+WSNode >> isNotClassNode [ 
+	
+	^ self isClassNode not
+]
+
+{ #category : 'testing' }
 WSNode >> isNotCollapsed [
 	
 	^ self isCollapsed not
+]
+
+{ #category : 'testing' }
+WSNode >> isNotCrossingNode [
+
+	^ self isCrossingNode not
 ]
 
 { #category : 'testing' }
@@ -180,6 +200,24 @@ WSNode >> keepTilesWithIDin: anArray [
 		
 	self possibleTiles: filteredPossibleTiles.
 	self updateShannonEntropyFromScratch 
+]
+
+{ #category : 'accessing' }
+WSNode >> neighbourAtDirection: aDirection [
+	"Returns the node in the specified direction"
+	
+	^ (self outgoingEdgeAtDirection: aDirection) target
+	
+	
+]
+
+{ #category : 'accessing' }
+WSNode >> outgoingEdgeAtDirection: aDirection [
+	"Return the outgoing edge at the desired direction"
+
+	^ self outgoingEdges 
+		detect: [ :eachEdge | eachEdge direction = aDirection ]
+		ifNone: [ nil ]
 ]
 
 { #category : 'accessing' }

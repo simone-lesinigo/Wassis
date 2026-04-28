@@ -333,13 +333,23 @@ WSSolver >> onContradiction [
 { #category : 'pathReification' }
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
-	
+	self createVisualization.
 	self graph createPaths.
 	self graph setPathLengths.
 	self graph destroyRandomLoops.
+	self graph deleteUselessCrossingFromAllPaths.
 	self graph destroyPathLoops.
+	self graph deleteUselessCrossingFromAllPaths.
+	
+	self createVisualization.
+	
 	self graph mergePathsWithSameID.
+	
+	self createVisualization.
+	self halt.
+	
 	self graph correctPaths.
+
 	
 	
 	
@@ -356,10 +366,10 @@ WSSolver >> run [
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	Transcript show: 'Solution found'; cr.
-	self createVisualization. self halt.
-	self reifyWFCPaths.
-	self updateGraphMetrics.
 	self topology rebuildClassNodes: self graph.
+	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
+	self updateGraphMetrics.
+	
 	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun.
 	
 	
