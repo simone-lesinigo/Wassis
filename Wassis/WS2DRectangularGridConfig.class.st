@@ -84,7 +84,7 @@ WS2DRectangularGridConfig class >> squareVisitorTileSize [
 	
 	SquareVisitorTileSize ifNil: [  
 		self squareVisitorTileSize: 
-			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'squareVisitorTileSize'} default: 50).
+			(self configFile atPath:  {'WS2DGridTopology' . 'WS2DRectangularGridTopology' . 'squareVisitorTileSize'} default: 100).
 	].
 
 	^ SquareVisitorTileSize

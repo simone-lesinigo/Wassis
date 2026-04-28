@@ -59,7 +59,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 WSAdaptive2DGridSolver >> resetEnvironment [
 	
 	WSConfig reset.
-	WSMDSLayoutStrategy resetCache
+	WSMDSLayoutStrategy resetCache.
 	
 ]
 

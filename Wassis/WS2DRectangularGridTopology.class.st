@@ -169,8 +169,8 @@ WS2DRectangularGridTopology >> buildTileSpecsForPathID: aPathID [
 	    select: [ :eachPathID | eachPathID ~= aPathID ]
 	    thenCollect: [ :eachPathID | 
 			{ 12. crossingTileWeight. { eachPathID. aPathID. aPathID. eachPathID } . { aPathID . eachPathID }} .
-			{ 13.  cornerTileWeight. { eachPathID. aPathID. eachPathID . aPathID.  } . { aPathID . eachPathID }} .
-			{ 14.  cornerTileWeight. { eachPathID. eachPathID.  aPathID . aPathID.  } . { aPathID . eachPathID }} 
+			{ 13.  cornerTileWeight. { aPathID. eachPathID . aPathID. eachPathID } . { aPathID . eachPathID }} .
+			{ 14.  cornerTileWeight. { aPathID . aPathID. eachPathID. eachPathID } . { aPathID . eachPathID }} 
 		]).
 
 	^ tileSpecs 
