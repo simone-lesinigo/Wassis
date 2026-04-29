@@ -19,10 +19,10 @@ BaselineOfWassis >> baseline: spec [
 
 		  spec
             baseline: 'Roassal'
-            with: [ 
-                spec 
-                    repository: 'github://pharo-graphics/Roassal:master/src';
-                    loads: #('Full') ].
+            with: [
+            		spec
+                	repository: (self classNamed: #BaselineOfPharo) roassalRepository;
+                	loads: #( 'Full' ) ].
 
         spec 
             package: 'Wassis' 
