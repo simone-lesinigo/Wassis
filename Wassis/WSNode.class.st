@@ -289,8 +289,10 @@ WSNode >> selectInWhichTileToCollapse [
 	"Return the tile in which the node should collapse (weighted choice)"
 
 	| randomNumber |
+	(self possibleTiles anySatisfy: #isEmptyTile )
+        ifTrue: [ ^ self possibleTiles detect: #isEmptyTile ].
+	
 	randomNumber := self sumOfWeights atRandom.
-	self haltIf: [ randomNumber = 0 and: [self possibleTiles size > 1] ].
 
 	^ self possibleTiles detect: [ :tile |
 			  randomNumber := randomNumber - tile weight.
