@@ -135,9 +135,8 @@ WSExamples class >> exampleGetClasses2 [
 WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
-	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-28-04-2026_08h52m38s.fuel'.
-	adaptiveSolver solver createTemporaryVisualization .
-	adaptiveSolver solver topology rebuildClassNodes: adaptiveSolver solver graph.
+	adaptiveSolver := WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-29-04-2026_08h51m49s.fuel'.
+"	adaptiveSolver solver topology rebuildClassNodes: adaptiveSolver solver graph."
 	adaptiveSolver solver reifyWFCPaths.
 	adaptiveSolver solver createTemporaryVisualization .
 ]

@@ -103,7 +103,7 @@ WS2DGridTopology >> createAllPathTiles [
 	
 	pathTiles := OrderedCollection new.
 	
-	self swSystem classesPathIDs do: [ :pathID |
+	self swSystem allPathIDs do: [ :pathID |
 			pathTiles addAll: (self createPathTilesWithID: pathID) ].
 
 	^ pathTiles 

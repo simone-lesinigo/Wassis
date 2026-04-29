@@ -337,11 +337,18 @@ WSSolver >> reifyWFCPaths [
 	self graph createPaths.
 	self graph setPathLengths.
 	self graph destroyRandomLoops.
+	
+	self createVisualization.
+	self halt.
+	
 	self graph deleteUselessCrossingFromAllPaths.
+	
+		self createVisualization.
+	self halt.
+	
 	self graph destroyPathLoops.
 	self graph deleteUselessCrossingFromAllPaths.
 	
-	self createVisualization.
 	
 	self graph mergePathsWithSameID.
 	
@@ -367,10 +374,10 @@ WSSolver >> run [
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	Transcript show: 'Solution found'; cr.
 	self topology rebuildClassNodes: self graph.
-	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
+"	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
 	self updateGraphMetrics.
 	
-	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun.
+	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun."
 	
 	
 ]

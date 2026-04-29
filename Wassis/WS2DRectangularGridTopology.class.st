@@ -364,7 +364,6 @@ WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
 			withEdges: (self createTileEdgesFrom: (spec third))
 			withPathIDs: spec fourth
      ]).
-
 	self tileset pathTiles at: aSymbol put: pathTiles. 
 
 	^ pathTiles 

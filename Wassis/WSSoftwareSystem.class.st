@@ -67,6 +67,12 @@ WSSoftwareSystem >> allConnectionsPerClass: anObject [
 ]
 
 { #category : 'accessing' }
+WSSoftwareSystem >> allPathIDs [
+	
+	^ self classesPathIDs asSet asOrderedCollection 
+]
+
+{ #category : 'accessing' }
 WSSoftwareSystem >> classes [
 
 	^ classes
