@@ -165,7 +165,7 @@ WS2DRectangularGridTopology >> buildTileSpecsForPathID: aPathID [
         { 11. mergingTileWeight  . { aPathID. aPathID. aPathID. aPathID } . { aPathID } }.
     } asOrderedCollection.
 
-(self swSystem classesPathIDs 
+(self swSystem allPathIDs 
     select: [ :eachPathID | eachPathID ~= aPathID ])
     do: [ :eachPathID |
         tileSpecs add: { 12. crossingTileWeight. { eachPathID. aPathID.  aPathID.  eachPathID }. { aPathID. eachPathID } }.
