@@ -202,10 +202,12 @@ WSSolver >> clearAllPathsOf: aClass [
 WSSolver >> createTemporaryVisualization [
 	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are not displayed"
 	
-	| copyOfSelf |
-	Transcript show: 'Started creating temporary visualization'; cr; cr.
+	| copyOfSelf uncollapsedTile |
+	uncollapsedTile := self topology createUncollapsedTile.
 	copyOfSelf := self veryDeepCopy.
+	copyOfSelf graph nodes do: [ :eachNode | eachNode isCollapsed ifFalse: [ eachNode collapseTo: uncollapsedTile] ].
 	copyOfSelf createVisualization.
+	self halt.
 	
 ]
 
@@ -333,29 +335,17 @@ WSSolver >> onContradiction [
 { #category : 'pathReification' }
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
-	self createVisualization.
+	self createVisualization. self halt.
 	self graph createPaths.
 	self graph setPathLengths.
-	self graph destroyRandomLoops.
-	
-	self createVisualization.
 	self halt.
-	
-	self graph deleteUselessCrossingFromAllPaths.
-	
-		self createVisualization.
-	self halt.
-	
+	"self graph destroyRandomLoops.
+	self graph deleteUselessCrossingFromAllPaths.	
 	self graph destroyPathLoops.
-	self graph deleteUselessCrossingFromAllPaths.
-	
-	
+	self graph deleteUselessCrossingFromAllPaths."
 	self graph mergePathsWithSameID.
-	
-	self createVisualization.
-	self halt.
-	
-	self graph correctPaths.
+	self createVisualization. self halt.
+	"self graph correctPaths."
 
 	
 	
@@ -373,11 +363,12 @@ WSSolver >> run [
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	Transcript show: 'Solution found'; cr.
+	
 	self topology rebuildClassNodes: self graph.
-"	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
+	"performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
 	self updateGraphMetrics.
 	
-	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun."
+	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun"
 	
 	
 ]

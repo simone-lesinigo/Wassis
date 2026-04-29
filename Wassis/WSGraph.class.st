@@ -173,7 +173,7 @@ WSGraph >> collectFootprintFrom: aNode size: n [
 	^ self structure collectFootprintFrom: aNode size: n
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> correctPaths [
 	"Check that each node of a path is collapsed into the right tile, if not, correct it"
 	
@@ -240,7 +240,7 @@ WSGraph >> createPaths [
                     (self paths at: pathID) add: newPath ] ] ] ]
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> deleteUselessCrossingFromAllPaths [
 	"While refining the paths, some crossing that are not needed remains. This method erases them from all paths"
 
@@ -251,7 +251,7 @@ WSGraph >> deleteUselessCrossingFromAllPaths [
 	]
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> deleteUselessCrossingFromPath: aPath [
     "While refining the paths, some crossing that are not needed remains. This method erases them"
     | pathID |
@@ -277,7 +277,7 @@ WSGraph >> deleteUselessCrossingFromPath: aPath [
                 eachNode collapseTo: correctTile ] ] 
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> destroyPathLoops [
 	"Destroy the paths that degenerated in a loop and are connected to only 1 class"
 	
@@ -298,7 +298,7 @@ WSGraph >> destroyPathLoops [
 	
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> destroyRandomLoops [
 	"Destroy the paths that are loop and are not connected to any class"
 
