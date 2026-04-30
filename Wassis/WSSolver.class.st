@@ -206,6 +206,19 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
+{ #category : 'copying' }
+WSSolver >> copyOfTouchedNodes: touchedNodes [
+	
+	^ (touchedNodes collect: [ :eachNode | 
+		| newNode |
+		newNode := WSNode new.
+		newNode 
+			position: eachNode position;
+			entropy: eachNode entropy.
+		newNode
+	  ]) asOrderedCollection 
+]
+
 { #category : 'visualization-history' }
 WSSolver >> createHistoryVisualization [
 	"Create a timelapse with the progress of the collapse of the solution"
@@ -452,7 +465,7 @@ WSSolver >> step [
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
 	touchedNodes := (self graph propagate: collapsedNode).
-	self historyOfTouchedNodes add: touchedNodes.
+	self historyOfTouchedNodes add: (self copyOfTouchedNodes: touchedNodes).
 
 	^ collapsedNode
 ]
