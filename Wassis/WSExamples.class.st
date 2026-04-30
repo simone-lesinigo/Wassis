@@ -136,9 +136,9 @@ WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-30-04-2026_12h29m32s.fuel'.
+		WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-30-04-2026_12h38m58s.fuel'.
 	adaptiveSolver createVisualization .
-	self halt.
+	adaptiveSolver inspect
 ]
 
 { #category : 'WSSolver' }
@@ -188,7 +188,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: TaAbstractComposition 
+		createForClass: File
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

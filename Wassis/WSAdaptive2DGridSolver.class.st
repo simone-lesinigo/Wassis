@@ -91,11 +91,13 @@ WSAdaptive2DGridSolver >> run [
 				Smalltalk garbageCollect.
 			] timeToRun.
 		  self updatePerformanceMetricsWithTime: totalTime.
-		
-		  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
+
+		  Transcript show: 'Execution finished in '; show: (totalTime humanReadablePrintString); cr.
 		].	
-		self halt.
+
 	] forkNamed: 'WaveFunctionCollapse'.
+
+	self inspect
    
 ]
 

@@ -843,8 +843,9 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
 { #category : 'collapse' }
 WSGraph >> selectNextNodeToCollapse [
 	"Returns the cell to collapse"
-	
+
 	^ self minEntropyHeap removeFirst .
+
 ]
 
 { #category : 'pathReification' }
