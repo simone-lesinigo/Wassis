@@ -8,6 +8,7 @@ Class {
 		'pathIDColorDictionary'
 	],
 	#classVars : [
+		'PathIDCache',
 		'PathIDColorDictionary'
 	],
 	#category : 'Wassis-Visualization',
@@ -26,6 +27,18 @@ WSTileVisitor class >> createColorWheelWithSize: aNumber [
 	"Create a color wheel with the given size and then shuffles it"
 
 	^ (((Color wheel: aNumber) asOrderedCollection) shuffled).
+]
+
+{ #category : 'accessing' }
+WSTileVisitor class >> pathIDCache [
+
+	^ PathIDCache
+]
+
+{ #category : 'accessing' }
+WSTileVisitor class >> pathIDCache: anObject [
+
+	^ PathIDCache := anObject 
 ]
 
 { #category : 'accessing' }
@@ -50,8 +63,7 @@ WSTileVisitor class >> resetPathIDColorDictionary [
 WSTileVisitor class >> withPathIDs: aPathIDsArray [
 	
 	self clearCache.
-
-	PathIDColorDictionary ifNil: [  
+	(aPathIDsArray = PathIDCache) ifFalse: [  
 		| colorWheel  pcd |
 		colorWheel := self createColorWheelWithSize: ((aPathIDsArray size) * 4 / 2).
 	
@@ -60,9 +72,9 @@ WSTileVisitor class >> withPathIDs: aPathIDsArray [
 		aPathIDsArray do: [ :eachID | 
 			pcd at: eachID put: (colorWheel removeFirst)].
 		
-		PathIDColorDictionary := pcd
+		PathIDColorDictionary := pcd.
+		PathIDCache := aPathIDsArray 
 	].
-	
 	^ self new
 		pathIDColorDictionary: PathIDColorDictionary 
 	

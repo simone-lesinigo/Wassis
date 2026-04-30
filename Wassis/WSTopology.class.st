@@ -30,7 +30,7 @@ WSTopology class >> emptyEdgeSymbol [
 { #category : 'accessing' }
 WSTopology >> allPathIDs [
 
-	^ self swSystem classesPathIDs
+	^ self swSystem allPathIDs
 ]
 
 { #category : 'creation' }
