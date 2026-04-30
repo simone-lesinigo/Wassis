@@ -847,7 +847,7 @@ WSGraph >> selectNextNodeToCollapse [
 	^ self minEntropyHeap removeFirst .
 ]
 
-{ #category : 'initialization' }
+{ #category : 'pathReification' }
 WSGraph >> setPathLengths [
 
 	self paths keysAndValuesDo: [ :key :allPaths |

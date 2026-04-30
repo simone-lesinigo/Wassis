@@ -8,7 +8,8 @@ Class {
 		'id',
 		'graph',
 		'backtracking',
-		'topology'
+		'topology',
+		'history'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -144,6 +145,12 @@ WSSolver >> addTilesetMetrics [
 ]
 
 { #category : 'accessing' }
+WSSolver >> allPathIDs [ 
+	
+	^ self topology allPathIDs 
+]
+
+{ #category : 'accessing' }
 WSSolver >> backtracking [
 
 	^ backtracking
@@ -199,6 +206,12 @@ WSSolver >> clearAllPathsOf: aClass [
 ]
 
 { #category : 'visualization' }
+WSSolver >> createHistoryVisualizaton [
+
+	self topology visualizer createHistoryVisualizaton: self.
+]
+
+{ #category : 'visualization' }
 WSSolver >> createTemporaryVisualization [
 	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are not displayed"
 	
@@ -206,8 +219,7 @@ WSSolver >> createTemporaryVisualization [
 	uncollapsedTile := self topology createUncollapsedTile.
 	copyOfSelf := self veryDeepCopy.
 	copyOfSelf graph nodes do: [ :eachNode | eachNode isCollapsed ifFalse: [ eachNode collapseTo: uncollapsedTile] ].
-	copyOfSelf createVisualization.
-	self halt.
+	copyOfSelf createVisualization
 	
 ]
 
@@ -221,12 +233,6 @@ WSSolver >> createVisualization [
 WSSolver >> fuelAfterMaterialization [ 
 	
 	self graph topology: self topology
-]
-
-{ #category : 'accessing' }
-WSSolver >> getAllPathIDs [
-
-	^ self topology getAllPathIDs
 ]
 
 { #category : 'accessing' }
@@ -282,6 +288,18 @@ WSSolver >> graph: anObject [
 ]
 
 { #category : 'accessing' }
+WSSolver >> history [
+
+	^ history
+]
+
+{ #category : 'accessing' }
+WSSolver >> history: anObject [
+
+	history := anObject
+]
+
+{ #category : 'accessing' }
 WSSolver >> id [
 
 	^ id
@@ -291,6 +309,12 @@ WSSolver >> id [
 WSSolver >> id: anObject [
 
 	id := anObject
+]
+
+{ #category : 'initialization' }
+WSSolver >> initialize [ 
+	super initialize.
+	self history: OrderedCollection new.
 ]
 
 { #category : 'testing' }
@@ -319,6 +343,7 @@ WSSolver >> moveClass: aClass toNode: aNode [
 WSSolver >> onContradiction [
 
 	| bt |
+	self history: OrderedCollection new.
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	
@@ -337,14 +362,15 @@ WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
 	self graph createPaths.
 	self graph setPathLengths.
-	self createVisualization. self halt.
 	"self graph destroyRandomLoops.
 	self graph deleteUselessCrossingFromAllPaths.	
 	self graph destroyPathLoops.
 	self graph deleteUselessCrossingFromAllPaths."
 	self graph mergePathsWithSameID.
-	self createVisualization. self halt.
 	"self graph correctPaths."
+	self graph paths keysAndValuesDo: [ :key :value |
+		self graph paths at: key put: value first.
+	].
 
 	
 	
@@ -364,10 +390,10 @@ WSSolver >> run [
 	Transcript show: 'Solution found'; cr.
 	
 	self topology rebuildClassNodes: self graph.
-	"performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
+	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
 	self updateGraphMetrics.
 	
-	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun"
+	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun
 	
 	
 ]
@@ -379,8 +405,11 @@ WSSolver >> solveGraph [
 	Transcript show: 'Execution started'; cr.
 	[ self graph allNodesCollapsed ] whileFalse: [ 
 		[  
-			self step.
-			self graph addOneToCollapsedNodes
+			| collapsedNode |
+			collapsedNode := self step.
+			self history add: collapsedNode.
+			self graph addOneToCollapsedNodes.
+			
 		] on: WSContradiction 
 		  do: [ 
 			self onContradiction ]

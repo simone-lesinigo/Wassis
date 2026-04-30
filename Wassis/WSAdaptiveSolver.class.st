@@ -27,6 +27,12 @@ WSAdaptiveSolver class >> savePath [
     ^ WSObject rootPath, '/solutions/solution-', DateAndTime nowAsString, '.fuel'
 ]
 
+{ #category : 'visualization' }
+WSAdaptiveSolver >> createVisualization [ 
+	
+	self solver createVisualization 
+]
+
 { #category : 'initialization' }
 WSAdaptiveSolver >> initialize [ 
 

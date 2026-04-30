@@ -46,6 +46,27 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
             for: self ]
 ]
 
+{ #category : 'as yet unclassified' }
+WS2DRectangularGridVisualizer >> createHistoryVisualizaton: aSolver [
+	| historyCanvas historyTileVisitor |
+		[  
+		historyCanvas := RSCanvas new.
+		historyCanvas @ RSCanvasController.
+		historyCanvas openWithTitle: 'WassisHistory'.
+		historyTileVisitor := (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
+		aSolver history do: [ :eachNode |  
+			| shape |
+			shape := eachNode tileInWhichCollapsed accept: historyTileVisitor.
+			shape position: (self positionOnCanvasForNode: eachNode).
+			historyCanvas add: shape; invalidate; zoomToFit.
+			(Delay forMilliseconds: 20) wait.
+		]
+	] forkNamed: 'WassisHistoryVisualization'
+	
+
+	
+]
+
 { #category : 'control' }
 WS2DRectangularGridVisualizer >> createMenuFor: aShape [
 	"Create the menu when right clicking on a shape"
@@ -92,7 +113,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	<toDO> "Change again to the optimized version"
 	self clear.
 	self solver: aSolver.
-	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver getAllPathIDs).
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
 	
 	aSolver graph nodes do: [ :eachNode | self createShapeFor: eachNode  ].
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."

@@ -74,14 +74,15 @@ WSAdaptive2DGridSolver >> run [
 			| totalTime |
 			totalTime := [ 
 				self solveWithIncreasingSize.
-				self save.
 				Smalltalk garbageCollect.
 			] timeToRun.
-		  "self updatePerformanceMetricsWithTime: totalTime."
+		  self updatePerformanceMetricsWithTime: totalTime.
 		
 		  Transcript show: 'Execution finished in '; show: (totalTime asDuration); cr.
-		]	
+		].	
+		self halt.
 	] forkNamed: 'WaveFunctionCollapse'.
+   
 ]
 
 { #category : 'resolving' }
