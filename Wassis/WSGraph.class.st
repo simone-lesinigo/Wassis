@@ -205,12 +205,15 @@ WSGraph >> correctPaths [
 
 { #category : 'pathReification' }
 WSGraph >> createPaths [
-	"Create the instances of wsPaths"
-	
-    | pathIDs visitedPathNodes |
-    pathIDs := self topology swSystem classesPathIDs.
-    visitedPathNodes := Set new.
-    pathIDs do: [ :pathID | self paths at: pathID put: OrderedCollection new ].
+    "Create the instances of wsPaths"
+    
+    | pathIDs visitedNodesPerPath |
+    pathIDs := self topology allPathIDs .
+    
+    visitedNodesPerPath := Dictionary new.
+    pathIDs do: [ :pathID | 
+        self paths at: pathID put: OrderedCollection new.
+        visitedNodesPerPath at: pathID put: Set new ].
     
     self topology classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
         (eachFootprint borderNodes: self topology) do: [ :eachClassNode |
@@ -224,18 +227,20 @@ WSGraph >> createPaths [
                     detect: [ :each | pathIDs includes: each ]
                     ifNone: [ nil ].
                 
-                (pathID notNil and: [ (visitedPathNodes includes: eachEdge target) not ]) ifTrue: [
+                (pathID notNil and: [ ((visitedNodesPerPath at: pathID) includes: eachEdge target) not ]) ifTrue: [
                     | newPath visited |
                     newPath := WSPath withID: pathID.
                     newPath firstNode: eachEdge target.
                     newPath addTouchedClass: eachClassNode.
+                    
                     visited := Set with: eachClassNode.
                     self followPath: newPath
                         from: eachEdge
                         visited: visited
                         pathID: pathID.
                    
-                    visitedPathNodes addAll: newPath nodes.
+                    (visitedNodesPerPath at: pathID) addAll: newPath nodes.
+                    
                     self assignSourceAndDestination: newPath.
                     (self paths at: pathID) add: newPath ] ] ] ]
 ]
@@ -480,25 +485,33 @@ WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pat
 
 { #category : 'pathReification' }
 WSGraph >> mergePathsWithSameID [
+	"If two paths with the same ID are not connected, merge them"
 
     self paths keysAndValuesDo: [ :pathID :collectionOfPaths |
         [ collectionOfPaths size > 1 ] whileTrue: [
-            | bestPair bestDistance bestShortestPath |
+            | bestPair bestDistance bestShortestPath dijkstraNodes |
             bestDistance := Float infinity.
             bestPair := nil.
             bestShortestPath := nil.
+
+				dijkstraNodes := OrderedCollection new.
+    
+			    dijkstraNodes addAll: (self nodes select: [ :eachNode | 
+					eachNode isNotClassNode 
+					and: ([eachNode isNotCrossingNode ]) ]).
 
             collectionOfPaths doWithIndex: [ :pathA :i |
                 collectionOfPaths doWithIndex: [ :pathB :j |
                     (i < j) ifTrue: [
                         pathA nodes do: [ :startNode |
                             pathB nodes do: [ :endNode |
-                                | path |
+                                | path  |
 										 (startNode isNotCrossingNode and: [ endNode isNotCrossingNode ]) ifTrue: [  
 						
                                 path := self
                                     runDijkstraFrom: startNode
-                                    to: endNode.
+                                    to: endNode
+											  onNodes: dijkstraNodes.
                                 (path notEmpty and: [ path size < bestDistance ]) ifTrue: [
                                     bestDistance := path size.
                                     bestPair := pathA -> pathB.
@@ -715,6 +728,34 @@ WSGraph >> runDijkstraFrom: startNode to: endNode [
 		eachNode isNotClassNode 
 		and: ([eachNode isNotCrossingNode ]) ]).
 	
+	dijkstraNodes do: [ :eachNode |
+	    eachNode outgoingEdges do: [ :eachEdge |
+	        | targetNode weight |
+	        targetNode := eachEdge target.
+	        (dijkstraNodes includes: targetNode) ifTrue: [
+	            weight := targetNode isPathNode
+	                ifTrue: [ 100 ]
+	                ifFalse: [ 1 ].
+	            dijkstraEdges add: { eachNode . targetNode . weight } ] ] ].
+    
+    dijkstra := AIDijkstra new.
+    dijkstra nodes: dijkstraNodes.
+    dijkstra
+        edges: dijkstraEdges
+        from: #first
+        to: #second
+        weight: #third.
+    shortestPath := (dijkstra runFrom: startNode to: endNode) asOrderedCollection.
+
+    ^ shortestPath
+]
+
+{ #category : 'pathOptimization' }
+WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
+
+    | dijkstra dijkstraEdges shortestPath |
+    dijkstraEdges := OrderedCollection new.
+
 	dijkstraNodes do: [ :eachNode |
 	    eachNode outgoingEdges do: [ :eachEdge |
 	        | targetNode weight |

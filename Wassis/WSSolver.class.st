@@ -335,10 +335,9 @@ WSSolver >> onContradiction [
 { #category : 'pathReification' }
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
-	self createVisualization. self halt.
 	self graph createPaths.
 	self graph setPathLengths.
-	self halt.
+	self createVisualization. self halt.
 	"self graph destroyRandomLoops.
 	self graph deleteUselessCrossingFromAllPaths.	
 	self graph destroyPathLoops.
