@@ -50,7 +50,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 		paths: Dictionary new;
 		numberOfNodes: allNodes size;
 		numberOfCollapsedNodes: 0;
-		minEntropyHeap: (Heap new addAll: collapsedNodes; yourself) 
+		minEntropyHeap: (Heap new addAll: collapsedNodes shuffled; yourself) 
 ]
 
 { #category : 'collapse' }
