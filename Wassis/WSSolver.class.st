@@ -9,7 +9,8 @@ Class {
 		'graph',
 		'backtracking',
 		'topology',
-		'historyOfCollapsedNodes'
+		'historyOfCollapsedNodes',
+		'historyOfTouchedNodes'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -311,6 +312,18 @@ WSSolver >> historyOfCollapsedNodes: anObject [
 ]
 
 { #category : 'accessing' }
+WSSolver >> historyOfTouchedNodes [
+
+	^ historyOfTouchedNodes
+]
+
+{ #category : 'accessing' }
+WSSolver >> historyOfTouchedNodes: anObject [
+
+	historyOfTouchedNodes := anObject
+]
+
+{ #category : 'accessing' }
 WSSolver >> id [
 
 	^ id
@@ -431,13 +444,14 @@ WSSolver >> solveGraph [
 WSSolver >> step [
 	"Take a step of the algorithm (select a node to collapse, collapse it and propagate)"
 	
-	| collapsedNode |
+	| collapsedNode touchedNodes |
 	
 	self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ].
 	
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	self graph propagate: collapsedNode.
+	touchedNodes := self graph propagate: collapsedNode.
+	self historyOfTouchedNodes: touchedNodes veryDeepCopy .
 
 	^ collapsedNode
 ]

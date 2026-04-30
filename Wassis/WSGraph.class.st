@@ -660,6 +660,8 @@ WSGraph >> propagate: aNode [
          		ifNotNil: [ :neighbour | touchedNodes add: neighbour ] ] ].
     
     self updateMinEntropyHeap: touchedNodes.
+
+	^ touchedNodes 
 	
 ]
 

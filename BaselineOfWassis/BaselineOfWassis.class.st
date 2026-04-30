@@ -22,7 +22,7 @@ BaselineOfWassis >> baseline: spec [
             with: [
             		spec
                 	repository: (self classNamed: #BaselineOfPharo) roassalRepository;
-                	loads: #( 'Full' ) ].
+                	loads: #( 'Full' ) ].	
 
         spec 
             package: 'Wassis' 
