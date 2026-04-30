@@ -63,7 +63,7 @@ WSTileVisitor class >> resetPathIDColorDictionary [
 WSTileVisitor class >> withPathIDs: aPathIDsArray [
 	
 	self clearCache.
-	(aPathIDsArray = PathIDCache) ifFalse: [  
+	((aPathIDsArray ~= PathIDCache) or: [ PathIDColorDictionary isNil ]) ifTrue: [
 		| colorWheel  pcd |
 		colorWheel := self createColorWheelWithSize: ((aPathIDsArray size) * 4 / 2).
 	

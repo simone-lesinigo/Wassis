@@ -63,6 +63,7 @@ WS2DRectangularGridVisualizer >> createHistoryVisualization: aSolver withMilliSe
 				zoomToFit.
 			(Delay forMilliseconds: aDelay) wait.
 		].
+		self canvas invalidate
 	] forkNamed: 'WassisHistoryVisualization'
 	
 
