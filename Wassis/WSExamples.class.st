@@ -136,7 +136,7 @@ WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-30-04-2026_10h44m47s.fuel'.
+		WSAdaptiveSolver loadFromFile:'/Users/Simo/Desktop/Wassis/solutions/solution-30-04-2026_11h24m51s.fuel'.
 	adaptiveSolver createVisualization .
 	self halt.
 ]

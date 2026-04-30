@@ -46,21 +46,23 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
             for: self ]
 ]
 
-{ #category : 'as yet unclassified' }
-WS2DRectangularGridVisualizer >> createHistoryVisualizaton: aSolver [
-	| historyCanvas historyTileVisitor |
+{ #category : 'visualization-history' }
+WS2DRectangularGridVisualizer >> createHistoryVisualization: aSolver withMilliSecDelay: aDelay [
+	"Create a timelapse with the progress of the collapse of the solution"
+	
+	self clear.
+	self solver: aSolver.
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
+	
+	self canvas openWithTitle: 'WassisHistory'.
 		[  
-		historyCanvas := RSCanvas new.
-		historyCanvas @ RSCanvasController.
-		historyCanvas openWithTitle: 'WassisHistory'.
-		historyTileVisitor := (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
-		aSolver history do: [ :eachNode |  
-			| shape |
-			shape := eachNode tileInWhichCollapsed accept: historyTileVisitor.
-			shape position: (self positionOnCanvasForNode: eachNode).
-			historyCanvas add: shape; invalidate; zoomToFit.
-			(Delay forMilliseconds: 20) wait.
-		]
+		aSolver history do: [ :eachNode | 
+			self canvas 
+				add: (self createShapeFor: eachNode);
+				invalidate;
+				zoomToFit.
+			(Delay forMilliseconds: aDelay) wait.
+		].
 	] forkNamed: 'WassisHistoryVisualization'
 	
 
@@ -104,7 +106,7 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 	self shapesNodes at: shape put: aNode.
 	self nodesShapes at: aNode put: shape.	
 
-	self canvas add: shape.
+	^ shape
 ]
 
 { #category : 'visualization' }
@@ -115,7 +117,7 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self solver: aSolver.
 	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
 	
-	aSolver graph nodes do: [ :eachNode | self createShapeFor: eachNode  ].
+	self canvas addAll: (aSolver getNotEmptyNodes collect: [ :eachNode | self createShapeFor: eachNode ]).
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
 	"self registerMouseHoverForPaths."

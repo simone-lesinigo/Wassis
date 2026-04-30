@@ -205,10 +205,21 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
-{ #category : 'visualization' }
-WSSolver >> createHistoryVisualizaton [
+{ #category : 'visualization-history' }
+WSSolver >> createHistoryVisualization [
+	"Create a timelapse with the progress of the collapse of the solution"
 
-	self topology visualizer createHistoryVisualizaton: self.
+	self createHistoryVisualizationWithMilliSecDelay: 50
+]
+
+{ #category : 'visualization-history' }
+WSSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
+	"Create a timelapse with the progress of the collapse of the solution"
+
+	| class visualizer |
+	class := self topology visualizer class.
+	visualizer := class new.
+	visualizer createHistoryVisualization: self withMilliSecDelay: aDelay
 ]
 
 { #category : 'visualization' }

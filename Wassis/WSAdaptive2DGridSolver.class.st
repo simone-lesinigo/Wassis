@@ -39,6 +39,18 @@ WSAdaptive2DGridSolver >> createGraphVisualization [
 	visualizer createVisualization.
 ]
 
+{ #category : 'visualization-history' }
+WSAdaptive2DGridSolver >> createHistoryVisualization [
+
+	self solver createHistoryVisualization
+]
+
+{ #category : 'visualization-history' }
+WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
+
+	self solver createHistoryVisualizationWithMilliSecDelay: aDelay
+]
+
 { #category : 'visualization' }
 WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
 	
