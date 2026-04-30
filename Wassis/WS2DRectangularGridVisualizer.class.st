@@ -56,7 +56,7 @@ WS2DRectangularGridVisualizer >> createHistoryVisualization: aSolver withMilliSe
 	
 	self canvas openWithTitle: 'WassisHistory'.
 		[  
-		aSolver history do: [ :eachNode | 
+		aSolver historyOfCollapsedNodes do: [ :eachNode | 
 			self canvas 
 				add: (self createShapeFor: eachNode);
 				invalidate;

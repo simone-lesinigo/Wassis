@@ -9,7 +9,7 @@ Class {
 		'graph',
 		'backtracking',
 		'topology',
-		'history'
+		'historyOfCollapsedNodes'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -299,15 +299,15 @@ WSSolver >> graph: anObject [
 ]
 
 { #category : 'accessing' }
-WSSolver >> history [
+WSSolver >> historyOfCollapsedNodes [
 
-	^ history
+	^ historyOfCollapsedNodes
 ]
 
 { #category : 'accessing' }
-WSSolver >> history: anObject [
+WSSolver >> historyOfCollapsedNodes: anObject [
 
-	history := anObject
+	historyOfCollapsedNodes := anObject
 ]
 
 { #category : 'accessing' }
@@ -325,7 +325,7 @@ WSSolver >> id: anObject [
 { #category : 'initialization' }
 WSSolver >> initialize [ 
 	super initialize.
-	self history: OrderedCollection new.
+	self historyOfCollapsedNodes: OrderedCollection new.
 ]
 
 { #category : 'testing' }
@@ -354,7 +354,7 @@ WSSolver >> moveClass: aClass toNode: aNode [
 WSSolver >> onContradiction [
 
 	| bt |
-	self history: OrderedCollection new.
+	self historyOfCollapsedNodes: OrderedCollection new.
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	
@@ -418,7 +418,7 @@ WSSolver >> solveGraph [
 		[  
 			| collapsedNode |
 			collapsedNode := self step.
-			self history add: collapsedNode.
+			self historyOfCollapsedNodes add: collapsedNode.
 			self graph addOneToCollapsedNodes.
 			
 		] on: WSContradiction 
