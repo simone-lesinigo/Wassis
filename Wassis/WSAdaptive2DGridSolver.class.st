@@ -72,6 +72,8 @@ WSAdaptive2DGridSolver >> resetEnvironment [
 	
 	WSConfig reset.
 	WSMDSLayoutStrategy resetCache.
+	WSTileVisitor resetPathIDColorDictionary 
+	
 	
 ]
 
