@@ -339,6 +339,7 @@ WSSolver >> id: anObject [
 WSSolver >> initialize [ 
 	super initialize.
 	self historyOfCollapsedNodes: OrderedCollection new.
+	self historyOfTouchedNodes: OrderedCollection new.
 ]
 
 { #category : 'testing' }
@@ -450,8 +451,8 @@ WSSolver >> step [
 	
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	touchedNodes := self graph propagate: collapsedNode.
-	self historyOfTouchedNodes: touchedNodes veryDeepCopy .
+	touchedNodes := (self graph propagate: collapsedNode).
+	self historyOfTouchedNodes add: touchedNodes.
 
 	^ collapsedNode
 ]
