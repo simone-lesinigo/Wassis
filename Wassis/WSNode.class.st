@@ -9,6 +9,7 @@ Class {
 		'position',
 		'outgoingEdges',
 		'possibleTiles',
+		'collapseStep',
 		'isCollapsed',
 		'entropy',
 		'tileInWhichCollapsed',
@@ -55,6 +56,18 @@ WSNode >> >= aNode [
 WSNode >> addEdge: anEdge [
 
 	self outgoingEdges add: anEdge
+]
+
+{ #category : 'accessing' }
+WSNode >> collapseStep [
+
+	^ collapseStep
+]
+
+{ #category : 'accessing' }
+WSNode >> collapseStep: anObject [
+
+	collapseStep := anObject
 ]
 
 { #category : 'collapse' }

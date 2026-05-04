@@ -47,9 +47,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 		structure: aStructure;
 		nodes: allNodes;
 		topology: aTopology;
-		paths: Dictionary new;
 		numberOfNodes: allNodes size;
-		numberOfCollapsedNodes: 0;
 		minEntropyHeap: (Heap new addAll: collapsedNodes shuffled; yourself) 
 ]
 
@@ -421,6 +419,15 @@ WSGraph >> getPathNodes [
 	
 	^ self paths flatCollect: [ :eachPath | eachPath nodes ]
 
+]
+
+{ #category : 'initialization' }
+WSGraph >> initialize [ 
+	
+	super initialize.
+	self paths: Dictionary new.
+	self numberOfCollapsedNodes: 0
+	
 ]
 
 { #category : '2DGrid' }
