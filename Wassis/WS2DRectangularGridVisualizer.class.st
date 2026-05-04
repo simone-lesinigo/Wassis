@@ -50,9 +50,7 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
 WS2DRectangularGridVisualizer >> createHistoryVisualization: aSolver withMilliSecDelay: aDelay [
 	"Create a timelapse with the progress of the collapse of the solution"
 	
-	self clear.
-	self solver: aSolver.
-	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
+	self initializeWith: aSolver.
 	
 	self canvas openWithTitle: 'WassisHistory'.
 		[  
@@ -114,9 +112,7 @@ WS2DRectangularGridVisualizer >> createShapeFor: aNode [
 WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"Create the visualization at the end of the execution"
 	<toDO> "Change again to the optimized version"
-	self clear.
-	self solver: aSolver.
-	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
+	self initializeWith: aSolver.
 	
 	self canvas addAll: (aSolver getNotEmptyNodes collect: [ :eachNode | self createShapeFor: eachNode ]).
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
@@ -143,19 +139,44 @@ WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes [
     ])
 ]
 
+{ #category : 'visualization' }
+WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor: aLowEntropyColor toColor: aHighEntropyColor [
+	"Given a node, it creates the correct shape to visualize it"
+    | entropies minE maxE diff |
+    entropies := waveTouchedNodes collect: [ :n | n entropy ].
+	 entropies ifEmpty: [ ^ OrderedCollection new ].
+    minE := entropies min.
+    maxE := entropies max.
+	 diff := maxE - minE.
+
+    ^ (waveTouchedNodes collect: [ :eachNode |
+        | t blendedColor form shape |
+        t := (maxE = minE)
+            ifTrue: [ 0.5 ]
+            ifFalse: [ (eachNode entropy - minE) / diff ].
+        
+        blendedColor := aLowEntropyColor mixed: (1.0 - t) with: aHighEntropyColor.
+        
+        form := self tileVisitor class renderSolidFormWithColor: blendedColor.
+        shape := RSBitmap new form: form; yourself.
+        shape position: (self positionOnCanvasForNode: eachNode).
+        shape 
+    ])
+]
+
 { #category : 'visualization-history' }
 WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDelay: aDelay [
 	"Create a timelapse with the progress of the collapse of the solution"
 	
-	self clear.
-	self solver: aSolver.
-	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
-	
+	self initializeWith: aSolver.
 	self canvas openWithTitle: 'WassisWaveHistory'.
 		[  
 		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i | 
 			| waveTouchedNodesShapes |
-			waveTouchedNodesShapes := (self createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)) .
+			waveTouchedNodesShapes := (self 
+				createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)  
+				fromColor: Color red     
+    			toColor: Color blue).
 			
 			self canvas 
 				add: (self createShapeFor: eachNode);
@@ -163,7 +184,7 @@ WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDe
 				invalidate;
 				zoomToFit.
 			(Delay forMilliseconds: aDelay) wait.
-			
+
 			waveTouchedNodesShapes do: [ :eachShape |  
 				self canvas removeShape: eachShape 
 			].
@@ -208,6 +229,14 @@ WS2DRectangularGridVisualizer >> groupFootprintShapes [
 				footprint: aFootprint.
 			self classComposites at: aClass put: composite.
 			self canvas add: composite ]
+]
+
+{ #category : 'initialization' }
+WS2DRectangularGridVisualizer >> initializeWith: aSolver [
+	
+	self clear.
+	self solver: aSolver.
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
 ]
 
 { #category : 'update' }
