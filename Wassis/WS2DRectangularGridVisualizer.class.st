@@ -125,21 +125,6 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 ]
 
 { #category : 'visualization' }
-WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes [
-	"Given a node, it creates the correct shape to visualize it"
-
-    ^ (waveTouchedNodes collect: [ :eachNode |
-        | form shape |
-        form := self tileVisitor class renderSolidFormWithColor: Color red.
-        shape := RSBitmap new
-            form: form;
-            yourself.
-        shape position: (self positionOnCanvasForNode: eachNode).
-        shape 
-    ])
-]
-
-{ #category : 'visualization' }
 WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor: aLowEntropyColor toColor: aHighEntropyColor [
 	"Given a node, it creates the correct shape to visualize it"
     | entropies minE maxE diff |
