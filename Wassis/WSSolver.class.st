@@ -213,6 +213,7 @@ WSSolver >> copyOfTouchedNodes: touchedNodes [
 		| newNode |
 		newNode := WSNode new.
 		newNode 
+			id: eachNode id;
 			position: eachNode position;
 			entropy: eachNode entropy.
 		newNode
