@@ -128,6 +128,56 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	self canvas openWithTitle: 'Wassis'.
 ]
 
+{ #category : 'visualization' }
+WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes [
+	"Given a node, it creates the correct shape to visualize it"
+
+    ^ (waveTouchedNodes collect: [ :eachNode |
+        | form shape |
+        form := self tileVisitor class renderSolidFormWithColor: Color red.
+        shape := RSBitmap new
+            form: form;
+            yourself.
+        shape position: (self positionOnCanvasForNode: eachNode).
+        shape 
+    ])
+]
+
+{ #category : 'visualization-history' }
+WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDelay: aDelay [
+	"Create a timelapse with the progress of the collapse of the solution"
+	
+	self clear.
+	self solver: aSolver.
+	self tileVisitor: (WS2DSquareVisitor withPathIDs: aSolver allPathIDs).
+	
+	self canvas openWithTitle: 'WassisWaveHistory'.
+		[  
+		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i | 
+			| waveTouchedNodesShapes |
+			waveTouchedNodesShapes := (self createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)) .
+			
+			self canvas 
+				add: (self createShapeFor: eachNode);
+				addAll: waveTouchedNodesShapes;
+				invalidate;
+				zoomToFit.
+			(Delay forMilliseconds: aDelay) wait.
+			
+			waveTouchedNodesShapes do: [ :eachShape |  
+				self canvas removeShape: eachShape 
+			].
+		
+			self canvas invalidate.
+			
+		].
+		self canvas invalidate
+	] forkNamed: 'WassisHistoryVisualization'
+	
+
+	
+]
+
 { #category : 'drag and drop' }
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
 	"Groups in a RSComposite the shapes of the same class"

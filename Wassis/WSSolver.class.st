@@ -214,6 +214,7 @@ WSSolver >> copyOfTouchedNodes: touchedNodes [
 		newNode := WSNode new.
 		newNode 
 			id: eachNode id;
+			isCollapsed: eachNode isCollapsed;
 			position: eachNode position;
 			entropy: eachNode entropy.
 		newNode
@@ -253,6 +254,16 @@ WSSolver >> createTemporaryVisualization [
 WSSolver >> createVisualization [ 
 	
 	self topology visualizer createVisualizationFor: self
+]
+
+{ #category : 'visualization-history' }
+WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay [
+	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
+
+	| class visualizer |
+	class := self topology visualizer class.
+	visualizer := class new.
+	visualizer createWaveVisualization: self withMilliSecDelay: aDelay
 ]
 
 { #category : 'serialization' }
@@ -383,6 +394,7 @@ WSSolver >> onContradiction [
 
 	| bt |
 	self historyOfCollapsedNodes: OrderedCollection new.
+	self historyOfTouchedNodes: OrderedCollection new.
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	
@@ -446,8 +458,9 @@ WSSolver >> solveGraph [
 		[  
 			| collapsedNode |
 			collapsedNode := self step.
-			self historyOfCollapsedNodes add: collapsedNode.
 			self graph addOneToCollapsedNodes.
+			collapsedNode collapseStep: self graph numberOfCollapsedNodes.
+			self historyOfCollapsedNodes add: collapsedNode.
 			
 		] on: WSContradiction 
 		  do: [ 
