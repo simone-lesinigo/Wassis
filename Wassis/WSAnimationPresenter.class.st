@@ -5,36 +5,63 @@ Class {
 		'roassalPresenter',
 		'inspectButton',
 		'stepButton',
-		'playButton',
-		'pauseButton',
 		'isPlaying',
 		'semaphore',
-		'adaptiveSolver'
+		'adaptiveSolver',
+		'playAndPauseButton'
 	],
 	#category : 'Wassis-Presenter',
 	#package : 'Wassis',
 	#tag : 'Presenter'
 }
 
-{ #category : 'initialization - deprecated' }
-WSAnimationPresenter >> initializePresenter [
+{ #category : 'accessing' }
+WSAnimationPresenter >> adaptiveSolver [
+
+	^ adaptiveSolver
+]
+
+{ #category : 'accessing' }
+WSAnimationPresenter >> adaptiveSolver: anObject [
+
+	adaptiveSolver := anObject
+]
+
+{ #category : 'initialization' }
+WSAnimationPresenter >> applyLayout [ 
+	"Apply the layout on the presenter"	
+		
+	layout := SpBoxLayout newVertical
+        add: roassalPresenter;
+        add: (SpBoxLayout newHorizontal
+            add: stepButton; add: playAndPauseButton;
+            yourself) expand: false;
+        yourself
+]
+
+{ #category : 'initialization' }
+WSAnimationPresenter >> initializeButtons [
+	"Initialize the buttons of the presenter"
 	
 	stepButton := self newButton 
 		label: 'Step';
 		action: [ semaphore signal ];
 		yourself.
 	
-	playButton := self newButton
+	playAndPauseButton := self newButton 
 		label: 'Play';
-      action: [ 
-            isPlaying value: true.
-            semaphore signal ];
-      yourself.
+		action: [ self togglePlayAndPauseButton ];
+		yourself.
+]
 
-    pauseButton := self newButton
-       label: 'Pause';
-       action: [ isPlaying value: false ];
-       yourself.
+{ #category : 'initialization' }
+WSAnimationPresenter >> initializePresenter [
+	
+	isPlaying := false.
+	roassalPresenter := self newRoassal.
+	
+	self initializeButtons.
+	self applyLayout
 		
 ]
 
@@ -63,27 +90,15 @@ WSAnimationPresenter >> isPlaying: anObject [
 ]
 
 { #category : 'accessing' }
-WSAnimationPresenter >> pauseButton [
+WSAnimationPresenter >> playAndPauseButton [
 
-	^ pauseButton
+	^ playAndPauseButton
 ]
 
 { #category : 'accessing' }
-WSAnimationPresenter >> pauseButton: anObject [
+WSAnimationPresenter >> playAndPauseButton: anObject [
 
-	pauseButton := anObject
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> playButton [
-
-	^ playButton
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> playButton: anObject [
-
-	playButton := anObject
+	playAndPauseButton := anObject
 ]
 
 { #category : 'accessing' }
@@ -111,6 +126,12 @@ WSAnimationPresenter >> semaphore: anObject [
 ]
 
 { #category : 'accessing' }
+WSAnimationPresenter >> setCanvas: aCanvas [
+	
+	roassalPresenter canvas: aCanvas
+]
+
+{ #category : 'accessing' }
 WSAnimationPresenter >> stepButton [
 
 	^ stepButton
@@ -120,4 +141,18 @@ WSAnimationPresenter >> stepButton [
 WSAnimationPresenter >> stepButton: anObject [
 
 	stepButton := anObject
+]
+
+{ #category : 'changing state' }
+WSAnimationPresenter >> togglePlayAndPauseButton [
+	"Change the play with the pause button and viceversa"
+	
+	isPlaying 
+		ifTrue: [ 
+			isPlaying := false. 
+			playAndPauseButton label: 'Play' ]
+		ifFalse: [ 
+			isPlaying := true. 
+			semaphore signal. 
+			playAndPauseButton label: 'Pause' ]
 ]

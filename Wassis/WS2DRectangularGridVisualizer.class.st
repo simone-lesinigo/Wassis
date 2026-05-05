@@ -50,15 +50,11 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
 WS2DRectangularGridVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
 	"Create a timelapse with the progress of the collapse of the solution"
 
-	| minAndMax activeShapes initialShapes semaphore isPlaying presenter |
+	| minAndMax activeShapes initialShapes semaphore presenter |
 	
 	semaphore := Semaphore new.
-	isPlaying := false.
-	presenter := WSAnimationPresenter new 
-		semaphore: semaphore;
-		isPlaying: isPlaying.
+	presenter := WSAnimationPresenter new semaphore: semaphore.
 	
-	self halt.
 	self initializeWith: aSolver.
 	[
 		minAndMax := self findMinAndMaxEntropy.
@@ -75,13 +71,12 @@ WS2DRectangularGridVisualizer >> createFullWaveVisualization: aSolver withMilliS
 				self canvas add: eachShape.
 				activeShapes at: eachShape position put: eachShape ].
 
-		self canvas
-			openWithTitle: 'WassisWaveHistory';
-			zoomToFit.
+	 presenter setCanvas: self canvas.
+	 presenter open.
 
 		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
 				| collapsedNodeShape waveTouchedNodesShapes allShapes |
-				 isPlaying ifFalse: [ semaphore wait ].
+				 presenter isPlaying ifFalse: [ semaphore wait ].
 				collapsedNodeShape := self createShapeFor: eachNode.
 
 				waveTouchedNodesShapes := self
@@ -101,7 +96,7 @@ WS2DRectangularGridVisualizer >> createFullWaveVisualization: aSolver withMilliS
 							 eachShape ]).
 
 				self canvas invalidate.
-				 isPlaying ifTrue: [ (Delay forMilliseconds: aDelay) wait ]  ].
+				 presenter isPlaying ifTrue: [ (Delay forMilliseconds: aDelay) wait ]  ].
 		self canvas invalidate ] forkNamed: 'WassisHistoryVisualization'
 ]
 
