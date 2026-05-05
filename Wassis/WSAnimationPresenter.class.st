@@ -1,3 +1,6 @@
+"
+Presenter to visualize the animation of WFC
+"
 Class {
 	#name : 'WSAnimationPresenter',
 	#superclass : 'SpPresenter',
