@@ -263,7 +263,11 @@ WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntr
 	| class visualizer |
 	class := self topology visualizer class.
 	visualizer := class new.
-	visualizer createWaveVisualization: self withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor
+	visualizer 
+		createWaveVisualization: self 
+		withMilliSecDelay: aDelay 
+		fromColor: aLowEntropyColor 
+		toColor: aHighEntropyColor
 ]
 
 { #category : 'serialization' }
