@@ -90,6 +90,24 @@ WSNode >> column [
 	^ self position second
 ]
 
+{ #category : 'copying' }
+WSNode >> copyWithoutEdges [
+	"Return a copy of self without outgoingEdge"
+	
+	| newNode |
+	newNode := self class new.
+	
+	^ newNode 
+		id: self id;
+		collapseStep: self collapseStep;
+		tileInWhichCollapsed: self tileInWhichCollapsed;
+		possibleTiles: self possibleTiles;
+		isCollapsed: self isCollapsed;
+		position: self position;
+		entropy: self entropy.
+
+]
+
 { #category : 'accessing' }
 WSNode >> entropy [
 

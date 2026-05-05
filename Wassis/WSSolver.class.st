@@ -9,6 +9,7 @@ Class {
 		'graph',
 		'backtracking',
 		'topology',
+		'copyOfInitalNodes',
 		'historyOfCollapsedNodes',
 		'historyOfTouchedNodes'
 	],
@@ -44,6 +45,7 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 	^ self new
 		id: aID;
 		graph: graph;
+		copyOfInitalNodes: aTopology initialNodes;
 		topology: aTopology;
 		backtracking: (WSBacktracking newWithGraph: graph)
 
@@ -206,19 +208,38 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
+{ #category : 'accessing' }
+WSSolver >> copyOfInitalNodes [
+
+	^ copyOfInitalNodes
+]
+
+{ #category : 'accessing' }
+WSSolver >> copyOfInitalNodes: anObject [
+
+	copyOfInitalNodes := anObject
+]
+
 { #category : 'copying' }
-WSSolver >> copyOfTouchedNodes: touchedNodes [
+WSSolver >> copyOfNodesWithoutEdges: touchedNodes [
 	
 	^ (touchedNodes collect: [ :eachNode | 
-		| newNode |
-		newNode := WSNode new.
-		newNode 
-			id: eachNode id;
-			isCollapsed: eachNode isCollapsed;
-			position: eachNode position;
-			entropy: eachNode entropy.
-		newNode
+			eachNode copyWithoutEdges 
 	  ]) asOrderedCollection 
+]
+
+{ #category : 'visualization-historyWave' }
+WSSolver >> createFullWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
+	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
+
+	| class visualizer |
+	class := self topology visualizer class.
+	visualizer := class new.
+	visualizer 
+		createFullWaveVisualization: self 
+		withMilliSecDelay: aDelay 
+		fromColor: aLowEntropyColor 
+		toColor: aHighEntropyColor
 ]
 
 { #category : 'visualization-history' }
@@ -483,7 +504,7 @@ WSSolver >> step [
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
 	touchedNodes := (self graph propagate: collapsedNode).
-	self historyOfTouchedNodes add: (self copyOfTouchedNodes: touchedNodes).
+	self historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
 
 	^ collapsedNode
 ]

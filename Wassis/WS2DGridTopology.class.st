@@ -287,6 +287,12 @@ WS2DGridTopology >> getPerimeterNodesForFootprintAt: topLeftNode size: n onGraph
     ^ perimeterNodes
 ]
 
+{ #category : 'copying' }
+WS2DGridTopology >> initialNodes [ 
+	
+	^ self emptyMatrixCheckpoint matrix flattened
+]
+
 { #category : 'initialization' }
 WS2DGridTopology >> initialize [ 
 	
