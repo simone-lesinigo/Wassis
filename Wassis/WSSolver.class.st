@@ -256,14 +256,14 @@ WSSolver >> createVisualization [
 	self topology visualizer createVisualizationFor: self
 ]
 
-{ #category : 'visualization-history' }
-WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay [
+{ #category : 'visualization-historyWave' }
+WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
 	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
 
 	| class visualizer |
 	class := self topology visualizer class.
 	visualizer := class new.
-	visualizer createWaveVisualization: self withMilliSecDelay: aDelay
+	visualizer createWaveVisualization: self withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor
 ]
 
 { #category : 'serialization' }

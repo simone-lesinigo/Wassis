@@ -149,8 +149,8 @@ WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor:
     ])
 ]
 
-{ #category : 'visualization-history' }
-WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDelay: aDelay [
+{ #category : 'visualization-waveHistory' }
+WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
 	"Create a timelapse with the progress of the collapse of the solution"
 	
 	self initializeWith: aSolver.
@@ -160,8 +160,8 @@ WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDe
 			| waveTouchedNodesShapes |
 			waveTouchedNodesShapes := (self 
 				createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)  
-				fromColor: Color red     
-    			toColor: Color blue).
+				fromColor: aLowEntropyColor     
+    			toColor: aHighEntropyColor).
 			
 			self canvas 
 				add: (self createShapeFor: eachNode);
@@ -179,9 +179,7 @@ WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDe
 		].
 		self canvas invalidate
 	] forkNamed: 'WassisHistoryVisualization'
-	
 
-	
 ]
 
 { #category : 'drag and drop' }
