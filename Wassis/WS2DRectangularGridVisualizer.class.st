@@ -46,58 +46,10 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
             for: self ]
 ]
 
-{ #category : 'visualization-historyWave' }
-WS2DRectangularGridVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
-	"Create a timelapse with the progress of the collapse of the solution"
-
-	| minAndMax activeShapes initialShapes semaphore presenter |
+{ #category : 'converting' }
+WS2DRectangularGridVisualizer >> asAnimationVisualizer [ 
 	
-	semaphore := Semaphore new.
-	presenter := WSAnimationPresenter new semaphore: semaphore.
-	
-	self initializeWith: aSolver.
-	[
-		minAndMax := self findMinAndMaxEntropy.
-		activeShapes := Dictionary new.
-
-		initialShapes := self
-			                 createWaveShapeFor: aSolver copyOfInitalNodes
-			                 fromColor: aLowEntropyColor
-			                 toColor: aHighEntropyColor
-			                 withMin: minAndMax first
-			                 andMax: minAndMax last.
-
-		initialShapes do: [ :eachShape |
-				self canvas add: eachShape.
-				activeShapes at: eachShape position put: eachShape ].
-
-	 presenter setCanvas: self canvas.
-	 presenter open.
-
-		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
-				| collapsedNodeShape waveTouchedNodesShapes allShapes |
-				 presenter isPlaying ifFalse: [ semaphore wait ].
-				collapsedNodeShape := self createShapeFor: eachNode.
-
-				waveTouchedNodesShapes := self
-					                          createWaveShapeFor:
-					                          (aSolver historyOfTouchedNodes at: i)
-					                          fromColor: aLowEntropyColor
-					                          toColor: aHighEntropyColor
-					                          withMin: minAndMax first
-					                          andMax: minAndMax last.
-
-				allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
-				self canvas addAll: (allShapes collect: [ :eachShape |
-							 activeShapes
-								 at: eachShape position
-								 ifPresent: [ :oldShape | self canvas removeShape: oldShape ].
-							 activeShapes at: eachShape position put: eachShape.
-							 eachShape ]).
-
-				self canvas invalidate.
-				 presenter isPlaying ifTrue: [ (Delay forMilliseconds: aDelay) wait ]  ].
-		self canvas invalidate ] forkNamed: 'WassisHistoryVisualization'
+	^ WS2DRectangularGridAnimationVisualizer new
 ]
 
 { #category : 'visualization-history' }
@@ -200,32 +152,6 @@ WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor:
         form := self tileVisitor class renderSolidFormWithColor: blendedColor.
         shape := RSBitmap new form: form; yourself.
         shape position: (self positionOnCanvasForNode: eachNode).
-        shape 
-    ])
-]
-
-{ #category : 'visualization-historyWave' }
-WS2DRectangularGridVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor: aLowEntropyColor toColor: aHighEntropyColor withMin: minE andMax: maxE [
-	"Given a node, it creates the correct shape to visualize it"
-	
-    | entropies diff |
-    entropies := waveTouchedNodes collect: [ :n | n entropy ].
-	 entropies ifEmpty: [ ^ OrderedCollection new ].
-	 diff := maxE - minE.
-
-    ^ (waveTouchedNodes collect: [ :eachNode |
-        | t blendedColor form shape |
-        t := (maxE = minE)
-            ifTrue: [ 0.5 ]
-            ifFalse: [ (eachNode entropy - minE) / diff ].
-        
-        blendedColor := aLowEntropyColor mixed: (1.0 - t) with: aHighEntropyColor.
-        
-        form := self tileVisitor class renderSolidFormWithColor: blendedColor.
-        shape := RSBitmap new form: form; yourself.
-        shape position: (self positionOnCanvasForNode: eachNode).
-		  shape @ (RSPopup new text: ('' join: {'Entropy: ' . eachNode entropy printShowingDecimalPlaces: 3})).
-		  shape when: RSMouseLeftClick do: [ eachNode inspect ] for: self.
         shape 
     ])
 ]

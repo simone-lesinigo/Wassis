@@ -232,9 +232,8 @@ WSSolver >> copyOfNodesWithoutEdges: touchedNodes [
 WSSolver >> createFullWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
 	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
 
-	| class visualizer |
-	class := self topology visualizer class.
-	visualizer := class new.
+	| visualizer |
+	visualizer := self topology visualizer asAnimationVisualizer.
 	visualizer 
 		createFullWaveVisualization: self 
 		withMilliSecDelay: aDelay 
