@@ -5,7 +5,8 @@ Class {
 		'diffPerStep',
 		'index',
 		'maxIndex',
-		'msDelay'
+		'msDelay',
+		'isPlaying'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -118,7 +119,20 @@ WS2DRectangularGridAnimationVisualizer >> initialize [
 
 	super initialize.
 	self diffPerStep: Dictionary new.
-	self index: 0
+	self index: 0.
+	self isPlaying: false
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> isPlaying [
+
+	^ isPlaying
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> isPlaying: anObject [
+
+	isPlaying := anObject
 ]
 
 { #category : 'accessing' }
@@ -145,15 +159,32 @@ WS2DRectangularGridAnimationVisualizer >> msDelay: anObject [
 	msDelay := anObject
 ]
 
-{ #category : 'as yet unclassified' }
-WS2DRectangularGridAnimationVisualizer >> play [
-    [ index < maxIndex ] do: [ 
-        self stepForward.
-        (Delay forMilliseconds: msDelay) wait. 
-    ] displayingProgress: 'Animation progress'
+{ #category : 'animation' }
+WS2DRectangularGridAnimationVisualizer >> pause [
+	"Pause the animation"
+	
+	self isPlaying: false
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'animation' }
+WS2DRectangularGridAnimationVisualizer >> play [
+	"Play the animation forward"
+	
+	[	isPlaying := true.	
+	   [(index < maxIndex) and: isPlaying] whileTrue: [
+	   		self stepForward.
+	      (Delay forMilliseconds: msDelay) wait. 
+	   ]
+	] forkNamed: 'WassisPlayAnimation'
+	
+"	isPlaying := true.
+     (index to: maxIndex) do: [ :i |
+        self stepForward.
+        (Delay forMilliseconds: msDelay) wait. 
+     ] displayingProgress: 'Animation progress'"
+]
+
+{ #category : 'animation' }
 WS2DRectangularGridAnimationVisualizer >> stepBack [
 	"Return to the previous step of the visualization on the canvas"
 
@@ -167,7 +198,7 @@ WS2DRectangularGridAnimationVisualizer >> stepBack [
 	self canvas invalidate
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'animation' }
 WS2DRectangularGridAnimationVisualizer >> stepForward [
 	"Draw the next step of the visualization on the canvas"
 

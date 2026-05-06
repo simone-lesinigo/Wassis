@@ -39,7 +39,7 @@ WSAnimationPresenter >> initializeButtons [
 	
 	playAndPauseButton := self newButton 
 		label: 'Play';
-		action: [ visualizer play ];
+		action: [ self togglePlayAndPauseButton ];
 		yourself.
 	
     stepBackButton := self newButton
@@ -110,6 +110,24 @@ WSAnimationPresenter >> stepButton [
 WSAnimationPresenter >> stepButton: anObject [
 
 	stepButton := anObject
+]
+
+{ #category : 'as yet unclassified' }
+WSAnimationPresenter >> togglePlayAndPauseButton [
+	
+	visualizer isPlaying 
+		ifTrue:  [
+			playAndPauseButton label: 'Play'.
+			stepButton enabled: true.
+			stepBackButton enabled: true.
+			visualizer pause
+		]
+		ifFalse: [  
+			playAndPauseButton label: 'Pause'.
+			stepButton enabled: false.
+			stepBackButton enabled: false.
+			visualizer play.
+		]
 ]
 
 { #category : 'accessing' }
