@@ -7,6 +7,7 @@ Class {
 	#instVars : [
 		'roassalPresenter',
 		'visualizer',
+		'resetButton',
 		'stepBackButton',
 		'playAndPauseButton',
 		'stepButton'
@@ -23,7 +24,7 @@ WSAnimationPresenter >> applyLayout [
 	layout := SpBoxLayout newVertical
         add: roassalPresenter;
         add: (SpBoxLayout newHorizontal
-            add: stepBackButton ; add: playAndPauseButton; add: stepButton ; 
+            add: resetButton; add: stepBackButton; add: playAndPauseButton; add: stepButton ; 
             yourself) expand: false;
         yourself
 ]
@@ -31,6 +32,11 @@ WSAnimationPresenter >> applyLayout [
 { #category : 'initialization' }
 WSAnimationPresenter >> initializeButtons [
 	"Initialize the buttons of the presenter"
+	
+	resetButton := self newButton 
+		label: 'Reset';
+		action: [ visualizer goToStart ];
+		yourself.
 	
 	stepButton := self newButton 
 		label: 'Step';
@@ -46,6 +52,7 @@ WSAnimationPresenter >> initializeButtons [
         label: 'Step Back';
         action: [ visualizer stepBack ];
         yourself.
+
 ]
 
 { #category : 'initialization' }
@@ -68,6 +75,18 @@ WSAnimationPresenter >> playAndPauseButton [
 WSAnimationPresenter >> playAndPauseButton: anObject [
 
 	playAndPauseButton := anObject
+]
+
+{ #category : 'accessing' }
+WSAnimationPresenter >> resetButton [
+
+	^ resetButton
+]
+
+{ #category : 'accessing' }
+WSAnimationPresenter >> resetButton: anObject [
+
+	resetButton := anObject
 ]
 
 { #category : 'accessing' }
@@ -114,6 +133,7 @@ WSAnimationPresenter >> stepButton: anObject [
 
 { #category : 'as yet unclassified' }
 WSAnimationPresenter >> togglePlayAndPauseButton [
+	"Change the button between play and pause"
 	
 	visualizer isPlaying 
 		ifTrue:  [

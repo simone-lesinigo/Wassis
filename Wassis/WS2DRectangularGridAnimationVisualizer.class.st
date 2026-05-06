@@ -102,6 +102,15 @@ WS2DRectangularGridAnimationVisualizer >> diffPerStep: anObject [
 	diffPerStep := anObject
 ]
 
+{ #category : 'animation' }
+WS2DRectangularGridAnimationVisualizer >> goToStart [
+	"Reset the canvas to the initial state"
+	
+	index to: 0 by: -1 do: [ :i |
+		self stepBack 
+	]
+]
+
 { #category : 'accessing' }
 WS2DRectangularGridAnimationVisualizer >> index [
 
@@ -190,10 +199,9 @@ WS2DRectangularGridAnimationVisualizer >> stepBack [
 
 	| diff |
 	index > 0 ifFalse: [ ^ self ].
-
-	index := index - 1.
-	diff := diffPerStep at: index + 1.
+	diff := diffPerStep at: index.
 	(diff at: #addedShapes) do: [ :eachShape |self canvas removeShape: eachShape ].
+	index := index - 1.
 	self canvas addAll: ((diff at: #removedShapes) collect: [ :eachShape | eachShape ]).
 	self canvas invalidate
 ]
