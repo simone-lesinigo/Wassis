@@ -52,12 +52,13 @@ WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveSh
 		
 		diffPerStep at: i at: #removedShapes put: OrderedCollection new.
 		diffPerStep at: i at: #addedShapes put: OrderedCollection new.
-		allShapes do: [ :eachShape |
-			initialActiveShapes at: eachShape position ifPresent: [ :oldShape | ((diffPerStep at: i) at: #removedShapes) add: oldShape  ].
-			initialActiveShapes at: eachShape position put: eachShape.
-			((diffPerStep at: i) at: #addedShapes) add: eachShape 
-		].
-	].
+		
+		((diffPerStep at: i) at: #addedShapes) addAll: 
+			(allShapes collect: [ :eachShape |
+				initialActiveShapes at: eachShape position ifPresent: [ :oldShape | ((diffPerStep at: i) at: #removedShapes) add: oldShape ].
+				initialActiveShapes at: eachShape position put: eachShape.
+				eachShape ]) 
+	 ]
 ]
 
 { #category : 'visualization-historyWave' }
@@ -264,7 +265,7 @@ WS2DRectangularGridAnimationVisualizer >> stepForward [
 
 	index := index + 1.
 	diff := diffPerStep at: index.
-	(diff at: #removedShapes) do: [ :eachShape |self canvas removeShape: eachShape ].
+	(diff at: #removedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
 	self canvas addAll: ((diff at: #addedShapes) collect: [ :eachShape | eachShape ]).
 	self canvas invalidate
 ]
