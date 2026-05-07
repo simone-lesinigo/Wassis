@@ -237,8 +237,9 @@ WSSolver >> createFullWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLow
 	visualizer 
 		createFullWaveVisualization: self 
 		withMilliSecDelay: aDelay 
-		fromColor: aLowEntropyColor 
-		toColor: aHighEntropyColor
+		withColorMap: (WSEntropyColorMap 
+			fromColor: aLowEntropyColor  
+			toColor: aHighEntropyColor)
 ]
 
 { #category : 'visualization-history' }

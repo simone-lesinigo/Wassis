@@ -190,18 +190,6 @@ WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDe
 
 ]
 
-{ #category : 'visualization' }
-WS2DRectangularGridVisualizer >> findMinAndMaxEntropy [
-	"Find the min and the max entropy during the whole execution of the algorithm. Returns an array, min is in the first position, max in the second"
-	
-	| temp1 temp2 |
-	temp1 := self solver copyOfInitalNodes collect: [ :eachNode | eachNode entropy ].
-	temp2 := self solver historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
-	
-	^ { (temp1 min) min: (temp2 min) . (temp1 max) max: (temp2 max)}
-	
-]
-
 { #category : 'drag and drop' }
 WS2DRectangularGridVisualizer >> groupFootprintShapes [
 	"Groups in a RSComposite the shapes of the same class"

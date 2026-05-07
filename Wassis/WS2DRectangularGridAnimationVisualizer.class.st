@@ -1,7 +1,11 @@
+"
+Allows you to visualize the animation of WFC algorithm
+"
 Class {
 	#name : 'WS2DRectangularGridAnimationVisualizer',
 	#superclass : 'WS2DRectangularGridVisualizer',
 	#instVars : [
+		'presenter',
 		'diffPerStep',
 		'index',
 		'maxIndex',
@@ -14,24 +18,18 @@ Class {
 }
 
 { #category : 'visualization-historyWave' }
-WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
+WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay withColorMap: anEntropyColorMap [
 	"Create a timelapse with the progress of the collapse of the solution"
 
-	| minAndMax activeShapes initialShapes presenter |
-	[ 
+	| activeShapes initialShapes |
 		self initializeWith: aSolver.
-		self maxIndex: 	aSolver historyOfCollapsedNodes size.
 		self msDelay: aDelay.
-		presenter := WSAnimationPresenter new visualizer: self.
+		self setMinAndMaxIn: anEntropyColorMap.
 		activeShapes := Dictionary new.
-		minAndMax := self findMinAndMaxEntropy.
 		
 		initialShapes := self
 	   		 createWaveShapeFor: aSolver copyOfInitalNodes
-	       fromColor: aLowEntropyColor
-	       toColor: aHighEntropyColor
-	       withMin: minAndMax first
-	       andMax: minAndMax last.
+			 withColorMap: anEntropyColorMap.
 
 		initialShapes do: [ :eachShape |
 			self canvas add: eachShape.
@@ -43,10 +41,7 @@ WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver w
 
 			waveTouchedNodesShapes := self
 				createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)
-	         fromColor: aLowEntropyColor
-	         toColor: aHighEntropyColor
-	         withMin: minAndMax first
-	         andMax: minAndMax last.
+	         withColorMap: anEntropyColorMap.
 
 			allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
 			
@@ -61,16 +56,17 @@ WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver w
 
 		presenter setCanvas: self canvas.
 		presenter open.
-	] forkNamed: 'WassisHistoryVisualization'
 ]
 
 { #category : 'visualization-historyWave' }
-WS2DRectangularGridAnimationVisualizer >> createWaveShapeFor: waveTouchedNodes fromColor: aLowEntropyColor toColor: aHighEntropyColor withMin: minE andMax: maxE [
-	"Given a node, it creates the correct shape to visualize it"
+WS2DRectangularGridAnimationVisualizer >> createWaveShapeFor: waveTouchedNodes withColorMap: anEntropyColorMap [
+	"Given a collection of nodes, it creates the correct shapes to visualize them"
 	
-    | entropies diff |
-    entropies := waveTouchedNodes collect: [ :n | n entropy ].
-	 entropies ifEmpty: [ ^ OrderedCollection new ].
+    | diff maxE minE |
+	 waveTouchedNodes ifEmpty: [ ^ OrderedCollection new ].
+	
+	 maxE := anEntropyColorMap maxEntropy.
+	 minE := anEntropyColorMap minEntropy.
 	 diff := maxE - minE.
 
     ^ (waveTouchedNodes collect: [ :eachNode |
@@ -79,7 +75,7 @@ WS2DRectangularGridAnimationVisualizer >> createWaveShapeFor: waveTouchedNodes f
             ifTrue: [ 0.5 ]
             ifFalse: [ (eachNode entropy - minE) / diff ].
         
-        blendedColor := aLowEntropyColor mixed: (1.0 - t) with: aHighEntropyColor.
+        blendedColor := anEntropyColorMap lowEntropyColor mixed: (1.0 - t) with: anEntropyColorMap highEntropyColor.
         
         form := self tileVisitor class renderSolidFormWithColor: blendedColor.
         shape := RSBitmap new form: form; yourself.
@@ -130,6 +126,14 @@ WS2DRectangularGridAnimationVisualizer >> initialize [
 	self diffPerStep: Dictionary new.
 	self index: 0.
 	self isPlaying: false
+]
+
+{ #category : 'initialization' }
+WS2DRectangularGridAnimationVisualizer >> initializeWith: aSolver [
+	
+	super initializeWith: aSolver.
+	self maxIndex: 	aSolver historyOfCollapsedNodes size.
+	presenter := WSAnimationPresenter new visualizer: self.
 ]
 
 { #category : 'accessing' }
@@ -191,6 +195,32 @@ WS2DRectangularGridAnimationVisualizer >> play [
         self stepForward.
         (Delay forMilliseconds: msDelay) wait. 
      ] displayingProgress: 'Animation progress'"
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> presenter [
+
+	^ presenter
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> presenter: anObject [
+
+	presenter := anObject
+]
+
+{ #category : 'visualization' }
+WS2DRectangularGridAnimationVisualizer >> setMinAndMaxIn: anEntropyColorMap [
+	"Find the min and the max entropy during the whole execution of the algorithm. Set them as attributes of the color map"
+	
+	| temp1 temp2 |
+	temp1 := self solver copyOfInitalNodes collect: [ :eachNode | eachNode entropy ].
+	temp2 := self solver historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
+	
+	anEntropyColorMap 
+		minEntropy: ((temp1 min) min: (temp2 min));
+		maxEntropy: ((temp1 max) max: (temp2 max))
+	
 ]
 
 { #category : 'animation' }

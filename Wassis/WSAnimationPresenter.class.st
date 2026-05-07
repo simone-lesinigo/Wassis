@@ -38,6 +38,11 @@ WSAnimationPresenter >> initializeButtons [
 		action: [ visualizer goToStart ];
 		yourself.
 	
+	stepBackButton := self newButton
+      label: 'Step Back';
+      action: [ visualizer stepBack ];
+      yourself.
+	
 	stepButton := self newButton 
 		label: 'Step';
 		action: [ visualizer stepForward ];
@@ -47,11 +52,6 @@ WSAnimationPresenter >> initializeButtons [
 		label: 'Play';
 		action: [ self togglePlayAndPauseButton ];
 		yourself.
-	
-    stepBackButton := self newButton
-        label: 'Step Back';
-        action: [ visualizer stepBack ];
-        yourself.
 
 ]
 
