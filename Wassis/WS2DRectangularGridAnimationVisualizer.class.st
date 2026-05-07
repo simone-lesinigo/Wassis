@@ -52,12 +52,12 @@ WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveSh
 	
 	self solver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
 		| collapsedNodeShape waveTouchedNodesShapes allShapes |
+		
 		collapsedNodeShape := self createShapeFor: eachNode.
-
+		
 		waveTouchedNodesShapes := self
 			createWaveShapeFor: (self solver historyOfTouchedNodes at: i)
-	         withColorMap: anEntropyColorMap.
-
+	       withColorMap: anEntropyColorMap.
 		allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
 		
 		diffPerStep at: i at: #removedShapes put: OrderedCollection new.
@@ -124,7 +124,12 @@ WS2DRectangularGridAnimationVisualizer >> createPossibleTilesCanvasFor: aNode [
 		on: possibleTilesCanvas nodes.
 		
 	possibleTilesCanvas @ RSCanvasController.
-	possibleTilesCanvas openWithTitle: 'Possible tiles of node in position ', aNode position printString.
+	possibleTilesCanvas 
+		openWithTitle: 
+			'Possible tiles of node ', 
+			aNode position printString,
+			' at step ',
+			index printString.
 ]
 
 { #category : 'visualization-historyWave' }
@@ -298,9 +303,9 @@ WS2DRectangularGridAnimationVisualizer >> stepBack [
 	| diff |
 	index > 0 ifFalse: [ ^ self ].
 	diff := diffPerStep at: index.
-	(diff at: #addedShapes) do: [ :eachShape |self canvas removeShape: eachShape ].
+	(diff at: #addedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
 	index := index - 1.
-	self canvas addAll: ((diff at: #removedShapes) collect: [ :eachShape | eachShape ]).
+	self canvas addAll: (diff at: #removedShapes).
 	self canvas invalidate
 ]
 
@@ -314,6 +319,6 @@ WS2DRectangularGridAnimationVisualizer >> stepForward [
 	index := index + 1.
 	diff := diffPerStep at: index.
 	(diff at: #removedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
-	self canvas addAll: ((diff at: #addedShapes) collect: [ :eachShape | eachShape ]).
+	self canvas addAll: (diff at: #addedShapes).
 	self canvas invalidate
 ]
