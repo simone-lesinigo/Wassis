@@ -136,21 +136,19 @@ WSAnimationPresenter >> stepButton: anObject [
 WSAnimationPresenter >> togglePlayAndPauseButton [
 	"Change the button between play and pause"
 	
+	resetButton enabled: resetButton isEnabled not.
+	stepButton enabled: stepButton isEnabled not.
+	stepBackButton enabled: stepBackButton isEnabled not.
+	
 	visualizer isPlaying 
 		ifTrue:  [
 			playAndPauseButton label: 'Play'.
-			resetButton enabled: true.
-			stepButton enabled: true.
-			stepBackButton enabled: true.
 			visualizer pause
 		]
 		ifFalse: [  
 			playAndPauseButton label: 'Pause'.
-			resetButton enabled: false.
-			stepButton enabled: false.
-			stepBackButton enabled: false.
 			visualizer play.
-		]
+		].
 ]
 
 { #category : 'accessing' }
