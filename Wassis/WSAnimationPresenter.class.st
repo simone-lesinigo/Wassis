@@ -58,6 +58,7 @@ WSAnimationPresenter >> initializeButtons [
 { #category : 'initialization' }
 WSAnimationPresenter >> initializePresenter [
 	
+	self windowTitle: 'Wassis-Animation'.
 	roassalPresenter := self newRoassal.
 	
 	self initializeButtons.
@@ -138,12 +139,14 @@ WSAnimationPresenter >> togglePlayAndPauseButton [
 	visualizer isPlaying 
 		ifTrue:  [
 			playAndPauseButton label: 'Play'.
+			resetButton enabled: true.
 			stepButton enabled: true.
 			stepBackButton enabled: true.
 			visualizer pause
 		]
 		ifFalse: [  
 			playAndPauseButton label: 'Pause'.
+			resetButton enabled: false.
 			stepButton enabled: false.
 			stepBackButton enabled: false.
 			visualizer play.
