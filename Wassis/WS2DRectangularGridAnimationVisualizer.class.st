@@ -18,44 +18,63 @@ Class {
 }
 
 { #category : 'visualization-historyWave' }
-WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay withColorMap: anEntropyColorMap [
-	"Create a timelapse with the progress of the collapse of the solution"
-
+WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEntropyColorMap [
+	"Create the initial entropy shapes and add them to the canvas"
+	
 	| activeShapes initialShapes |
-		self initializeWith: aSolver.
-		self msDelay: aDelay.
-		self setMinAndMaxIn: anEntropyColorMap.
-		activeShapes := Dictionary new.
+	
+	activeShapes := Dictionary new.
 		
-		initialShapes := self
-	   		 createWaveShapeFor: aSolver copyOfInitalNodes
-			 withColorMap: anEntropyColorMap.
+	initialShapes := self
+	 	createWaveShapeFor: self solver copyOfInitalNodes
+		withColorMap: anEntropyColorMap.
 
 		initialShapes do: [ :eachShape |
 			self canvas add: eachShape.
 			activeShapes at: eachShape position put: eachShape ].
-		
-		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
-			| collapsedNodeShape waveTouchedNodesShapes allShapes |
-			collapsedNodeShape := self createShapeFor: eachNode.
+	
+	^ activeShapes 
+]
 
-			waveTouchedNodesShapes := self
-				createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)
+{ #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap [
+	"Given the initial shapes on the canvas (step 0) it creates the differences for each step"
+	
+	self solver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
+		| collapsedNodeShape waveTouchedNodesShapes allShapes |
+		collapsedNodeShape := self createShapeFor: eachNode.
+
+		waveTouchedNodesShapes := self
+			createWaveShapeFor: (self solver historyOfTouchedNodes at: i)
 	         withColorMap: anEntropyColorMap.
 
-			allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
-			
-			diffPerStep at: i at: #removedShapes put: OrderedCollection new.
-			diffPerStep at: i at: #addedShapes put: OrderedCollection new.
-			allShapes do: [ :eachShape |
-				activeShapes at: eachShape position ifPresent: [ :oldShape | ((diffPerStep at: i) at: #removedShapes) add: oldShape  ].
-				activeShapes at: eachShape position put: eachShape.
-				((diffPerStep at: i) at: #addedShapes) add: eachShape 
-			].
+		allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
+		
+		diffPerStep at: i at: #removedShapes put: OrderedCollection new.
+		diffPerStep at: i at: #addedShapes put: OrderedCollection new.
+		allShapes do: [ :eachShape |
+			initialActiveShapes at: eachShape position ifPresent: [ :oldShape | ((diffPerStep at: i) at: #removedShapes) add: oldShape  ].
+			initialActiveShapes at: eachShape position put: eachShape.
+			((diffPerStep at: i) at: #addedShapes) add: eachShape 
 		].
+	].
+]
 
-		presenter setCanvas: self canvas.
-		presenter open.
+{ #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay withColorMap: anEntropyColorMap [
+	"Create a timelapse with the progress of the collapse of the solution"
+
+	| initialActiveShapes |
+	
+	self initializeWith: aSolver.
+	self msDelay: aDelay.
+	self setMinAndMaxIn: anEntropyColorMap.
+	
+	initialActiveShapes := (self addInitialWaveShapesWithColorMap: anEntropyColorMap).
+	self createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap.
+
+	presenter setCanvas: self canvas.
+	presenter open.
 ]
 
 { #category : 'visualization-historyWave' }
