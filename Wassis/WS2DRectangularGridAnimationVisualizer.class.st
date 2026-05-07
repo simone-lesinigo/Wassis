@@ -10,12 +10,28 @@ Class {
 		'index',
 		'maxIndex',
 		'msDelay',
-		'isPlaying'
+		'isPlaying',
+		'announcer'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
 	#tag : 'Visualization'
 }
+
+{ #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> addCanvasBorder [
+	
+	"
+	| border |
+	border := RSBox new
+        color: Color transparent;
+        borderColor: Color black;
+        borderWidth: 2;
+        position: 0 @ 0;
+        extent: self canvas extent;
+        yourself.
+    self canvas add: border."
+]
 
 { #category : 'visualization-historyWave' }
 WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEntropyColorMap [
@@ -32,7 +48,7 @@ WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEn
 		initialShapes do: [ :eachShape |
 			self canvas add: eachShape.
 			activeShapes at: eachShape position put: eachShape ].
-	
+
 	^ activeShapes 
 ]
 
@@ -44,6 +60,18 @@ WS2DRectangularGridAnimationVisualizer >> addInteractionToShape: aShape withNode
    aShape 
 		when: RSMouseLeftClick do: [ aNode inspect ] for: self;
 		when: RSMouseRightClick do: [ self createEntropyMenuFor: aNode ] for: self
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> announcer [
+
+	^ announcer
+]
+
+{ #category : 'accessing' }
+WS2DRectangularGridAnimationVisualizer >> announcer: anObject [
+
+	announcer := anObject
 ]
 
 { #category : 'visualization-historyWave' }
@@ -198,15 +226,16 @@ WS2DRectangularGridAnimationVisualizer >> initialize [
 	super initialize.
 	self diffPerStep: Dictionary new.
 	self index: 0.
-	self isPlaying: false
+	self isPlaying: false.
+	self announcer: Announcer new
 ]
 
 { #category : 'initialization' }
 WS2DRectangularGridAnimationVisualizer >> initializeWith: aSolver [
-	
+
 	super initializeWith: aSolver.
 	self maxIndex: 	aSolver historyOfCollapsedNodes size.
-	presenter := WSAnimationPresenter new visualizer: self.
+	presenter := WSAnimationPresenter withVisualizer: self
 ]
 
 { #category : 'accessing' }
@@ -256,11 +285,15 @@ WS2DRectangularGridAnimationVisualizer >> pause [
 WS2DRectangularGridAnimationVisualizer >> play [
 	"Play the animation forward"
 	
-	[	isPlaying := true.	
+	[  isPlaying := true.	
 	   [(index < maxIndex) and: isPlaying] whileTrue: [
 	   		self stepForward.
 	      (Delay forMilliseconds: msDelay) wait. 
-	   ]
+	   ].
+		index = maxIndex ifTrue: [ 
+			announcer announce: WSAnimationFinished .
+			isPlaying := false.
+		]
 	] forkNamed: 'WassisPlayAnimation'
 	
 "	isPlaying := true.
@@ -301,10 +334,12 @@ WS2DRectangularGridAnimationVisualizer >> stepBack [
 	"Return to the previous step of the visualization on the canvas"
 
 	| diff |
+	index - 1 = 0 ifTrue: [ self announcer announce: WSAtStartOfAnimation. ].
 	index > 0 ifFalse: [ ^ self ].
 	diff := diffPerStep at: index.
 	(diff at: #addedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
 	index := index - 1.
+	self announcer announce: WSAnimationIndexChanged.
 	self canvas addAll: (diff at: #removedShapes).
 	self canvas invalidate
 ]
@@ -314,9 +349,11 @@ WS2DRectangularGridAnimationVisualizer >> stepForward [
 	"Draw the next step of the visualization on the canvas"
 
 	| diff |
+	index + 1 = maxIndex ifTrue: [ announcer announce: WSAnimationFinished  ].
 	index < maxIndex ifFalse: [ ^ self ].
 
 	index := index + 1.
+	self announcer announce: WSAnimationIndexChanged .
 	diff := diffPerStep at: index.
 	(diff at: #removedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
 	self canvas addAll: (diff at: #addedShapes).
