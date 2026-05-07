@@ -101,7 +101,7 @@ WSNode >> copyWithoutEdges [
 		id: self id;
 		collapseStep: self collapseStep;
 		tileInWhichCollapsed: self tileInWhichCollapsed;
-		possibleTiles: self possibleTiles;
+		possibleTiles: self possibleTiles copy;
 		isCollapsed: self isCollapsed;
 		position: self position;
 		entropy: self entropy.

@@ -37,6 +37,16 @@ WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEn
 ]
 
 { #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> addInteractionToShape: aShape withNode: aNode [
+	"Add the interactions to a shape that it is not collapsed yet (showing entropy)"
+	
+	aShape @ (RSPopup new text: ('' join: {'Entropy: ' . aNode entropy printShowingDecimalPlaces: 3})).
+   aShape 
+		when: RSMouseLeftClick do: [ aNode inspect ] for: self;
+		when: RSMouseRightClick do: [ self createEntropyMenuFor: aNode ] for: self
+]
+
+{ #category : 'visualization-historyWave' }
 WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap [
 	"Given the initial shapes on the canvas (step 0) it creates the differences for each step"
 	
@@ -62,6 +72,22 @@ WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveSh
 ]
 
 { #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> createEntropyMenuFor: aNode [
+	"Create the menu associated with a node that it is not collapsed yet (showing its entropy)"
+		
+	| menu |
+	
+	menu := MenuMorph new.
+	menu add: 'Inspect Node' target: aNode selector: #inspect.
+	menu add: 'Possible Tiles' target: [ self createPossibleTilesCanvasFor: aNode ] selector: #value.
+
+   menu addLine.
+	menu add: 'Cancel' target: menu selector: #deleteIfPopUp.
+	
+	menu popUpInWorld
+]
+
+{ #category : 'visualization-historyWave' }
 WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver withMilliSecDelay: aDelay withColorMap: anEntropyColorMap [
 	"Create a timelapse with the progress of the collapse of the solution"
 
@@ -76,6 +102,29 @@ WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver w
 
 	presenter setCanvas: self canvas.
 	presenter open.
+]
+
+{ #category : 'visualization-historyWave' }
+WS2DRectangularGridAnimationVisualizer >> createPossibleTilesCanvasFor: aNode [
+	"Create a separate camvas with the remaining possible tiles for a node"
+
+	| possibleTilesCanvas |
+	possibleTilesCanvas := RSCanvas new.
+	aNode possibleTiles do: [ :eachTile | 
+		| shape |
+		shape := eachTile accept: self tileVisitor.
+		possibleTilesCanvas add: shape.
+		shape borderColor: Color black.
+		shape when: RSMouseLeftClick do: [ eachTile inspect ] for: self
+	].
+	 
+	RSGridLayout new
+		gapSize: 50;
+		lineItemsCount: 10;
+		on: possibleTilesCanvas nodes.
+		
+	possibleTilesCanvas @ RSCanvasController.
+	possibleTilesCanvas openWithTitle: 'Possible tiles of node in position ', aNode position printString.
 ]
 
 { #category : 'visualization-historyWave' }
@@ -100,8 +149,7 @@ WS2DRectangularGridAnimationVisualizer >> createWaveShapeFor: waveTouchedNodes w
         form := self tileVisitor class renderSolidFormWithColor: blendedColor.
         shape := RSBitmap new form: form; yourself.
         shape position: (self positionOnCanvasForNode: eachNode).
-		  shape @ (RSPopup new text: ('' join: {'Entropy: ' . eachNode entropy printShowingDecimalPlaces: 3})).
-		  shape when: RSMouseLeftClick do: [ eachNode inspect ] for: self.
+		  self addInteractionToShape: shape withNode: eachNode.
         shape 
     ])
 ]
