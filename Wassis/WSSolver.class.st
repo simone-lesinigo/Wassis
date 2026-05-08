@@ -404,7 +404,7 @@ WSSolver >> logTotalTries [
 	totalNumberOfTries := pm totalNumberOfTries.
 	WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }).
 	
-	((WSConfig isHeadless) and: [ (totalNumberOfTries \\ 50) = 0 ]) 
+	((WSConfig isHeadless) and: [ (totalNumberOfTries \\ 25) = 0 ]) 
         ifTrue: [ WSLogger forceLog: ('Tries: {1}' format: { totalNumberOfTries }) ].
 ]
 
