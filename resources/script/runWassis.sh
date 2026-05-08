@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PHARO_VM="$SCRIPT_DIR/../../../../../../pharo-vm/Pharo"
+
+PHARO_VM="$SCRIPT_DIR/../../../../../../pharo"
 IMAGE="$SCRIPT_DIR/../../../../../../Pharo.image"
 
 ST_FILE="solver.st"
