@@ -118,7 +118,7 @@ WSAnimationPresenter >> initializeStepBackButton [
 WSAnimationPresenter >> initializeStepButton [
 	
 	stepButton := self newButton 
-		label: 'Step';
+		label: 'Step Forward';
 		action: [ 
 			self setEnableTo: true forButtons: {  resetButton . stepBackButton }. 
 			visualizer stepForward ];
