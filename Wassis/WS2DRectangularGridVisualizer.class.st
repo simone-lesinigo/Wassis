@@ -43,6 +43,37 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 ]
 
 { #category : 'adding' }
+WS2DRectangularGridVisualizer >> addGridLabelsToCanvas: aCanvas [
+	"Add the numbers of rows and columns"
+
+    | tileSize halfTileSize offset fontSize |
+    tileSize := self tileVisitor class tileSize.
+	 halfTileSize := tileSize / 2.
+    offset := tileSize * 0.5.
+	 fontSize := tileSize * 0.35.
+    
+    1 to: self solver graph structure nColumns do: [ :col |
+        | label x |
+         x := col * tileSize.
+        label := RSLabel new
+            text: col printString;
+            fontSize: fontSize;
+            position: (x - halfTileSize) @ (offset negated);
+            yourself.
+       aCanvas add: label ].
+    
+    1 to: self solver graph structure nRows do: [ :row |
+        | label y |
+        y := row * tileSize.
+        label := RSLabel new
+            text: row printString;
+            fontSize: fontSize;
+            position: offset negated @ (y - halfTileSize);
+            yourself.
+        aCanvas add: label ]
+]
+
+{ #category : 'adding' }
 WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
 	"To all the shapes in the collection add the highlights when one of the shape is hovered"
 

@@ -112,6 +112,7 @@ WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver w
 	
 	initialActiveShapes := (self addInitialWaveShapesWithColorMap: anEntropyColorMap).
 	self addBorderToCanvas: self canvas.
+	self addGridLabelsToCanvas: self canvas.
 	self createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap.
 
 	presenter setCanvas: self canvas.
