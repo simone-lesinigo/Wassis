@@ -12,7 +12,9 @@ Class {
 { #category : 'private' }
 WSLogger class >> forceLog: aString [
 	
-	Transcript show: aString; cr
+	Transcript show: aString.
+	WSConfig isHeadless ifTrue: [ Transcript show: (' - PID: {1}' format: {LibC uniqueInstance getpid asString}) ].
+	Transcript cr
 ]
 
 { #category : 'private' }
