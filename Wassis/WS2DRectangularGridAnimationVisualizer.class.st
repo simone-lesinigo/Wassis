@@ -19,21 +19,6 @@ Class {
 }
 
 { #category : 'visualization-historyWave' }
-WS2DRectangularGridAnimationVisualizer >> addCanvasBorder [
-	
-	"
-	| border |
-	border := RSBox new
-        color: Color transparent;
-        borderColor: Color black;
-        borderWidth: 2;
-        position: 0 @ 0;
-        extent: self canvas extent;
-        yourself.
-    self canvas add: border."
-]
-
-{ #category : 'visualization-historyWave' }
 WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEntropyColorMap [
 	"Create the initial entropy shapes and add them to the canvas"
 	
@@ -126,6 +111,7 @@ WS2DRectangularGridAnimationVisualizer >> createFullWaveVisualization: aSolver w
 	self setMinAndMaxIn: anEntropyColorMap.
 	
 	initialActiveShapes := (self addInitialWaveShapesWithColorMap: anEntropyColorMap).
+	self addBorderToCanvas: self canvas.
 	self createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap.
 
 	presenter setCanvas: self canvas.

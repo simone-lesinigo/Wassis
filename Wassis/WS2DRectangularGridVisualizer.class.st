@@ -10,6 +10,24 @@ Class {
 }
 
 { #category : 'adding' }
+WS2DRectangularGridVisualizer >> addBorderToCanvas: aCanvas [
+	"Add a black border to the canvas following its encompassing rectangle"
+	
+	| border bbox |
+	bbox := aCanvas shapes encompassingRectangle.
+   border := RSBox new
+   		color: Color transparent;
+      borderColor: Color black;
+      borderWidth: 20;
+      position: bbox center;
+      extent: bbox extent + 40;
+      yourself.
+   aCanvas add: border.
+	border pushBack.
+	
+]
+
+{ #category : 'adding' }
 WS2DRectangularGridVisualizer >> addClickTo: aShape [
 	"Add the inspect when left clicking, the contextual menu when rightclicking"
 	
