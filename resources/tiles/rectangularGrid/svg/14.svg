@@ -1,0 +1,5 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#fff" d="M0 0h100v100H0z"/>
+  <path d="M60 0v20a40 40 0 0 1-40 40H0V40h20a20 20 0 0 0 20-20V0Z" fill="black"/>
+  <path d="M40 100V80a40 40 0 0 1 40-40h20v20H80a20 20 0 0 0-20 20v20Z" fill="red"/>
+</svg>
