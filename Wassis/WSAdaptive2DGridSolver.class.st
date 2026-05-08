@@ -88,8 +88,8 @@ WSAdaptive2DGridSolver >> run [
 				Smalltalk garbageCollect.
 			] timeToRun.
 		  self updatePerformanceMetricsWithTime: totalTime.
-		  WSLogger forceLog: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).
 		  WSConfig isHeadless ifTrue: [ self save ].
+		  WSLogger forceLog: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).  
 		].	
 	] forkNamed: 'WaveFunctionCollapse'.
 
