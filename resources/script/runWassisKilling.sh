@@ -1,7 +1,10 @@
 #!/opt/homebrew/bin/bash
 
 PHARO_VM="/Users/Simo/Documents/Pharo/vms/130-x64/Pharo.app/Contents/MacOS/Pharo"
-IMAGE="/Users/Simo/Documents/Pharo/images/testScript/testScript.image"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGE="$SCRIPT_DIR/../../../../../../WassisImage.image"
+
 ST_FILE="solverKilling.st"
 PIPE="/Users/Simo/Desktop/Wassis/script/signal"
 INSTANCES=10
