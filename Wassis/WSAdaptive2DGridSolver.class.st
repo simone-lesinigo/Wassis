@@ -94,7 +94,6 @@ WSAdaptive2DGridSolver >> run [
 
 		  Transcript show: 'Execution finished in '; show: (totalTime humanReadablePrintString); cr.
 		].	
-	self inspect
 	] forkNamed: 'WaveFunctionCollapse'.
 
 	

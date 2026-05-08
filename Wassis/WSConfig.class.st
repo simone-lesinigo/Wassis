@@ -8,6 +8,7 @@ Class {
 		'ClassTileWeight',
 		'ConfigFile',
 		'EmptyTileWeight',
+		'IsHeadless',
 		'MaxNumberOfRegeneratedGraph',
 		'MaxNumberOfTriesPerGraph'
 	],
@@ -66,6 +67,29 @@ WSConfig class >> emptyTileWeight: anObject [
 	EmptyTileWeight := anObject
 ]
 
+{ #category : 'accessing' }
+WSConfig class >> isHeadless [ 
+
+	IsHeadless ifNil: [ 
+		self isHeadless: 
+			(self configFile atPath:  { 'isHeadless' } default: true).
+	].
+
+	^ IsHeadless
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> isHeadless: anObject [
+
+	IsHeadless := anObject
+]
+
+{ #category : 'testing' }
+WSConfig class >> isNotHeadless [
+	
+	^ self isHeadless not 
+]
+
 { #category : 'accessing-backtracking' }
 WSConfig class >> maxNumberOfRegeneratedGraph [
 
@@ -121,6 +145,7 @@ WSConfig class >> reset [
 	self maxNumberOfTriesPerGraph: nil.
 	self emptyTileWeight: nil.
 	self classTileWeight: nil.
+	self isHeadless: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]
