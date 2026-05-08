@@ -1,9 +1,8 @@
-#!/opt/homebrew/bin/bash
-
-PHARO_VM="/Users/Simo/Documents/Pharo/vms/130-x64/Pharo.app/Contents/MacOS/Pharo"
+#!/usr/bin/env bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-IMAGE="$SCRIPT_DIR/../../../../../../WassisImage.image"
+PHARO_VM="$SCRIPT_DIR/../../../../../../pharo-vm/Pharo"
+IMAGE="$SCRIPT_DIR/../../../../../../Pharo.image"
 
 ST_FILE="solver.st"
 INSTANCES=2
