@@ -77,10 +77,11 @@ WSAdaptive2DGridSolver >> resetEnvironment [
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
 	
-	metrics := WSMetrics new.
-	self resetEnvironment.
-	"self createGraphVisualization."
-   [ 
+	| block |
+	block := [  
+		metrics := WSMetrics new.
+		self resetEnvironment.
+		"self createGraphVisualization."
 		WSCurrentMetrics value: metrics during: [
 			| totalTime |
 			totalTime := [ 
@@ -90,9 +91,12 @@ WSAdaptive2DGridSolver >> run [
 		  self updatePerformanceMetricsWithTime: totalTime.
 		  WSConfig isHeadless ifTrue: [ self save ].
 		  WSLogger forceLog: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).  
-		].	
-	] forkNamed: 'WaveFunctionCollapse'.
-
+		]
+	].
+	
+	WSConfig isHeadless 
+        ifTrue: [ block value ]
+        ifFalse: [ block forkNamed: 'WaveFunctionCollapse' ]
 	
    
 ]
