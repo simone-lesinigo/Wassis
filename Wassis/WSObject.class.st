@@ -14,5 +14,5 @@ WSObject class >> resourcesRootPath [
 
 	^ (IceRepository registry 
     detect: [:repo | repo name = 'wassis'])
-    location / 'Wassis' / 'resources'.
+    location / 'resources'.
 ]
