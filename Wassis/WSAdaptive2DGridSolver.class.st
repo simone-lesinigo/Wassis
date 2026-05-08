@@ -97,8 +97,6 @@ WSAdaptive2DGridSolver >> run [
 	WSConfig isHeadless 
         ifTrue: [ block value ]
         ifFalse: [ block forkNamed: 'WaveFunctionCollapse' ]
-	
-   
 ]
 
 { #category : 'resolving' }

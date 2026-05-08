@@ -98,8 +98,6 @@ WSSolver >> addOneToTotalNumberOfTries [
 	| pm |
 	pm := WSCurrentMetrics getPerformanceMetrics.
 	pm totalNumberOfTries: (pm totalNumberOfTries + 1).
-	
-	WSLogger log: ('Tries: {1}' format: { pm totalNumberOfTries }).
 ]
 
 { #category : 'metrics' }
@@ -398,6 +396,18 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph.
 ]
 
+{ #category : 'as yet unclassified' }
+WSSolver >> logTotalTries [
+
+	| pm totalNumberOfTries |
+	pm := WSCurrentMetrics getPerformanceMetrics.	
+	totalNumberOfTries := pm totalNumberOfTries.
+	WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }).
+	
+	((WSConfig isHeadless) and: [ (totalNumberOfTries \\ 50) = 0 ]) 
+        ifTrue: [ WSLogger forceLog: ('Tries: {1}' format: { totalNumberOfTries }) ].
+]
+
 { #category : 'drag and drop' }
 WSSolver >> moveClass: aClass toNode: aNode [
 	"Move aClass to its new position"
@@ -416,12 +426,14 @@ WSSolver >> moveClass: aClass toNode: aNode [
 
 { #category : 'error handling' }
 WSSolver >> onContradiction [
+	"Method executed when a contradiction has been found"
 
 	| bt |
 	self historyOfCollapsedNodes: OrderedCollection new.
 	self historyOfTouchedNodes: OrderedCollection new.
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
+	self logTotalTries.
 	
 	bt restartFromClassesGraphForSolver: self.
 

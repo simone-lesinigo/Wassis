@@ -9,7 +9,7 @@ Class {
 	#tag : 'Log'
 }
 
-{ #category : 'private' }
+{ #category : 'logging' }
 WSLogger class >> forceLog: aString [
 	
 	Transcript show: aString.
@@ -17,7 +17,7 @@ WSLogger class >> forceLog: aString [
 	Transcript cr
 ]
 
-{ #category : 'private' }
+{ #category : 'logging' }
 WSLogger class >> log: aString [
 	
 	WSConfig isNotHeadless ifTrue: [ Transcript show: aString; cr ]
