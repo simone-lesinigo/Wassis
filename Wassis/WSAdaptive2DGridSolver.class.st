@@ -27,7 +27,7 @@ WSAdaptive2DGridSolver >> computeInitialSize [
 	<toDo> "Improve the formula to compute the initial size"
 	| nOfClasses |
 	nOfClasses := self swSystem classes size.
-	Transcript show: 'Number of classes: ', nOfClasses asString; cr.
+	WSLogger log: ('Number of classes: {1}' format: { nOfClasses asString }).
 	^ (nOfClasses * 1.5) rounded 
 ]
 
@@ -60,11 +60,8 @@ WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
 
 { #category : 'logging' }
 WSAdaptive2DGridSolver >> logGridSize: size [
-
-	Transcript 
-		show: 'New grid with size: ';
-		show: size; show: ' * '; show: size;
-		cr.
+	
+	WSLogger log: ('New grid with size: {1} * {2}' format: { size . size }).
 ]
 
 { #category : 'cleanup' }
@@ -91,8 +88,8 @@ WSAdaptive2DGridSolver >> run [
 				Smalltalk garbageCollect.
 			] timeToRun.
 		  self updatePerformanceMetricsWithTime: totalTime.
-
-		  Transcript show: 'Execution finished in '; show: (totalTime humanReadablePrintString); cr.
+		  WSLogger forceLog: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).
+		  WSConfig isHeadless ifTrue: [ self save ].
 		].	
 	] forkNamed: 'WaveFunctionCollapse'.
 
@@ -107,18 +104,18 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 	| size solverID |
 	size:= self computeInitialSize.
 	solverID := 1.
-   
+
 	[ self solutionFound ] whileFalse: [
    		[[ 
 			Smalltalk garbageCollect.
 			self logGridSize: size.
 			self solveWithSize: size andID: solverID.
        ] on: WSNoValidPlacementFound do: [
-			Transcript show: 'No valid placement found for this grid, trying with new one'; cr; cr. 
+			WSLogger log: 'No valid placement found for this grid, trying with new one', String cr. 
         	size := size + 1.
 			solverID := solverID + 1.
        ]] on: WSMaxTriesReached do: [
-			Transcript show: 'Max n of tries reached for this grid'; cr; cr. 
+			WSLogger log: 'Max n of tries reached for this grid', String cr. 
 			size := size + 1.
 			solverID := solverID + 1.
 		].

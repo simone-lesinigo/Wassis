@@ -99,7 +99,7 @@ WSSolver >> addOneToTotalNumberOfTries [
 	pm := WSCurrentMetrics getPerformanceMetrics.
 	pm totalNumberOfTries: (pm totalNumberOfTries + 1).
 	
-	Transcript show: 'Tries: '; show: (pm totalNumberOfTries); cr.
+	WSLogger log: ('Tries: {1}' format: { pm totalNumberOfTries }).
 ]
 
 { #category : 'metrics' }
@@ -463,7 +463,7 @@ WSSolver >> run [
 	performanceMetrics := WSCurrentMetrics getPerformanceMetrics.
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
-	Transcript show: 'Solution found'; cr.
+	WSLogger forceLog: 'Solution found'.
 	
 	self topology rebuildClassNodes: self graph.
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.

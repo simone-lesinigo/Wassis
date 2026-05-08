@@ -175,8 +175,8 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"self registerMouseHoverForPaths."
 	
 	"self groupFootprintShapes."
+	WSConfig isNotHeadless ifTrue: [ self canvas openWithTitle: 'Wassis'. ].
 	
-	self canvas openWithTitle: 'Wassis'.
 ]
 
 { #category : 'visualization-historyWave' }

@@ -195,7 +195,7 @@ WSExamples class >> exampleRunRectangularGrid [
 		WSAdaptive2DGridSolver 
 			withTopology: WS2DRectangularGridTopology 
 			andSwSystem: swSystem.
-	
+
 	adaptiveSolver run.
 		
 
