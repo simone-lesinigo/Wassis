@@ -136,7 +136,7 @@ WSExamples class >> exampleLoadSolutionFromFile [
 
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: WSObject rootPath, 'solutions/solution-08-05-2026_14h47m23s.fuel'.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-08-05-2026_16h20m00s.fuel') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
 	adaptiveSolver inspect
@@ -189,7 +189,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: MCReader
+		createForClass: File
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

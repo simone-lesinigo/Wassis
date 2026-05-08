@@ -67,7 +67,7 @@ WS2DSquareVisitor class >> loadOriginalPathForms [
     
     1 to: 14 do: [ :id |
         | path form |
-        path := '' join: {WSObject rootPath . 'tiles/rectangularGrid/png/'. id printString. '.png'}.
+        path := WSObject resourcesRootPath / 'tiles' / 'rectangularGrid' / 'png' / (id printString , '.png').
         form := ImageReadWriter formFromFileNamed: path.
 		  form := form scaledToSize: (self tileSize @ self tileSize).
         self originalPathFormCache at: id put: form ]

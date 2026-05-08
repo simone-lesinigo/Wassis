@@ -10,7 +10,9 @@ Class {
 }
 
 { #category : 'accessing' }
-WSObject class >> rootPath [
+WSObject class >> resourcesRootPath [
 
-	^ '/Users/Simo/Desktop/Wassis/'
+	^ (IceRepository registry 
+    detect: [:repo | repo name = 'wassis'])
+    location / 'Wassis' / 'resources'.
 ]

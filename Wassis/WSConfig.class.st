@@ -126,7 +126,7 @@ WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 WSConfig class >> readConfigFile [
 	"Read the JSON that contains the configs"
 	| file |
-    file := (WSObject rootPath, 'config.json') asFileReference.
+    file := (WSObject resourcesRootPath / 'config.json') asFileReference.
     
 	self configFile: 
 	    ((file exists and: [ file contents isNotEmpty ])

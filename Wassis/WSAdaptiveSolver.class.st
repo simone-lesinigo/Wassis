@@ -24,7 +24,7 @@ WSAdaptiveSolver class >> loadFromFile: aFilePath [
 { #category : 'serializing' }
 WSAdaptiveSolver class >> savePath [
 
-    ^ WSObject rootPath, '/solutions/solution-', DateAndTime nowAsString, '.fuel'
+    ^ (WSObject resourcesRootPath / 'solutions' / ('solution-', DateAndTime nowAsString, '.fuel')) fullName
 ]
 
 { #category : 'visualization' }
