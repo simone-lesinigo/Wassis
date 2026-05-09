@@ -256,7 +256,7 @@ WS2DGridTopology >> footprintSizeFor: aClass [
 	
 	| connectionsSize |
 	
-	connectionsSize := (self swSystem allConnectionsPerClass at: aClass) size. 
+	connectionsSize := (self swSystem allConnectionsOf: aClass) size. 
 	
 	^ (connectionsSize / 4) ceiling
 ]
