@@ -399,13 +399,11 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 { #category : 'as yet unclassified' }
 WSSolver >> logTotalTries [
 
-	| pm totalNumberOfTries |
-	pm := WSCurrentMetrics getPerformanceMetrics.	
-	totalNumberOfTries := pm totalNumberOfTries.
-	WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }).
+	| totalNumberOfTries |
+	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
 	
-	((WSConfig isHeadless) and: [ (totalNumberOfTries \\ 25) = 0 ]) 
-        ifTrue: [ WSLogger forceLog: ('Tries: {1}' format: { totalNumberOfTries }) ].
+	(totalNumberOfTries \\ 5 = 0) ifTrue: [ 
+		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
 ]
 
 { #category : 'drag and drop' }
@@ -475,7 +473,7 @@ WSSolver >> run [
 	performanceMetrics := WSCurrentMetrics getPerformanceMetrics.
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
-	WSLogger forceLog: 'Solution found'.
+	WSLogger log: 'Solution found'.
 	
 	self topology rebuildClassNodes: self graph.
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
@@ -490,7 +488,7 @@ WSSolver >> run [
 WSSolver >> solveGraph [
 	"Core method that executes WFC"
 	
-	WSLogger forceLog: 'Execution started'.
+	WSLogger log: 'Execution started'.
 	[ self graph allNodesCollapsed ] whileFalse: [ 
 		[  
 			self step.

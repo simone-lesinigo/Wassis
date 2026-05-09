@@ -10,15 +10,9 @@ Class {
 }
 
 { #category : 'logging' }
-WSLogger class >> forceLog: aString [
+WSLogger class >> log: aString [
 	
 	Transcript show: aString.
 	WSConfig isHeadless ifTrue: [ Transcript show: (' - PID: {1}' format: {LibC uniqueInstance getpid asString}) ].
 	Transcript cr
-]
-
-{ #category : 'logging' }
-WSLogger class >> log: aString [
-	
-	WSConfig isNotHeadless ifTrue: [ Transcript show: aString; cr ]
 ]

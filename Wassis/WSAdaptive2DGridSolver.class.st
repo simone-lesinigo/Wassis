@@ -90,7 +90,7 @@ WSAdaptive2DGridSolver >> run [
 			] timeToRun.
 		  self updatePerformanceMetricsWithTime: totalTime.
 		  WSConfig isHeadless ifTrue: [ self save ].
-		  WSLogger forceLog: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).  
+		  WSLogger log: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).  
 		]
 	].
 	
