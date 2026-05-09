@@ -435,20 +435,22 @@ WS2DGridTopology >> nRows: anObject [
 WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n in: aGrid [
     "Return the top-left node of a valid NxN footprint"
     
-    | pos target |
+    | pos target candidates |
     pos := self layoutMatrix rowAt: aClass id.
     target := aGrid atRow: (pos first) atColumn: (pos last).
-    self halt.
+
     (aGrid 
 		isValidTopLeft: target 
 		forSize: n 
 		withOffset: self class safetyMooreRadius) 
 			ifTrue: [ ^ target ].
     
-    ^ aGrid 
+    candidates := aGrid 
 		searchOutwardFrom: target 
 		forSize: n 
-		defaultOffset: self class safetyMooreRadius
+		defaultOffset: self class safetyMooreRadius.
+		
+	^ self selectBestCandidate: candidates forClass: aClass footprintSize: n in: aGrid.
 ]
 
 { #category : 'removing' }
@@ -490,4 +492,10 @@ WS2DGridTopology >> scaleNormalizedValue: aValue toInnerRange: n [
     "Scale a normalized value [0,1] to [2, n-1], excluding border positions"
 
     ^ ((aValue * (n - 3)) rounded) + 2
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> selectBestCandidate: candidates forClass: aClass footprintSize: n in: aGrid [
+	
+	^ self subclassResponsibility 
 ]

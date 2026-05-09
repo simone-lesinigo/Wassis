@@ -135,7 +135,7 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
     | slots |
     slots := OrderedCollection new.
     aFootprint nodes do: [ :aNode |
-        (self exposedDirectionsOf: aNode) do: [ :dir |
+        (self exposedDirectionsOf: aNode inFootprint: aFootprint ) do: [ :dir |
             slots add: aNode -> dir ] ].
     ^ slots
 ]
@@ -424,6 +424,23 @@ WS2DRectangularGridTopology >> exposedDirectionsOf: aNode [
     ^ exposed
 ]
 
+{ #category : 'collapse' }
+WS2DRectangularGridTopology >> exposedDirectionsOf: aNode inFootprint: aFootprint [
+    "Return the directions of aNode that face outside the footprint"
+    
+    | originRow originColumn exposed |
+    originRow := aFootprint originNode row. 
+    originColumn := aFootprint originNode column.
+    exposed := OrderedCollection new.
+    
+    aNode row = originRow ifTrue: [ exposed add: self class upSymbol ].
+    aNode row = (originRow + aFootprint sideLength - 1) ifTrue: [ exposed add: self class downSymbol  ].
+    aNode column = originColumn ifTrue: [ exposed add: self class leftSymbol ].
+    aNode column = (originColumn + aFootprint sideLength - 1) ifTrue: [ exposed add: self class rightSymbol ].
+    
+    ^ exposed
+]
+
 { #category : 'initialization' }
 WS2DRectangularGridTopology >> initialize [
 
@@ -536,4 +553,29 @@ WS2DRectangularGridTopology >> removePossibilitiesFromLastColumnIn: aGrid [
 WS2DRectangularGridTopology >> removePossibilitiesFromLastRowIn: aGrid [
 
 	aGrid lastRowDo: [ :node | node keepTilesWithIDin: #( 0 1 3 4 ) ].
+]
+
+{ #category : 'collapse' }
+WS2DRectangularGridTopology >> selectBestCandidate: candidates forClass: aClass footprintSize: n in: aGrid [
+	"Among the candidates for class psoitioning, select the one that minimize the manhattan distance form all the classes it is connected to"
+	
+	 | connectedFootprints |
+    connectedFootprints := (self swSystem allConnectionsOf: aClass)
+        select: [ :each | self classFootprint includesKey: each ]
+        thenCollect: [ :each | self classFootprint at: each ].
+
+    connectedFootprints ifEmpty: [ ^ candidates shuffled first ].
+
+    ^ (candidates inject: nil -> SmallInteger maxVal into: [ :best :candidate |
+        | fakeFootprint totalDist |
+        fakeFootprint := WSFootprint new
+            nodes: (aGrid collectFootprintFrom: candidate size: n);
+            originNode: candidate;
+            sideLength: n;
+            yourself.
+        totalDist := connectedFootprints inject: 0 into: [ :sum :fp |
+            sum + (self manhattanDistanceBetweenFootprint: fakeFootprint andFootprint: fp) ].
+        totalDist < best value
+            ifTrue: [ candidate -> totalDist ]
+            ifFalse: [ best ] ]) key
 ]

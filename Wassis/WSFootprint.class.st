@@ -20,7 +20,7 @@ WSFootprint >> borderNodes: aTopology [
     "Return the nodes on the perimeter of the footprint"
     
     ^ self nodes select: [ :aNode |
-        (aTopology exposedDirectionsOf: aNode) notEmpty ]
+        (aTopology exposedDirectionsOf: aNode inFootprint: self) notEmpty ]
 ]
 
 { #category : 'accessing' }
@@ -48,7 +48,7 @@ WSFootprint >> innerNodes: aTopology [
 	"Return the nodes NOT on the perimeter of the footprint"
 
     ^ self nodes select: [ :aNode |
-        (aTopology exposedDirectionsOf: aNode) isEmpty ]
+        (aTopology exposedDirectionsOf: aNode inFootprint: self) isEmpty ]
 ]
 
 { #category : 'accessing' }
