@@ -47,7 +47,7 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
             (self swSystem allConnectionsOf: a) size > 
             (self swSystem allConnectionsOf: b) size ].
 
-    sortedClasses classes do: [ :eachClass | 
+    sortedClasses do: [ :eachClass | 
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
         originNode := self pickNodeForClass: eachClass footprintSize: sideLength in: aGrid.
@@ -438,7 +438,7 @@ WS2DGridTopology >> pickNodeForClass: aClass footprintSize: n in: aGrid [
     | pos target |
     pos := self layoutMatrix rowAt: aClass id.
     target := aGrid atRow: (pos first) atColumn: (pos last).
-    
+    self halt.
     (aGrid 
 		isValidTopLeft: target 
 		forSize: n 
