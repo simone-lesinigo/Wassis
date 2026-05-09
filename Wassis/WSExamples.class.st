@@ -189,7 +189,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: File
+		createForClass: RSShape
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

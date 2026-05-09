@@ -41,8 +41,13 @@ WS2DGridTopology class >> withGrid: aPoint [
 { #category : 'collapse' }
 WS2DGridTopology >> assignNodesToClassesIn: aGrid [
     "For each class select the node in which it will be placed"
-    
-    self swSystem classes do: [ :eachClass | 
+	 | sortedClasses |
+    sortedClasses := self swSystem classes 
+        asSortedCollection: [ :a :b |
+            (self swSystem allConnectionsOf: a) size > 
+            (self swSystem allConnectionsOf: b) size ].
+
+    sortedClasses classes do: [ :eachClass | 
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
         originNode := self pickNodeForClass: eachClass footprintSize: sideLength in: aGrid.

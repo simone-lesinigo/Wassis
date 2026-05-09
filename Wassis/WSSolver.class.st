@@ -396,7 +396,7 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 	^ self topology isValidToMove: aClass toNode: aNode onGraph: self graph.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'logging' }
 WSSolver >> logTotalTries [
 
 	| totalNumberOfTries |
