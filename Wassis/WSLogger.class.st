@@ -13,6 +13,8 @@ Class {
 WSLogger class >> log: aString [
 	
 	Transcript show: aString.
-	WSConfig isHeadless ifTrue: [ Transcript show: (' - PID: {1}' format: {LibC uniqueInstance getpid asString}) ].
+	WSConfig isHeadless ifTrue: [ 
+		Transcript show: (' - PID: {1} - time: {2}' format: {LibC uniqueInstance getpid asString . DateAndTime nowAsString }). 
+	].
 	Transcript cr
 ]
