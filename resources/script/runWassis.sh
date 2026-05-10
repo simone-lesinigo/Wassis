@@ -31,7 +31,9 @@ done
 echo "Execution of images correctly started"
 echo "Press CTRL + C to stop all the processes"
 
-wait
+for pid in "${pids[@]}"; do
+    wait "$pid"
+done
 
 exit 0
 
