@@ -560,22 +560,23 @@ WS2DRectangularGridTopology >> selectBestCandidate: candidates forClass: aClass 
 	"Among the candidates for class psoitioning, select the one that minimize the manhattan distance form all the classes it is connected to"
 	
 	 | connectedFootprints |
-    connectedFootprints := (self swSystem allConnectionsOf: aClass)
-        select: [ :each | self classFootprint includesKey: each ]
-        thenCollect: [ :each | self classFootprint at: each ].
+	 connectedFootprints := OrderedCollection new.
+	 (self swSystem allConnectionsOf: aClass) do: [ :eachConnection | 
+		self classFootprint at: eachConnection ifPresent: [ :each| connectedFootprints add: each ].
+	 ].
 
-    connectedFootprints ifEmpty: [ ^ candidates shuffled first ].
+    connectedFootprints ifEmpty: [ ^ candidates atRandom ].
 
-    ^ (candidates inject: nil -> SmallInteger maxVal into: [ :best :candidate |
-        | fakeFootprint totalDist |
-        fakeFootprint := WSFootprint new
-            nodes: (aGrid collectFootprintFrom: candidate size: n);
-            originNode: candidate;
-            sideLength: n;
-            yourself.
-        totalDist := connectedFootprints inject: 0 into: [ :sum :fp |
-            sum + (self manhattanDistanceBetweenFootprint: fakeFootprint andFootprint: fp) ].
-        totalDist < best value
-            ifTrue: [ candidate -> totalDist ]
-            ifFalse: [ best ] ]) key
+	^ candidates detectMin: [ :eachCandidate |
+		| fakeFootprint totalDist |
+		fakeFootprint := WSFootprint new
+      		nodes: (aGrid collectFootprintFrom: eachCandidate size: n);
+         originNode: eachCandidate;
+         sideLength: n;
+         yourself.
+		
+		totalDist := connectedFootprints inject: 0 into: [ :sum :fp | 
+			sum + (self manhattanDistanceBetweenFootprint: fakeFootprint andFootprint: fp).
+		]
+	]
 ]
