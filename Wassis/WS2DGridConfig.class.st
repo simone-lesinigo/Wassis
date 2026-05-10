@@ -25,7 +25,7 @@ WS2DGridConfig class >> gridSafetyMooreRadius [
 		configValue := self configFile atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 4.
 		self gridSafetyMooreRadius: (configValue atRandom max: 4).
 	].
-	Transcript show: GridSafetyMooreRadius; cr.
+
 	^ GridSafetyMooreRadius
 ]
 
