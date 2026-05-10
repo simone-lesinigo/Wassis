@@ -15,11 +15,17 @@ Class {
 { #category : 'accessing' }
 WS2DGridConfig class >> gridSafetyMooreRadius [
 	
-	GridSafetyMooreRadius ifNil: [ 
+"	GridSafetyMooreRadius ifNil: [ 
 		self gridSafetyMooreRadius: 
 			(self configFile atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 3).
-	].
+	]."
 
+	GridSafetyMooreRadius ifNil: [ 
+		| configValue |
+		configValue := self configFile atPath: {'WS2DGridTopology' . 'gridSafetyMooreRadius'} default: 4.
+		self gridSafetyMooreRadius: (configValue atRandom max: 4).
+	].
+	Transcript show: GridSafetyMooreRadius; cr.
 	^ GridSafetyMooreRadius
 ]
 

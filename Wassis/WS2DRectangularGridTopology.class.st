@@ -562,7 +562,7 @@ WS2DRectangularGridTopology >> selectBestCandidate: candidates forClass: aClass 
 	 | connectedFootprints |
 	 connectedFootprints := OrderedCollection new.
 	 (self swSystem allConnectionsOf: aClass) do: [ :eachConnection | 
-		self classFootprint at: eachConnection ifPresent: [ :each| connectedFootprints add: each ].
+		self classFootprint at: eachConnection ifPresent: [ :each | connectedFootprints add: each ].
 	 ].
 
     connectedFootprints ifEmpty: [ ^ candidates atRandom ].

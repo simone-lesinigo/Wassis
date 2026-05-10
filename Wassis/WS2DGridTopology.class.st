@@ -46,7 +46,7 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
         asSortedCollection: [ :a :b |
             (self swSystem allConnectionsOf: a) size > 
             (self swSystem allConnectionsOf: b) size ].
-
+	WS2DGridConfig gridSafetyMooreRadius: nil.
     sortedClasses do: [ :eachClass | 
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
