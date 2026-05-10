@@ -25,7 +25,6 @@ do
     "$PHARO_VM" --headless "$IMAGE" "$ST_FILE" > "$SCRIPT_DIR/log_$i.txt" 2>&1 &
     pid=$!
     pids+=($pid)
-    echo $pid > "$SCRIPT_DIR/pid_$i.txt"
 done
 
 echo "Execution of images correctly started"
