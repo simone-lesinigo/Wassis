@@ -9,7 +9,7 @@
         "classTileWeight": 1
     },
     "WS2DGridTopology": {
-        "gridSafetyMooreRadius": 3,
+        "gridSafetyMooreRadius": 8,
 
         "WS2DRectangularGridTopology": {
             "squareVisitorTileSize": 200,
