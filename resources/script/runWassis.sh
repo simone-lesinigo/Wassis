@@ -12,9 +12,9 @@ pids=()
 
 cleanup () {
     for pid in "${pids[@]}"; do
-        kill -9 $pid 2>/dev/null
+        kill -9 "$pid" 2>/dev/null
     done
-    
+    wait 2>/dev/null
     exit 0   
 }
 
