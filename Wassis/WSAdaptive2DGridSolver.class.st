@@ -52,6 +52,15 @@ WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 ]
 
 { #category : 'visualization' }
+WSAdaptive2DGridSolver >> createMDSClassesPositionViusalizationFor: aSolver [
+	
+	| newVisualizer |
+	newVisualizer := aSolver topology visualizer class new.
+	newVisualizer visualizeMDSPositionFor: aSolver.
+	self halt.
+]
+
+{ #category : 'visualization' }
 WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
 	
 	aSolver createTemporaryVisualization.
@@ -135,7 +144,8 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	
 	currentSolver addInitialMetrics.
 	
-	"self createTemporaryVisualizationFor: currentSolver."
+	self createMDSClassesPositionViusalizationFor: currentSolver.
+	self createTemporaryVisualizationFor: currentSolver.
    WSCurrentMetrics getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
 	self solver: currentSolver.

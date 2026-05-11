@@ -230,9 +230,9 @@ WSMDSLayoutStrategy >> createPositionMatrix [
 	em := self createEm.
 	lambda := self createDiagonalEigenvaluesMatrix.
 	
-	self matrix: (em * lambda)
+	self matrix: (em * lambda).
 
-	". self visualizeEmbedding"
+	"self visualizeEmbedding"
 	
 	
 	

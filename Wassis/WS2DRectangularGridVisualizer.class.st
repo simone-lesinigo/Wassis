@@ -321,11 +321,23 @@ WS2DRectangularGridVisualizer >> openCanvas [
 WS2DRectangularGridVisualizer >> positionOnCanvasForNode: aNode [
 	 "Returns the center position that a node should have on the canvas"
 	
-    | tileSize col row half |
-    tileSize := self tileVisitor class tileSize.
+	 ^ self positionOnCanvasForPoint: (aNode row - 1) @ (aNode column - 1)
+"    tileSize := self tileVisitor class tileSize.
     half := tileSize / 2.
     col := aNode column - 1.
     row := aNode row - 1.
+    ^ (col * tileSize + half) @ (row * tileSize + half)"
+]
+
+{ #category : 'calculating' }
+WS2DRectangularGridVisualizer >> positionOnCanvasForPoint: aPoint [
+	 "Returns the center position that a node should have on the canvas"
+	
+    | tileSize col row half |
+    tileSize := self tileVisitor class tileSize.
+    half := tileSize / 2.
+    col := aPoint y.
+    row := aPoint x.
     ^ (col * tileSize + half) @ (row * tileSize + half)
 ]
 
@@ -446,4 +458,37 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 
 	self refreshMouseHoverForPaths.
 	self canvas signalUpdate
+]
+
+{ #category : 'visualization' }
+WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
+	"Create the visualization of hte original MDS embedding"
+
+	| classes originalPositions groups |
+	self initializeWith: aSolver.
+	classes := aSolver topology swSystem classes.
+	originalPositions := aSolver topology layoutMatrix.
+	
+	groups := classes groupedBy: [ :eachClass | 
+        | pos |
+        pos := originalPositions rowAt: eachClass id.
+        (pos first) @ (pos last) ].
+
+	groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
+        | shape opacity popupText  |
+		  opacity := (classesInPos size * 0.2) min: 1.0.
+		
+		  shape := RSBox new.
+		  shape size: self tileVisitor class tileSize;
+				  color: (Color black alpha: opacity);
+				  position: (self positionOnCanvasForPoint: matrixPoint).
+				
+		   popupText := (classesInPos inject: '' into: [ :concat :class | concat , class name, String cr ]).
+			shape @ (RSPopup new text: popupText).
+			self canvas add: shape
+	].
+	
+
+	self canvas open
+	
 ]
