@@ -20,8 +20,14 @@ trap cleanup SIGINT SIGTERM SIGHUP
 
 for i in $(seq 1 $INSTANCES)
 do
-    "$PHARO_VM" --headless "$IMAGE" "$ST_FILE" > "$SCRIPT_DIR/../log/log_$i.txt" 2>&1 &
-    pids+=($!)
+    log_file="$SCRIPT_DIR/../log/log_$i.txt"
+    (
+        echo $BASHPID
+        exec "$PHARO_VM" --headless "$IMAGE" "$ST_FILE"
+    ) > "$log_file" 2>&1 &
+    
+    pid=$!
+    pids+=($pid)
 done
 
 echo "Execution of images correctly started"
