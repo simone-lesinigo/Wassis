@@ -10,24 +10,6 @@ Class {
 }
 
 { #category : 'adding' }
-WS2DRectangularGridVisualizer >> addBorderToCanvas: aCanvas [
-	"Add a black border to the canvas following its encompassing rectangle"
-	
-	| border bbox |
-	bbox := aCanvas shapes encompassingRectangle.
-   border := RSBox new
-   		color: Color transparent;
-      borderColor: Color black;
-      borderWidth: 20;
-      position: bbox center;
-      extent: bbox extent + 40;
-      yourself.
-   aCanvas add: border.
-	border pushBack.
-	
-]
-
-{ #category : 'adding' }
 WS2DRectangularGridVisualizer >> addClickTo: aShape [
 	"Add the inspect when left clicking, the contextual menu when rightclicking"
 	
@@ -476,19 +458,19 @@ WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
 
 	groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
         | shape opacity popupText  |
-		  opacity := (classesInPos size * 0.2) min: 1.0.
+		  opacity := (classesInPos size * 0.1) min: 1.0.
 		
 		  shape := RSBox new.
 		  shape size: self tileVisitor class tileSize;
 				  color: (Color black alpha: opacity);
 				  position: (self positionOnCanvasForPoint: matrixPoint).
 				
-		   popupText := (classesInPos inject: '' into: [ :concat :class | concat , class name, String cr ]).
+		   popupText := String cr join: (classesInPos collect: #name).
 			shape @ (RSPopup new text: popupText).
 			self canvas add: shape
 	].
 	
-
-	self canvas open
+	self canvas addBorderWithColor: Color black andWidth: 20.
+	self canvas openWithTitle: 'Wassis - MDS embedding'
 	
 ]
