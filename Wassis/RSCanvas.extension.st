@@ -2,7 +2,7 @@ Extension { #name : 'RSCanvas' }
 
 { #category : '*Wassis' }
 RSCanvas >> addBorderWithColor: aColor andWidth: aWidth [
-	"Add a black border to the canvas following its encompassing rectangle"
+	"Add a border to the canvas following its encompassing rectangle"
 	
 	| border bbox |
 	bbox := self shapes encompassingRectangle.
