@@ -1,7 +1,7 @@
 | swSystem adaptiveSolver |
 
 swSystem := WSSoftwareSystem 
-	createForClass: RSShape
+	createForClass: AlignmentMorph
 	usingStrategy: WSHierarchyClassCollector new.
 
 adaptiveSolver := 
