@@ -96,17 +96,18 @@ WSExamples class >> exampleGetClasses [
 	| res |
 	res := OrderedCollection new.
 	ProtoObject withAllSuperAndSubclassesDo: [ :eachClass |
+		eachClass isMeta ifFalse: [
 	    | sw connections |
 	    sw := WSSoftwareSystem 
 	        createForClass: eachClass 
 	        usingStrategy: WSHierarchyClassCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between: 30 and: 31) 
-	    	"and: [ (connections allSatisfy: [ :row | row value size < 4 ])  
-		 		and: [ (connections select: [ :row | row value size > 2 ]) size >= 4 ] 
-			]"
-		) ifTrue: [ res add: eachClass ] ].
+	    ((sw classes size between: 20 and: 30) 
+	    	and: [ (connections allSatisfy: [ :row | row value size < 7 ])  
+		 		"and: [ (connections select: [ :row | row value size > 2 ]) size >= 4 ] "
+			]
+		) ifTrue: [ res add: eachClass ] ]].
 	
 	res inspect
 ]
@@ -189,7 +190,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: RSShape
+		createForClass: InstructionClient 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

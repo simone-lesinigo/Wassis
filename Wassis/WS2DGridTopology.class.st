@@ -41,13 +41,8 @@ WS2DGridTopology class >> withGrid: aPoint [
 { #category : 'collapse' }
 WS2DGridTopology >> assignNodesToClassesIn: aGrid [
     "For each class select the node in which it will be placed"
-	 | sortedClasses |
-    sortedClasses := self swSystem classes 
-        asSortedCollection: [ :a :b |
-            (self swSystem allConnectionsOf: a) size > 
-            (self swSystem allConnectionsOf: b) size ].
 	
-    sortedClasses do: [ :eachClass | 
+    (self createClassesPlacingOrder) do: [ :eachClass | 
         | sideLength originNode footprintNodes footprint |
         sideLength := self footprintSizeFor: eachClass.
         originNode := self pickNodeForClass: eachClass footprintSize: sideLength in: aGrid.
@@ -118,6 +113,41 @@ WS2DGridTopology >> createAllPathTiles [
 WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 
 	^ self subclassResponsibility 
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> createClassesPlacingOrder [
+	"Create the order in which the class will be placed"
+	
+    | startClass visited queue result |
+    startClass := self swSystem classes  detectMax: [ :each | (self swSystem allConnectionsOf: each) size ].
+    
+    result := OrderedCollection new. 
+    visited := Set new.             
+    queue := OrderedCollection new.
+    
+    queue add: startClass.
+    visited add: startClass. 
+
+    [ queue notEmpty ] whileTrue: [
+        | current neighbors |
+        current := queue removeFirst.
+        result add: current.
+        
+        neighbors := (self swSystem allConnectionsOf: current) reject: [ :each | visited includes: each ].
+            
+        neighbors do: [ :each | 
+            visited add: each.
+            queue addLast: each ].
+    ].
+
+
+    self swSystem classes do: [ :each |
+        (visited includes: each) ifFalse: [ 
+            result add: each.
+            visited add: each ] ].
+
+    ^ result
 ]
 
 { #category : 'matrix' }
