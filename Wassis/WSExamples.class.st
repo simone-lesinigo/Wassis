@@ -199,6 +199,7 @@ WSExamples class >> exampleRunRectangularGrid [
 			andSwSystem: swSystem.
 
 	adaptiveSolver run.
+	adaptiveSolver inspect
 		
 
 ]

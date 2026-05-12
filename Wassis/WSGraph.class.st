@@ -485,6 +485,7 @@ WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pat
     pathB sourceClasses do: [ :c | mergedPath addSourceClass: c ].
     pathA destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
     pathB destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
+	 mergedPath touchedClasses: (mergedPath sourceClasses, mergedPath destinationClasses).
     self reassignSourceDestination: mergedPath.
     
     ^ mergedPath
