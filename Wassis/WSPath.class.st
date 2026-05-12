@@ -12,7 +12,9 @@ Class {
 		'pathID',
 		'sourceClasses',
 		'destinationClasses',
-		'touchedClasses'
+		'touchedClasses',
+		'efficiency',
+		'shortestPath'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -77,6 +79,18 @@ WSPath >> destinationClasses [
 WSPath >> destinationClasses: anObject [
 
 	destinationClasses  := anObject
+]
+
+{ #category : 'accessing' }
+WSPath >> efficiency [
+
+	^ efficiency
+]
+
+{ #category : 'accessing' }
+WSPath >> efficiency: anObject [
+
+	efficiency := anObject
 ]
 
 { #category : 'accessing' }
@@ -152,6 +166,18 @@ WSPath >> pathID [
 WSPath >> pathID: anObject [
 
 	pathID := anObject
+]
+
+{ #category : 'accessing' }
+WSPath >> shortestPath [
+
+	^ shortestPath
+]
+
+{ #category : 'accessing' }
+WSPath >> shortestPath: anObject [
+
+	shortestPath := anObject
 ]
 
 { #category : 'accessing' }

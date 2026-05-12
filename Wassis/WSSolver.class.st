@@ -447,7 +447,6 @@ WSSolver >> onContradiction [
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
 	self graph createPaths.
-	self graph setPathLengths.
 	"self graph destroyRandomLoops.
 	self graph deleteUselessCrossingFromAllPaths.	
 	self graph destroyPathLoops.
@@ -457,6 +456,8 @@ WSSolver >> reifyWFCPaths [
 	self graph paths keysAndValuesDo: [ :key :value |
 		self graph paths at: key put: value first.
 	].
+	self graph setPathLengths.
+	self graph calculatePathMetrics.
 
 	
 	

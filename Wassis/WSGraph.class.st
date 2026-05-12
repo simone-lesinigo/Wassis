@@ -117,6 +117,49 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
         detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = aPathNode ] ]
 ]
 
+{ #category : 'pathReification' }
+WSGraph >> calculatePathMetrics [
+	"Calculate the efficiency of a paths"
+	WSLogger log: 'Started calculating path metrics'.
+	self paths do: [ :eachPath | 
+		eachPath touchedClasses size = 2 
+			ifTrue: [ 
+				| shortestPath |
+				shortestPath := 
+					self findOptimalPathWithID: eachPath pathID
+					andClasses: 
+						(eachPath sourceClasses first tileInWhichCollapsed wsClass) -> (eachPath destinationClasses first tileInWhichCollapsed wsClass).
+				eachPath efficiency: (shortestPath size / eachPath length).
+				eachPath shortestPath: (shortestPath copy)
+			] 
+			ifFalse: [
+    | pairs allPaths backbone optimalNodes |
+    pairs := eachPath sourceClasses flatCollect: [ :src |
+        eachPath destinationClasses collect: [ :dst |
+            (src tileInWhichCollapsed wsClass) -> (dst tileInWhichCollapsed wsClass) ] ].
+
+    allPaths := pairs collect: [ :pair |
+        self findOptimalPathWithID: eachPath pathID andClasses: pair ].
+
+    backbone := allPaths 
+        inject: allPaths first 
+        into: [ :longest :p | p size > longest size ifTrue: [p] ifFalse: [longest] ].
+
+    optimalNodes := backbone asSet.
+
+    pairs doWithIndex: [ :pair :i |
+        | p |
+        p := self findOptimalPathWithID: eachPath pathID 
+                  andClasses: pair 
+                  zeroNodes: optimalNodes.
+        optimalNodes addAll: p ].
+
+    eachPath efficiency: (optimalNodes size / eachPath length).
+    eachPath shortestPath: optimalNodes asOrderedCollection.
+]
+	]
+]
+
 { #category : 'pathOptimization' }
 WSGraph >> clearPath: aPath [
 	"Clear a path replacing each tile with the empty tile"
@@ -364,6 +407,30 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath
 ]
 
+{ #category : 'pathOptimization' }
+WSGraph >> findOptimalPathWithID: pathID andClasses: classes zeroNodes: zeroNodes [
+    | footprint1 footprint2 shortestPath |
+    footprint1 := self topology classFootprint at: classes key.
+    footprint2 := self topology classFootprint at: classes value.
+    shortestPath := nil.
+    
+    (footprint1 borderNodes: self topology) do: [ :node1 |
+        (footprint2 borderNodes: self topology) do: [ :node2 |
+            | candidate |
+            candidate := self
+                runDijkstraFrom: node1
+                to: node2
+                withExtraNodes: { node1. node2 }
+                pathID: pathID
+                zeroNodes: zeroNodes.
+            candidate isNotEmpty ifTrue: [
+                (shortestPath isNil or: [ candidate size < shortestPath size ])
+                    ifTrue: [ shortestPath := candidate ] ] ] ].
+    shortestPath removeFirst.
+    shortestPath removeLast.
+    ^ shortestPath
+]
+
 { #category : 'pathReification' }
 WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
     | node tile reverseDir |
@@ -530,7 +597,8 @@ WSGraph >> mergePathsWithSameID [
                 pathA := bestPair key.
                 pathB := bestPair value.
                 mergedPath := self mergePath: pathA withPath: pathB usingConnection: bestShortestPath pathID: pathID.
-                collectionOfPaths remove: pathA; remove: pathB; add: mergedPath ] ] ]
+                collectionOfPaths remove: pathA; remove: pathB; add: mergedPath.
+					  ] ] ]
 ]
 
 { #category : 'accessing' }
@@ -824,18 +892,27 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
 
 	 dijkstraEdges := OrderedCollection new.
-    dijkstraNodes := OrderedCollection new.
+    dijkstraNodes := Set new.
 	
     dijkstraNodes addAll: extraNodes;
-    				   addAll: (self paths at: pathID) nodes;
-    				   addAll: (self nodes flattened select: [ :eachNode | eachNode tileInWhichCollapsed isEmptyTile ]).
+    				   addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
 
     dijkstraNodes do: [ :eachNode |
         eachNode outgoingEdges do: [ :eachEdge |
-            | targetNode |
+            | targetNode weight shouldSkip |
             targetNode := eachEdge target.
             (dijkstraNodes includes: targetNode) ifTrue: [
-                dijkstraEdges add: { eachNode . targetNode . 1 } ] ] ].
+				shouldSkip := false.
+					(eachNode isPathNode  and: [targetNode isPathNode ]) ifTrue: [ 
+						(eachNode tileInWhichCollapsed pathIDs anySatisfy: [ :e | targetNode tileInWhichCollapsed pathIDs includes: e ])
+							ifTrue:[ shouldSkip := true].
+					].
+					shouldSkip ifFalse: [  
+                weight := (targetNode isPathNode and: [
+                               (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
+                              ifTrue: [ 2 ]
+                              ifFalse: [ 1 ].
+                dijkstraEdges add: { eachNode . targetNode . weight } ] ] ]].
 
     dijkstra := AIDijkstra new.
     dijkstra nodes: dijkstraNodes.
@@ -850,6 +927,41 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     ^ shortestPath
 ]
 
+{ #category : 'pathOptimization' }
+WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID zeroNodes: zeroNodes [
+    | dijkstra dijkstraNodes dijkstraEdges shortestPath |
+    dijkstraEdges := OrderedCollection new.
+    dijkstraNodes := Set new.
+    
+    dijkstraNodes 
+        addAll: extraNodes;
+        addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
+    
+    dijkstraNodes do: [ :eachNode |
+        eachNode outgoingEdges do: [ :eachEdge |
+            | targetNode weight |
+            targetNode := eachEdge target.
+            (dijkstraNodes includes: targetNode) ifTrue: [
+                weight := (zeroNodes includes: targetNode)
+                    ifTrue: [ 0 ]
+                    ifFalse: [
+                        (targetNode isPathNode and: [
+                            (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
+                                ifTrue: [ 2 ]
+                                ifFalse: [ 1 ] ].
+                dijkstraEdges add: { eachNode. targetNode. weight } ] ] ].
+    
+    dijkstra := AIDijkstra new.
+    dijkstra nodes: dijkstraNodes.
+    dijkstra
+        edges: dijkstraEdges
+        from: #first
+        to: #second
+        weight: #third.
+    shortestPath := (dijkstra runFrom: startNode to: endNode) asOrderedCollection.
+    ^ shortestPath
+]
+
 { #category : 'collapse' }
 WSGraph >> selectNextNodeToCollapse [
 	"Returns the cell to collapse"
@@ -861,12 +973,19 @@ WSGraph >> selectNextNodeToCollapse [
 { #category : 'pathReification' }
 WSGraph >> setPathLengths [
 
-	self paths keysAndValuesDo: [ :key :allPaths |
+"	self paths keysAndValuesDo: [ :key :allPaths |
 		allPaths do: [ :eachPath | 
 			eachPath nodes: eachPath nodes asOrderedCollection.
 			eachPath computeLength 
 		]
-	]
+	]."
+
+		self paths keysAndValuesDo: [ :key :eachPath |
+
+			eachPath nodes: eachPath nodes asOrderedCollection.
+			eachPath computeLength 
+		]
+
 ]
 
 { #category : 'accessing' }
