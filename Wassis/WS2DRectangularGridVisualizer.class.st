@@ -151,11 +151,11 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	<toDO> "Change again to the optimized version"
 	self initializeWith: aSolver.
 	
-	self canvas addAll: (aSolver getNotEmptyNodes collect: [ :eachNode | self createShapeFor: eachNode ]).
+	self canvas addAll: (aSolver getFlattenedNodes collect: [ :eachNode | self createShapeFor: eachNode ]).
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
 	"self registerMouseHoverForPaths."
-	
+	self addGridLabelsToCanvas: self canvas.
 	"self groupFootprintShapes."
 	WSConfig isNotHeadless ifTrue: [ self canvas openWithTitle: 'Wassis'. ].
 	

@@ -141,18 +141,17 @@ WSGraph >> calculatePathMetrics [
     allPaths := pairs collect: [ :pair |
         self findOptimalPathWithID: eachPath pathID andClasses: pair ].
 
-    backbone := allPaths 
-        inject: allPaths first 
-        into: [ :longest :p | p size > longest size ifTrue: [p] ifFalse: [longest] ].
-
-    optimalNodes := backbone asSet.
-
-    pairs doWithIndex: [ :pair :i |
-        | p |
-        p := self findOptimalPathWithID: eachPath pathID 
-                  andClasses: pair 
-                  zeroNodes: optimalNodes.
-        optimalNodes addAll: p ].
+	backbone := allPaths detectMax: [ :each | each size ].
+	optimalNodes := backbone asSet.
+	
+	eachPath sourceClasses flatCollect: [ :eachSource |
+		| p |
+		p := self 
+			findOptimalPathWithID: eachPath pathID 
+			fromClass: eachSource tileInWhichCollapsed wsClass
+			toBackbone: optimalNodes.
+		optimalNodes addAll: p.
+	].
 
     eachPath efficiency: (optimalNodes size / eachPath length).
     eachPath shortestPath: optimalNodes asOrderedCollection.
@@ -407,27 +406,27 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
-WSGraph >> findOptimalPathWithID: pathID andClasses: classes zeroNodes: zeroNodes [
-    | footprint1 footprint2 shortestPath |
-    footprint1 := self topology classFootprint at: classes key.
-    footprint2 := self topology classFootprint at: classes value.
+{ #category : 'as yet unclassified' }
+WSGraph >> findOptimalPathWithID: pathID fromClass: aClass toBackbone: backboneNodes [
+	
+	| footprint shortestPath |
+    footprint := self topology classFootprint at: aClass.
     shortestPath := nil.
     
-    (footprint1 borderNodes: self topology) do: [ :node1 |
-        (footprint2 borderNodes: self topology) do: [ :node2 |
+    (footprint borderNodes: self topology) do: [ :node1 |
+        backboneNodes do: [ :node2 |
             | candidate |
             candidate := self
                 runDijkstraFrom: node1
                 to: node2
                 withExtraNodes: { node1. node2 }
                 pathID: pathID
-                zeroNodes: zeroNodes.
+					 zeroNodes: backboneNodes.
             candidate isNotEmpty ifTrue: [
                 (shortestPath isNil or: [ candidate size < shortestPath size ])
                     ifTrue: [ shortestPath := candidate ] ] ] ].
+    shortestPath ifNil: [ ^ #() ].
     shortestPath removeFirst.
-    shortestPath removeLast.
     ^ shortestPath
 ]
 
@@ -903,14 +902,17 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
             targetNode := eachEdge target.
             (dijkstraNodes includes: targetNode) ifTrue: [
 				shouldSkip := false.
-					(eachNode isPathNode  and: [targetNode isPathNode ]) ifTrue: [ 
-						(eachNode tileInWhichCollapsed pathIDs anySatisfy: [ :e | targetNode tileInWhichCollapsed pathIDs includes: e ])
-							ifTrue:[ shouldSkip := true].
-					].
+				(eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
+				    (eachNode tileInWhichCollapsed pathIDs anySatisfy: [ :id |
+				        id ~= pathID and: [ targetNode tileInWhichCollapsed pathIDs includes: id ] ])
+				            ifTrue: [ shouldSkip := true ] ].
+				(eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
+				    ((targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection) includes: pathID) 
+				            ifFalse: [ shouldSkip := true ] ].
 					shouldSkip ifFalse: [  
                 weight := (targetNode isPathNode and: [
                                (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
-                              ifTrue: [ 2 ]
+                              ifTrue: [ 1 ]
                               ifFalse: [ 1 ].
                 dijkstraEdges add: { eachNode . targetNode . weight } ] ] ]].
 
@@ -927,30 +929,37 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'as yet unclassified' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID zeroNodes: zeroNodes [
+    "Run dijkstra from startNode to endNode"
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
     dijkstraEdges := OrderedCollection new.
     dijkstraNodes := Set new.
-    
-    dijkstraNodes 
-        addAll: extraNodes;
-        addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
-    
+	
+    dijkstraNodes addAll: extraNodes;
+                   addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
     dijkstraNodes do: [ :eachNode |
         eachNode outgoingEdges do: [ :eachEdge |
-            | targetNode weight |
+            | targetNode weight shouldSkip |
             targetNode := eachEdge target.
             (dijkstraNodes includes: targetNode) ifTrue: [
-                weight := (zeroNodes includes: targetNode)
-                    ifTrue: [ 0 ]
-                    ifFalse: [
-                        (targetNode isPathNode and: [
-                            (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
-                                ifTrue: [ 2 ]
-                                ifFalse: [ 1 ] ].
-                dijkstraEdges add: { eachNode. targetNode. weight } ] ] ].
-    
+                shouldSkip := false.
+                (eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
+                    (eachNode tileInWhichCollapsed pathIDs anySatisfy: [ :id |
+                        id ~= pathID and: [ targetNode tileInWhichCollapsed pathIDs includes: id ] ])
+                            ifTrue: [ shouldSkip := true ] ].
+                (eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
+                    ((targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection) includes: pathID)
+                            ifFalse: [ shouldSkip := true ] ].
+                shouldSkip ifFalse: [
+                    weight := (zeroNodes includes: targetNode)
+                        ifTrue: [ 0 ]
+                        ifFalse: [
+                            (targetNode isPathNode and: [
+                                (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
+                                    ifTrue: [ 1 ]
+                                    ifFalse: [ 1 ] ].
+                    dijkstraEdges add: { eachNode. targetNode. weight } ] ] ] ].
     dijkstra := AIDijkstra new.
     dijkstra nodes: dijkstraNodes.
     dijkstra

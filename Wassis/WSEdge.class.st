@@ -37,6 +37,12 @@ WSEdge >> direction: anObject [
 	direction := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WSEdge >> oppositeDirection [
+	
+	^ reverseEdge direction
+]
+
 { #category : 'accessing' }
 WSEdge >> reverseEdge [
 
