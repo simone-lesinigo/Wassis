@@ -120,7 +120,6 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
 { #category : 'pathReification' }
 WSGraph >> calculatePathMetrics [
 	"Calculate the efficiency of a paths"
-	WSLogger log: 'Started calculating path metrics'.
 	self paths do: [ :eachPath | 
 		eachPath touchedClasses size = 2 
 			ifTrue: [ 
@@ -220,6 +219,36 @@ WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNod
 WSGraph >> collectFootprintFrom: aNode size: n [
 	
 	^ self structure collectFootprintFrom: aNode size: n
+]
+
+{ #category : 'as yet unclassified' }
+WSGraph >> computeShortestPathFor: aPath [
+    "Compute the shortest path nodes for aPath. Returns an OrderedCollection of nodes."
+    aPath touchedClasses size = 2
+        ifTrue: [
+            | shortestPath |
+            shortestPath := self
+                findOptimalPathWithID: aPath pathID
+                andClasses: (aPath sourceClasses first tileInWhichCollapsed wsClass)
+                          -> (aPath destinationClasses first tileInWhichCollapsed wsClass).
+            ^ shortestPath asOrderedCollection ]
+        ifFalse: [
+            | pairs allPaths backbone optimalNodes |
+            pairs := aPath sourceClasses flatCollect: [ :src |
+                aPath destinationClasses collect: [ :dst |
+                    (src tileInWhichCollapsed wsClass) -> (dst tileInWhichCollapsed wsClass) ] ].
+            allPaths := pairs collect: [ :pair |
+                self findOptimalPathWithID: aPath pathID andClasses: pair ].
+            backbone := allPaths detectMax: [ :each | each size ].
+            optimalNodes := backbone asSet.
+            aPath sourceClasses do: [ :eachSource |
+                | p |
+                p := self
+                    findOptimalPathWithID: aPath pathID
+                    fromClass: eachSource tileInWhichCollapsed wsClass
+                    toBackbone: optimalNodes.
+                optimalNodes addAll: p ].
+            ^ optimalNodes asOrderedCollection ]
 ]
 
 { #category : 'deprecated' }
@@ -683,7 +712,11 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		
 		generatedPath sourceClasses: (((self topology classFootprint at: classes key) borderNodes: self topology) first).
 		generatedPath destinationClasses: (((self topology classFootprint at: classes value) borderNodes: self topology) first)."
-		optimalPath := generatedPath shortestPath.
+		
+		
+		
+		
+		optimalPath := self computeShortestPathFor: generatedPath.
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
 	]. 
 
@@ -914,12 +947,15 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
             (dijkstraNodes includes: targetNode) ifTrue: [
 				shouldSkip := false.
 				(eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
-				    (eachNode tileInWhichCollapsed pathIDs anySatisfy: [ :id |
+				    (targetNode tileInWhichCollapsed pathIDs anySatisfy: [ :id |
 				        id ~= pathID and: [ targetNode tileInWhichCollapsed pathIDs includes: id ] ])
 				            ifTrue: [ shouldSkip := true ] ].
 				(eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
 				    ((targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection) includes: pathID) 
 				            ifFalse: [ shouldSkip := true ] ].
+				(eachNode isClassNode and: [ targetNode isPathNode ]) ifTrue: [
+    				((eachNode tileInWhichCollapsed edges at: eachEdge direction) includes: pathID)
+        ifFalse: [ shouldSkip := true ] ].
 					shouldSkip ifFalse: [  
                 weight := (targetNode isPathNode and: [
                                (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
@@ -1091,11 +1127,20 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
     
     optimalPath do: [ :eachNode |
         | neighborsDir dict |
+		  dict := Dictionary new.
+			eachNode isPathNode ifTrue: [ 
+				eachNode tileInWhichCollapsed edges keysAndValuesDo: [ :key :value |
+					(value includes: #'00') ifFalse: [ dict at: key put: value first ]
+				]
+			].
         neighborsDir := eachNode outgoingEdges 
     			select: [ :eachEdge |
- 					(optimalSet includes: eachEdge target) or: [ eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] ] ]
+ 					(optimalSet includes: eachEdge target) 
+					or: [ 
+						(eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ])
+						" and: [ (eachEdge target tileInWhichCollapsed edges at: eachEdge oppositeDirection) includes: pathID ]" ] ]
     			thenCollect: [ :eachEdge | eachEdge direction ].
-		dict := Dictionary new.
+		
 		neighborsDir do: [ :eachDir | dict at: eachDir put: pathID ].
 		eachNode collapseTo: (self topology tileset tileForDirections: dict)
 	].
