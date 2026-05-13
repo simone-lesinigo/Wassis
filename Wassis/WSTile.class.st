@@ -64,6 +64,12 @@ WSTile >> isClassTile [
 ]
 
 { #category : 'testing' }
+WSTile >> isCrossingTile [ 
+	
+	^ false
+]
+
+{ #category : 'testing' }
 WSTile >> isEmptyTile [
 	
 	^ false

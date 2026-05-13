@@ -53,13 +53,14 @@ WSTileset >> tileForDirections: dirToPathID [
 	| pathIDs candidates |
 	pathIDs := Set new.
 	candidates := OrderedCollection new.
-	pathIDs addAll: (dirToPathID select: [ :eachValue | eachValue ~= '00' asSymbol ]).
 	
-	pathIDs do: [ :eachPathID | candidates addAll: (self pathTiles at: eachPathID) ].
+	pathIDs addAll: (dirToPathID select: [ :eachValue | eachValue ~= '00' ]).
 	
+	pathIDs flattened do: [ :eachPathID | candidates addAll: (self pathTiles at: eachPathID) ].
+
 	^ candidates detect: [ :eachTile |
 	    dirToPathID associations allSatisfy: [ :assoc |
-	        (eachTile edges at: assoc key) includes: assoc value ] ]
+	        (eachTile edges at: assoc key) includes: assoc value  ] ]
 	
 
 ]

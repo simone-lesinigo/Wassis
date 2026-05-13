@@ -84,8 +84,8 @@ WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
 		aSolver graph 
         optimizePathsWithPathIDs: { aPathID } 
         allowExitsModification: allowExits.
-    
-    aSolver updateVisualizationFor: touchedNodes.
+    aSolver createVisualization.
+    "aSolver updateVisualizationFor: touchedNodes."
 ]
 
 { #category : 'accessing' }

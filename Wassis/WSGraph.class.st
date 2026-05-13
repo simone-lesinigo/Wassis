@@ -169,7 +169,16 @@ WSGraph >> clearPath: aPath [
 
 	aPath nodes do: [ :eachNode |
 		touchedNodes add: eachNode.
-		eachNode collapseTo: emptyTile.
+		eachNode tileInWhichCollapsed isCrossingTile 
+			ifTrue: [ 
+				| newDirToPathID |
+                newDirToPathID := eachNode tileInWhichCollapsed edges
+                    reject: [ :edge | edge includes: aPath pathID ].
+					newDirToPathID keysAndValuesDo: [ :key :value | newDirToPathID at: key put: value first ].
+				eachNode collapseTo: (self topology tileset tileForDirections: newDirToPathID)
+			]
+			ifFalse: [ 
+				eachNode collapseTo: emptyTile. ]	
 	].
 
 	aPath nodes: OrderedCollection new.
@@ -406,8 +415,9 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'pathOptimization' }
 WSGraph >> findOptimalPathWithID: pathID fromClass: aClass toBackbone: backboneNodes [
+	"Find the optimal path bewteen a class and another path"
 	
 	| footprint shortestPath |
     footprint := self topology classFootprint at: aClass.
@@ -667,12 +677,13 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 		
 		generatedPath := self paths at: eachPathID.
 		
-		classes := self topology allPathIDs keyAtValue: eachPathID.
+"		classes := self topology allPathIDs keyAtValue: eachPathID.
 		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
 		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
 		
 		generatedPath sourceClasses: (((self topology classFootprint at: classes key) borderNodes: self topology) first).
-		generatedPath destinationClasses: (((self topology classFootprint at: classes value) borderNodes: self topology) first).
+		generatedPath destinationClasses: (((self topology classFootprint at: classes value) borderNodes: self topology) first)."
+		optimalPath := generatedPath shortestPath.
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
 	]. 
 
@@ -929,7 +940,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     ^ shortestPath
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'pathOptimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID zeroNodes: zeroNodes [
     "Run dijkstra from startNode to endNode"
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -1060,10 +1071,37 @@ WSGraph >> substitute: oldPath with: optimalPath [
 WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
 
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
+	
+	generatedPath touchedClasses size = 2 
+		ifTrue: [ self substitute: generatedPath with: optimalPath. ]
+		ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ]
+	
 
-	self substitute: generatedPath with: optimalPath.
+	"aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]"
+]
 
-	aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]
+{ #category : 'as yet unclassified' }
+WSGraph >> substituteMergedPath: oldPath with: optimalPath [
+    "Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
+    | pathID optimalSet |
+    pathID := oldPath pathID.
+    self clearPath: oldPath.
+    
+    optimalSet := optimalPath asSet.
+    
+    optimalPath do: [ :eachNode |
+        | neighborsDir dict |
+        neighborsDir := eachNode outgoingEdges 
+    			select: [ :eachEdge |
+ 					(optimalSet includes: eachEdge target) or: [ eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] ] ]
+    			thenCollect: [ :eachEdge | eachEdge direction ].
+		dict := Dictionary new.
+		neighborsDir do: [ :eachDir | dict at: eachDir put: pathID ].
+		eachNode collapseTo: (self topology tileset tileForDirections: dict)
+	].
+ 
+    
+
 ]
 
 { #category : 'accessing' }
