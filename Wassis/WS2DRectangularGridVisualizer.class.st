@@ -25,7 +25,7 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 ]
 
 { #category : 'adding' }
-WS2DRectangularGridVisualizer >> addGridLabelsToCanvas: aCanvas [
+WS2DRectangularGridVisualizer >> addGridLabelsToCanvas2: aCanvas [
 	"Add the numbers of rows and columns"
 
     | tileSize halfTileSize offset fontSize |
@@ -50,9 +50,39 @@ WS2DRectangularGridVisualizer >> addGridLabelsToCanvas: aCanvas [
         label := RSLabel new
             text: row printString;
             fontSize: fontSize;
-            position: offset negated @ (y - halfTileSize);
+            position: offset negated @ (y - halfTileSize );
             yourself.
         aCanvas add: label ]
+]
+
+{ #category : 'adding' }
+WS2DRectangularGridVisualizer >> addGridLabelsToCanvas: aCanvas [
+    "Add the numbers of rows and columns wrapping around the content"
+
+    | rect tileSize fontSize |
+    rect := aCanvas nodes encompassingRectangle.
+    tileSize := self tileVisitor class tileSize.
+    fontSize := tileSize * 0.35.
+    
+    1 to: self solver graph structure nColumns do: [ :col |
+        | label |
+        label := RSLabel new
+            text: col printString;
+            fontSize: fontSize;
+            yourself.
+        aCanvas add: label.
+        label position: (rect left + (col * tileSize) - (tileSize / 2)) @ (rect top - (fontSize)).
+    ].
+    
+    1 to: self solver graph structure nRows do: [ :row |
+        | label |
+        label := RSLabel new
+            text: row printString;
+            fontSize: fontSize;
+            yourself.
+        aCanvas add: label.
+        label position: (rect left - fontSize ) @ (rect top + (row * tileSize) - (tileSize / 2) ).
+    ]
 ]
 
 { #category : 'adding' }
@@ -155,7 +185,8 @@ WS2DRectangularGridVisualizer >> createVisualizationFor: aSolver [
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
 	"self registerMouseHoverForPaths."
-	self addGridLabelsToCanvas: self canvas.
+"	self canvas addBorderWithColor: Color black andWidth: 20.
+	self addGridLabelsToCanvas: self canvas."
 	"self groupFootprintShapes."
 	WSConfig isNotHeadless ifTrue: [ self canvas openWithTitle: 'Wassis'. ].
 	
@@ -459,7 +490,7 @@ WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
 
 	groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
         | shape opacity popupText  |
-		  opacity := (classesInPos size * 0.1) min: 1.0.
+		  opacity := (classesInPos size * 0.2) min: 1.0.
 		
 		  shape := RSBox new.
 		  shape size: self tileVisitor class tileSize;
@@ -470,8 +501,8 @@ WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
 			shape @ (RSPopup new text: popupText).
 			self canvas add: shape
 	].
-	
 	self canvas addBorderWithColor: Color black andWidth: 20.
+	self addGridLabelsToCanvas: self canvas.
 	self canvas openWithTitle: 'Wassis - MDS embedding'
 	
 ]

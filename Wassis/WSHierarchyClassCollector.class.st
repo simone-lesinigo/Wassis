@@ -30,7 +30,7 @@ WSHierarchyClassCollector >> createNodesFor: aClass [
 	aClass withAllSuperAndSubclassesDo: 
 		[ :eachClass | 
 			dict at: eachClass put: (WSClass new id: id; name: eachClass name).
-			id := id + 1 ].
+			id := id + 1 ] .
 	
 	^ dict
 ]

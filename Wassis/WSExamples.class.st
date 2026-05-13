@@ -123,10 +123,10 @@ WSExamples class >> exampleGetClasses2 [
 	        usingStrategy: WSHierarchyClassCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between: 10 and: 20) 
-	    	"and: [ (connections allSatisfy: [ :row | row value size < 8 ])  
-		 		and: [ (connections select: [ :row | row value size > 4 ]) size >= 2 ] 
-			]"
+	    ((sw classes size between: 25 and: 30) 
+	    	and: [ (connections allSatisfy: [ :row | row value size < 5 ])  
+		 		"and: [ (connections select: [ :row | row value size > 4 ]) size >= 2 ] "
+			]
 		) ifTrue: [ res add: eachClass ] ].
 	
 	res inspect
@@ -134,13 +134,13 @@ WSExamples class >> exampleGetClasses2 [
 
 { #category : 'WSAdaptiveSolver' }
 WSExamples class >> exampleLoadSolutionFromFile [
-
+"solution-13-05-2026_13h34m13s"
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-13-05-2026_09h32m27s.fuel') fullName.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-11-05-2026_08h57m24s.fuel') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
-"	adaptiveSolver inspect"
+	adaptiveSolver inspect
 ]
 
 { #category : 'WSSolver' }
@@ -190,7 +190,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient 
+		createForClass: PMIterativeProcess 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 
