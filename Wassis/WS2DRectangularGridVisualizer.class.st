@@ -476,33 +476,58 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 
 { #category : 'visualization' }
 WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
-	"Create the visualization of hte original MDS embedding"
-
-	| classes originalPositions groups |
-	self initializeWith: aSolver.
-	classes := aSolver topology swSystem classes.
-	originalPositions := aSolver topology layoutMatrix.
-	
-	groups := classes groupedBy: [ :eachClass | 
+    "Create the visualization of the original MDS embedding with background tiles"
+    | classes originalPositions groups |
+    self initializeWith: aSolver.
+    classes := aSolver topology swSystem classes.
+    originalPositions := aSolver topology layoutMatrix.
+    
+    groups := classes groupedBy: [ :eachClass | 
         | pos |
         pos := originalPositions rowAt: eachClass id.
         (pos first) @ (pos last) ].
 
-	groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
-        | shape opacity popupText  |
-		  opacity := (classesInPos size * 0.2) min: 1.0.
-		
-		  shape := RSBox new.
-		  shape size: self tileVisitor class tileSize;
-				  color: (Color black alpha: opacity);
-				  position: (self positionOnCanvasForPoint: matrixPoint).
-				
-		   popupText := String cr join: (classesInPos collect: #name).
-			shape @ (RSPopup new text: popupText).
-			self canvas add: shape
-	].
-	self canvas addBorderWithColor: Color black andWidth: 20.
-	self addGridLabelsToCanvas: self canvas.
-	self canvas openWithTitle: 'Wassis - MDS embedding'
-	
+    1 to: aSolver graph structure nRows do: [ :row |
+        1 to: aSolver graph structure nColumns do: [ :col |
+            | currentPoint |
+            currentPoint := col @ row.
+            
+            (groups includesKey: currentPoint) ifFalse: [
+                | backgroundTile |
+                backgroundTile := RSBox new.
+                backgroundTile 
+                    size: self tileVisitor class tileSize;
+                    color: Color white;
+                    withBorder;
+                    position: (self positionOnCanvasForPoint: currentPoint).
+                self canvas add: backgroundTile.
+            ].
+        ]
+    ].
+
+    groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
+        | shape label composite popupText |
+        shape := RSBox new.
+        shape size: self tileVisitor class tileSize;
+               color: Color black.
+        
+        label := RSLabel new.
+        label text: classesInPos size printString;
+               color: Color white;
+               fontSize: self tileVisitor class tileSize * 0.6.
+        
+        composite := RSComposite new 
+			add: shape;
+         add: label;
+        	adjustToChildren;
+        	position: (self positionOnCanvasForPoint: matrixPoint).
+        
+        popupText := String cr join: (classesInPos collect: #name).
+        composite @ (RSPopup new text: popupText).
+        
+        self canvas add: composite ].
+    
+    self canvas addBorderWithColor: Color black andWidth: 20.
+    self addGridLabelsToCanvas: self canvas.
+    self canvas openWithTitle: 'Wassis - MDS embedding'
 ]
