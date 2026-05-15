@@ -3,10 +3,8 @@ Presenter to visualize the animation of WFC
 "
 Class {
 	#name : 'WSAnimationPresenter',
-	#superclass : 'SpPresenter',
+	#superclass : 'WSCanvasPresenter',
 	#instVars : [
-		'roassalPresenter',
-		'visualizer',
 		'resetButton',
 		'stepBackButton',
 		'playAndPauseButton',
@@ -17,15 +15,6 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Presenter'
 }
-
-{ #category : 'instance creation' }
-WSAnimationPresenter class >> withVisualizer: aVisualizer [
-	
-	^ self basicNew
-        visualizer: aVisualizer;
-        initialize;
-        yourself
-]
 
 { #category : 'initialization' }
 WSAnimationPresenter >> applyLayout [ 
@@ -174,24 +163,6 @@ WSAnimationPresenter >> resetButton: anObject [
 	resetButton := anObject
 ]
 
-{ #category : 'accessing' }
-WSAnimationPresenter >> roassalPresenter [
-
-	^ roassalPresenter
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> roassalPresenter: anObject [
-
-	roassalPresenter := anObject
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> setCanvas: aCanvas [
-	
-	roassalPresenter canvas: aCanvas
-]
-
 { #category : 'control' }
 WSAnimationPresenter >> setEnableTo: aBoolean forButtons: colOfButtons [
 	
@@ -276,16 +247,4 @@ WSAnimationPresenter >> updateStatusLabel [
 	 | percentage |
     percentage := (visualizer index / visualizer maxIndex * 100.0) printShowingDecimalPlaces: 1.
 	 statusLabel label: 'Step: ' , visualizer index printString , ' / ' , visualizer maxIndex printString, ' (' , percentage , '%)'
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> visualizer [
-
-	^ visualizer
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> visualizer: anObject [
-
-	visualizer := anObject
 ]

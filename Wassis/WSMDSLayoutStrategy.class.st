@@ -9,11 +9,13 @@ Class {
 		'matrix',
 		'eigenvalues',
 		'eigenvectors',
-		'dimension'
+		'dimension',
+		'initialClassDistances',
+		'classDistances'
 	],
 	#classInstVars : [
 		'swSystemHash',
-		'cachedPositionMatrix',
+		'cachedInstance',
 		'cachedDimension',
 		'computationTime'
 	],
@@ -35,15 +37,15 @@ WSMDSLayoutStrategy class >> cachedDimension: anObject [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedPositionMatrix [
+WSMDSLayoutStrategy class >> cachedInstance [
 
-	^ cachedPositionMatrix
+	^ cachedInstance
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedPositionMatrix: anObject [
+WSMDSLayoutStrategy class >> cachedInstance: anObject [
 
-	cachedPositionMatrix := anObject
+	cachedInstance := anObject
 ]
 
 { #category : 'accessing' }
@@ -64,7 +66,7 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 	
 	| instance dict |
 	
-	(self cachedPositionMatrix isNil 
+	(self cachedInstance isNil 
 		or: [ swSystem hash ~= self swSystemHash 
 			or: [ aDimension ~= self cachedDimension ]]) ifTrue: [  
 			
@@ -75,18 +77,18 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 				dict := Dictionary new.
 				swSystem classes do: [ :eachClass | dict at: eachClass id put: eachClass ].
 				
-				instance classes: dict; dimension: aDimension.
-				self computationTime: [ self cachedPositionMatrix: instance run ] timeToRun
+				self computationTime: [ instance classes: dict; dimension: aDimension; run ] timeToRun.
+				self cachedInstance: instance 
 	].
 
-	^ self cachedPositionMatrix 
+	^ self cachedInstance 
 ]
 
 { #category : 'cleanup' }
 WSMDSLayoutStrategy class >> resetCache [
 	
 	self swSystemHash: nil.
-	self cachedPositionMatrix: nil.
+	self cachedInstance: nil.
 	self cachedDimension: nil
 	
 ]
@@ -142,6 +144,18 @@ WSMDSLayoutStrategy >> calculateEigenValuesAndVecotors [
 	
 	self eigenvalues: aux values.
 	self eigenvectors: aux vectors.
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy >> classDistances [
+
+	^ classDistances
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy >> classDistances: anObject [
+
+	classDistances := anObject
 ]
 
 { #category : 'accessing' }
@@ -294,7 +308,9 @@ WSMDSLayoutStrategy >> executeFloydWarshall [
 						ij := m at: i at: j.
 						ikj := (m at: i at: k) + (m at: k at: j).
 						m at: i at: j put: (ij min: ikj) ]
-				 ] ] ]
+				 ] ] ].
+	
+	self classDistances: self matrix.
 	
 ]
 
@@ -311,8 +327,22 @@ WSMDSLayoutStrategy >> fillDirectConnections [
 				self matrix at: sourceID at: targetID put: newWeight.
 				self matrix at: targetID at: sourceID put: newWeight
 		]
-	]
+	].
+
+	self initialClassDistances: self matrix deepCopy .
 	
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy >> initialClassDistances [
+
+	^ initialClassDistances
+]
+
+{ #category : 'accessing' }
+WSMDSLayoutStrategy >> initialClassDistances: anObject [
+
+	initialClassDistances := anObject
 ]
 
 { #category : 'initialization' }
@@ -385,9 +415,7 @@ WSMDSLayoutStrategy >> run [
    self executeFloydWarshall.
 	self replaceInfiniteValues. 
    self computeEmbedding. 
-   self normalizeMatrix. 
-    
-    ^ self matrix
+   self normalizeMatrix
 ]
 
 { #category : 'calculating' }

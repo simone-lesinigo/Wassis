@@ -9,7 +9,8 @@ Class {
 		'tileVisitor',
 		'shapesNodes',
 		'nodesShapes',
-		'solver'
+		'solver',
+		'presenter'
 	],
 	#category : 'Wassis-Visualization',
 	#package : 'Wassis',
@@ -63,6 +64,18 @@ WSVisualizer >> nodesShapes: anObject [
 ]
 
 { #category : 'accessing' }
+WSVisualizer >> presenter [
+
+	^ presenter
+]
+
+{ #category : 'accessing' }
+WSVisualizer >> presenter: anObject [
+
+	presenter := anObject
+]
+
+{ #category : 'accessing' }
 WSVisualizer >> shapesNodes [
 
 	^ shapesNodes
@@ -99,40 +112,79 @@ WSVisualizer >> tileVisitor: anObject [
 ]
 
 { #category : 'visualization-MDS' }
-WSVisualizer >> visualizeMDSDistancesMatrixFor: aSolver [
+WSVisualizer >> visualizeMDSDistancesMatrixFor: aLayoutStrategy [
 "Create the visualization of the matrix"
 
-	| composites borderWidth size mdsMatrix |
-	self clear.
-	mdsMatrix := aSolver topology layoutMatrix.
+	| borderWidth size initialClassDistances classDistances nCol composites classNames |
 	size := 200.
 	borderWidth := 5.
+	nCol := aLayoutStrategy initialClassDistances dimension y.
+	initialClassDistances := aLayoutStrategy initialClassDistances flattenRows .
+	classDistances := aLayoutStrategy classDistances flattenRows.
 	
-	composites := OrderedCollection new.
-	mdsMatrix rows do: [ :eachRow | 
-		eachRow do: [ :eachElement |
-			| com shape label |
-			shape := RSBox new 
-				size: size;
-				color: Color white; 
-				borderColor: Color black; borderWidth: borderWidth;
-				yourself.
-			label := RSLabel new 
-				text: (eachElement = Float infinity ifTrue: [ 'Inf' ] ifFalse: [ eachElement printString ]);
-				fontSize: size * 0.3;
-				color: Color black; yourself.
-			com := RSComposite new add: shape; add: label; adjustToChildren; yourself.
-			composites add: com.
-		]
-	].
+	    classNames := (aLayoutStrategy classes associations 
+        asSortedCollection: [ :a :b | a key < b key ])
+        collect: [ :assoc | assoc value name ].
+
+	composites :=
+		(initialClassDistances collect: [ :eachDistance | 
+				| com shape label |
+				shape := RSBox new 
+					size: size;
+					color: Color white; 
+					borderColor: Color black; borderWidth: borderWidth;
+					yourself.
+				label := RSLabel new 
+					text: (eachDistance = Float infinity ifTrue: [ 'Inf' ] ifFalse: [ eachDistance printString ]);
+					fontSize: size * 0.3;
+					color: Color black; yourself.
+				com := RSComposite new add: shape; add: label; adjustToChildren; yourself.
+		]).
 	
 	canvas addAll: composites.
-	
 	RSGridLayout new
-		gapSize: 0 - borderWidth ;
-		lineItemsCount: mdsMatrix dimension y;
-		on: composites.
-	
-	canvas zoomToFit.
-	canvas openOnceWithTitle: 'MDS Matrix'.
+		gapSize: 0 - borderWidth;
+		lineItemsCount: nCol;
+		on: canvas nodes.
+		
+	classNames doWithIndex: [ :name :i |
+    | rowNode colNode rowLabel colLabel rowOffset colOffset rotateBy textLength |
+    rowOffset := 30.
+    colOffset := 15.
+	 rotateBy := -45.
+
+    rowNode := composites at: (i - 1) * nCol + 1.
+    rowLabel := RSLabel new
+        text: name;
+        fontSize: size * 0.2;
+        color: Color black;
+        yourself.
+    canvas add: rowLabel.
+    rowLabel position: 
+        (rowNode position x - (size / 2) - rowOffset - (rowLabel encompassingRectangle width / 2)) 
+        @ rowNode position y.
+
+    colNode := composites at: i.
+    colLabel := RSLabel new
+        text: name;
+        fontSize: size * 0.2;
+        color: Color black;
+        yourself.
+   	 canvas add: colLabel.
+	textLength := colLabel encompassingRectangle width.
+    colLabel rotateByDegrees: rotateBy .
+    colLabel position: 
+        colNode position x 
+        @ (colNode position y - (size / 2) - colOffset - (colLabel encompassingRectangle height / 2)).
+	 colLabel translateBy: 
+		((textLength / 2) * ((90 - (rotateBy abs)) degreesToRadians sin)) @ 0.
+].
+		
+	presenter := WSClassDistancesPresenter new.
+	presenter 
+		initialClassDistances: initialClassDistances;
+		classDistances: classDistances;
+		composites: composites;
+		setCanvas: canvas;
+		open.
 ]

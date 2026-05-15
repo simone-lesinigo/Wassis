@@ -8,7 +8,8 @@ Class {
 		'swSystem',
 		'oppositeDirections',
 		'tileset',
-		'visualizer'
+		'visualizer',
+		'layoutStrategy'
 	],
 	#category : 'Wassis-Topology',
 	#package : 'Wassis',
@@ -91,6 +92,18 @@ WSTopology >> initializeWith: aSwSystem [
 	^ self subclassResponsibility 
 	
 	
+]
+
+{ #category : 'accessing' }
+WSTopology >> layoutStrategy [
+
+	^ layoutStrategy
+]
+
+{ #category : 'accessing' }
+WSTopology >> layoutStrategy: anObject [
+
+	layoutStrategy := anObject
 ]
 
 { #category : 'accessing' }

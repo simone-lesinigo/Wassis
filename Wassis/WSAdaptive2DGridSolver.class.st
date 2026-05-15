@@ -173,13 +173,14 @@ WSAdaptive2DGridSolver >> visualizeMDSClassesPositioningFor: aSolver [
 	| newVisualizer |
 	newVisualizer := aSolver topology visualizer class new.
 	newVisualizer visualizeMDSPositionFor: aSolver.
-	self halt.
 ]
 
 { #category : 'visualization-MDS' }
 WSAdaptive2DGridSolver >> visualizeMDSDistancesMatrixFor: aSolver [
 	
 	| newVisualizer |
+	
 	newVisualizer := aSolver topology visualizer class new.
-	newVisualizer visualizeMDSDistancesMatrixFor: aSolver.
+	newVisualizer visualizeMDSDistancesMatrixFor: aSolver topology layoutStrategy.
+	
 ]

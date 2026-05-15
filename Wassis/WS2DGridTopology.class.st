@@ -212,9 +212,11 @@ WS2DGridTopology >> createLayoutMatrix: aSwSystem [
 	"Retrieve the embedding from the strategy (already normalized), then scale them to the number of rows and columns and transform them in indexes"
 	
 	| positions colX colY |
-	positions :=
+	self layoutStrategy: 
 		(WSMDSLayoutStrategy 
 			computeForSystem: aSwSystem withDimension: 2).
+
+	positions := layoutStrategy matrix.
 
 	colX := (positions atColumn: 1) collect: 
 		[ :each | self scaleNormalizedValue: each toInnerRange: self nRows].

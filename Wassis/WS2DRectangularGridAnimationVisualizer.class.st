@@ -5,7 +5,6 @@ Class {
 	#name : 'WS2DRectangularGridAnimationVisualizer',
 	#superclass : 'WS2DRectangularGridVisualizer',
 	#instVars : [
-		'presenter',
 		'diffPerStep',
 		'index',
 		'maxIndex',
@@ -288,18 +287,6 @@ WS2DRectangularGridAnimationVisualizer >> play [
         self stepForward.
         (Delay forMilliseconds: msDelay) wait. 
      ] displayingProgress: 'Animation progress'"
-]
-
-{ #category : 'accessing' }
-WS2DRectangularGridAnimationVisualizer >> presenter [
-
-	^ presenter
-]
-
-{ #category : 'accessing' }
-WS2DRectangularGridAnimationVisualizer >> presenter: anObject [
-
-	presenter := anObject
 ]
 
 { #category : 'visualization' }
