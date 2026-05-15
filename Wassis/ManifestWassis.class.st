@@ -27,5 +27,5 @@ ManifestWassis class >> ruleModifiesCollectionRuleV1FalsePositive [
 ManifestWassis class >> ruleReGuardClauseRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#WSGraph #createPathFrom: #false)) #'2026-04-13T09:39:43.872158+02:00') #(#(#RGMethodDefinition #(#WSGraph #followPath:from:visited:pathID: #false)) #'2026-04-19T10:18:50.309636+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #createPathFrom: #false)) #'2026-04-13T09:39:43.872158+02:00') #(#(#RGMethodDefinition #(#WSGraph #followPath:from:visited:pathID: #false)) #'2026-04-19T10:18:50.309636+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #createVisualizationFor: #false)) #'2026-05-15T11:57:02.162738+02:00') )
 ]

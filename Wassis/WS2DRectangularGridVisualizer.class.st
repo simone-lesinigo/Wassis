@@ -475,6 +475,39 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 ]
 
 { #category : 'visualization' }
+WS2DRectangularGridVisualizer >> visualizeMDSPositionFor2: aSolver [
+	"Create the visualization of hte original MDS embedding"
+
+	| classes originalPositions groups |
+	self initializeWith: aSolver.
+	classes := aSolver topology swSystem classes.
+	originalPositions := aSolver topology layoutMatrix.
+	
+	groups := classes groupedBy: [ :eachClass | 
+        | pos |
+        pos := originalPositions rowAt: eachClass id.
+        (pos first) @ (pos last) ].
+
+	groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
+        | shape opacity popupText  |
+		  opacity := (classesInPos size * 0.2) min: 1.0.
+		
+		  shape := RSBox new.
+		  shape size: self tileVisitor class tileSize;
+				  color: (Color black alpha: opacity);
+				  position: (self positionOnCanvasForPoint: matrixPoint).
+				
+		   popupText := String cr join: (classesInPos collect: #name).
+			shape @ (RSPopup new text: popupText).
+			self canvas add: shape
+	].
+	self canvas addBorderWithColor: Color black andWidth: 20.
+	self addGridLabelsToCanvas: self canvas.
+	self canvas openWithTitle: 'Wassis - MDS embedding'
+	
+]
+
+{ #category : 'visualization' }
 WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
     "Create the visualization of the original MDS embedding with background tiles"
     | classes originalPositions groups |
