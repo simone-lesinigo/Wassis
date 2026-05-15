@@ -215,7 +215,7 @@ WS2DGridTopology >> createLayoutMatrix: aSwSystem [
 	positions :=
 		(WSMDSLayoutStrategy 
 			computeForSystem: aSwSystem withDimension: 2).
-	
+
 	colX := (positions atColumn: 1) collect: 
 		[ :each | self scaleNormalizedValue: each toInnerRange: self nRows].
 	

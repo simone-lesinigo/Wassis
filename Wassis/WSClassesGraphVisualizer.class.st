@@ -70,12 +70,10 @@ WSClassesGraphVisualizer >> createShapes [
 	"Creates all the nodes of the graph"
 	
 	self nodesShapes: (self classesArray collect: [ :eachClass |
-		| com |
-		com := RSComposite new.
-		com add: (RSEllipse new size: 80);
-			 add: (RSLabel new text: eachClass name).
-		
-		com  model: eachClass; draggable; adjustToChildren.
+		| shape |
+		shape := RSBox new size: 50; color: Color black .
+		shape @ (RSPopup new text: eachClass name asString).
+		shape model: eachClass; draggable.
 	]).
 
 	self canvas addAll: self nodesShapes

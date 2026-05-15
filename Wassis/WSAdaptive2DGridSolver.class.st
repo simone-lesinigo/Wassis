@@ -52,15 +52,6 @@ WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 ]
 
 { #category : 'visualization' }
-WSAdaptive2DGridSolver >> createMDSClassesPositionViusalizationFor: aSolver [
-	
-	| newVisualizer |
-	newVisualizer := aSolver topology visualizer class new.
-	newVisualizer visualizeMDSPositionFor: aSolver.
-	self halt.
-]
-
-{ #category : 'visualization' }
 WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
 	
 	aSolver createTemporaryVisualization.
@@ -109,7 +100,7 @@ WSAdaptive2DGridSolver >> run [
         ifFalse: [ block forkNamed: 'WaveFunctionCollapse' ]
 ]
 
-{ #category : 'resolving' }
+{ #category : 'running' }
 WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 	"Create new solvers with increasing size"
 
@@ -135,7 +126,7 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 
 ]
 
-{ #category : 'resolving' }
+{ #category : 'running' }
 WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	| currentSolver |
 	currentSolver := (WSSolver 
@@ -145,7 +136,8 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	
 	currentSolver addInitialMetrics.
 	
-"	self createMDSClassesPositionViusalizationFor: currentSolver.
+"	self visualizeMDSClassesPositioningFor: currentSolver.
+	self visualizeMDSDistancesMatrixFor: currentSolver.
 	self createTemporaryVisualizationFor: currentSolver."
    WSCurrentMetrics getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
@@ -173,4 +165,21 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 	
 	
 	
+]
+
+{ #category : 'visualization-MDS' }
+WSAdaptive2DGridSolver >> visualizeMDSClassesPositioningFor: aSolver [
+	
+	| newVisualizer |
+	newVisualizer := aSolver topology visualizer class new.
+	newVisualizer visualizeMDSPositionFor: aSolver.
+	self halt.
+]
+
+{ #category : 'visualization-MDS' }
+WSAdaptive2DGridSolver >> visualizeMDSDistancesMatrixFor: aSolver [
+	
+	| newVisualizer |
+	newVisualizer := aSolver topology visualizer class new.
+	newVisualizer visualizeMDSDistancesMatrixFor: aSolver.
 ]

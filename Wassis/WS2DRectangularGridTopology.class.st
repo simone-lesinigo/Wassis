@@ -306,32 +306,6 @@ WS2DRectangularGridTopology >> createEdgesIn: aGrid [
 	]
 ]
 
-{ #category : 'deprecated' }
-WS2DRectangularGridTopology >> createEdgesOfNodes [
-	"Given a matrix of nodes, assign the edges for each node"
-	
-	1 to: self nRows do: [ :i |
-		1 to: self nColumns do: [ :j |
-			| eachNode | 
-			eachNode := self getAtRow: i andColumn: j.
-			
-			"Connect to the right neighbour and viceversa"
-			j < self nColumns ifTrue: [ 
-				self connect: eachNode 
-					  to: (self getAtRow: i andColumn: (j + 1)) 
-					  withDirection: (self class rightSymbol)
-			].
-			
-			"Connect to the down neighbour and viceversa"
-			i < self nRows ifTrue: [ 
-				self connect: eachNode 
-					  to: (self getAtRow: (i + 1) andColumn: j)
-					  withDirection: (self class downSymbol )
-			]
-		]
-	]
-]
-
 { #category : 'tileset' }
 WS2DRectangularGridTopology >> createEmptyTile [
 	"Create the empty tile for the rectangular grid topology"
@@ -397,7 +371,9 @@ WS2DRectangularGridTopology >> createUncollapsedTile [
 { #category : 'accessing' }
 WS2DRectangularGridTopology >> emptyTile [
 
-	^ emptyTile ifNil: [ self emptyTile: self createEmptyTile; emptyTile  ]
+	emptyTile ifNil: [ self emptyTile: self createEmptyTile ].
+	
+	^ emptyTile 
 ]
 
 { #category : 'accessing' }

@@ -490,6 +490,7 @@ WSSolver >> solveGraph [
 	"Core method that executes WFC"
 	
 	WSLogger log: 'Execution started'.
+
 	[ self graph allNodesCollapsed ] whileFalse: [ 
 		[  
 			self step.
