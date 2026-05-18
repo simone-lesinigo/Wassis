@@ -82,6 +82,7 @@ WSAnimationPresenter >> initializeResetButton [
 
 { #category : 'initialization' }
 WSAnimationPresenter >> initializeSlider [
+
     slider := self newSlider.
     slider
         min: 0;
@@ -219,7 +220,7 @@ WSAnimationPresenter >> subscribeToEvents [
 	
 	visualizer announcer 
 		when: WSAnimationIndexChanged 
-		do: [ self updateStatus  ]
+		do: [ self updateStatus ]
 		for: self
 ]
 
@@ -268,7 +269,8 @@ WSAnimationPresenter >> updateSliderIndexStatus [
 { #category : 'update' }
 WSAnimationPresenter >> updateStatus [ 
 	
-	self updateButtonStatus.
 	self updateLabelStatus.
 	self updateSliderIndexStatus.
+	visualizer isPlaying ifTrue: [ ^ self ].
+	self updateButtonStatus.
 ]

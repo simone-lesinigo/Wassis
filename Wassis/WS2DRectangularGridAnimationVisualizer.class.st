@@ -288,8 +288,8 @@ WS2DRectangularGridAnimationVisualizer >> play [
 	      (Delay forMilliseconds: msDelay) wait. 
 	   ].
 		index = maxIndex ifTrue: [ 
-			announcer announce: WSAnimationFinished .
 			isPlaying := false.
+			announcer announce: WSAnimationFinished .
 		]
 	] forkNamed: 'WassisPlayAnimation'
 	
