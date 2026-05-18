@@ -62,13 +62,13 @@ WS2DRectangularGridAnimationVisualizer >> announcer: anObject [
 WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap [
 	"Given the initial shapes on the canvas (step 0) it creates the differences for each step"
 	
-	self solver historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
+	self solver executionHistory historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
 		| collapsedNodeShape waveTouchedNodesShapes allShapes |
 		
 		collapsedNodeShape := self createShapeFor: eachNode.
 		
 		waveTouchedNodesShapes := self
-			createWaveShapeFor: (self solver historyOfTouchedNodes at: i)
+			createWaveShapeFor: (self solver executionHistory historyOfTouchedNodes at: i)
 	       withColorMap: anEntropyColorMap.
 		allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
 		
@@ -220,7 +220,7 @@ WS2DRectangularGridAnimationVisualizer >> initialize [
 WS2DRectangularGridAnimationVisualizer >> initializeWith: aSolver [
 
 	super initializeWith: aSolver.
-	self maxIndex: 	aSolver historyOfCollapsedNodes size.
+	self maxIndex: 	aSolver executionHistory historyOfCollapsedNodes size.
 	presenter := WSAnimationPresenter withVisualizer: self
 ]
 
@@ -295,7 +295,7 @@ WS2DRectangularGridAnimationVisualizer >> setMinAndMaxIn: anEntropyColorMap [
 	
 	| temp1 temp2 |
 	temp1 := self solver copyOfInitalNodes collect: [ :eachNode | eachNode entropy ].
-	temp2 := self solver historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
+	temp2 := self solver executionHistory historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
 	
 	anEntropyColorMap 
 		minEntropy: ((temp1 min) min: (temp2 min));

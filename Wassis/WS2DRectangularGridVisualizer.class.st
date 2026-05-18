@@ -204,7 +204,7 @@ WS2DRectangularGridVisualizer >> createHistoryVisualization: aSolver withMilliSe
 	
 	self canvas openWithTitle: 'WassisHistory'.
 		[  
-		aSolver historyOfCollapsedNodes do: [ :eachNode | 
+		aSolver executionHistory historyOfCollapsedNodes do: [ :eachNode | 
 			self canvas 
 				add: (self createShapeFor: eachNode);
 				invalidate;
@@ -309,10 +309,10 @@ WS2DRectangularGridVisualizer >> createWaveVisualization: aSolver withMilliSecDe
 	self canvas openWithTitle: 'WassisWaveHistory'.
 	
 		[  
-		aSolver historyOfCollapsedNodes doWithIndex: [ :eachNode :i | 
+		aSolver executionHistory historyOfCollapsedNodes doWithIndex: [ :eachNode :i | 
 			| waveTouchedNodesShapes |
 			waveTouchedNodesShapes := (self 
-				createWaveShapeFor: (aSolver historyOfTouchedNodes at: i)  
+				createWaveShapeFor: (aSolver executionHistory historyOfTouchedNodes at: i)  
 				fromColor: aLowEntropyColor     
     			toColor: aHighEntropyColor).
 			

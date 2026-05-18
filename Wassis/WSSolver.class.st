@@ -10,8 +10,7 @@ Class {
 		'backtracking',
 		'topology',
 		'copyOfInitalNodes',
-		'historyOfCollapsedNodes',
-		'historyOfTouchedNodes'
+		'executionHistory'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -289,6 +288,18 @@ WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntr
 		toColor: aHighEntropyColor
 ]
 
+{ #category : 'accessing' }
+WSSolver >> executionHistory [
+
+	^ executionHistory
+]
+
+{ #category : 'accessing' }
+WSSolver >> executionHistory: anObject [
+
+	executionHistory := anObject
+]
+
 { #category : 'serialization' }
 WSSolver >> fuelAfterMaterialization [ 
 	
@@ -348,30 +359,6 @@ WSSolver >> graph: anObject [
 ]
 
 { #category : 'accessing' }
-WSSolver >> historyOfCollapsedNodes [
-
-	^ historyOfCollapsedNodes
-]
-
-{ #category : 'accessing' }
-WSSolver >> historyOfCollapsedNodes: anObject [
-
-	historyOfCollapsedNodes := anObject
-]
-
-{ #category : 'accessing' }
-WSSolver >> historyOfTouchedNodes [
-
-	^ historyOfTouchedNodes
-]
-
-{ #category : 'accessing' }
-WSSolver >> historyOfTouchedNodes: anObject [
-
-	historyOfTouchedNodes := anObject
-]
-
-{ #category : 'accessing' }
 WSSolver >> id [
 
 	^ id
@@ -386,8 +373,7 @@ WSSolver >> id: anObject [
 { #category : 'initialization' }
 WSSolver >> initialize [ 
 	super initialize.
-	self historyOfCollapsedNodes: OrderedCollection new.
-	self historyOfTouchedNodes: OrderedCollection new.
+	self executionHistory: WSExecutionHistory new.
 ]
 
 { #category : 'testing' }
@@ -427,8 +413,7 @@ WSSolver >> onContradiction [
 	"Method executed when a contradiction has been found"
 
 	| bt |
-	self historyOfCollapsedNodes: OrderedCollection new.
-	self historyOfTouchedNodes: OrderedCollection new.
+	self executionHistory reset.
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
@@ -505,17 +490,20 @@ WSSolver >> solveGraph [
 WSSolver >> step [
 	"Take a step of the algorithm (select a node to collapse, collapse it and propagate)"
 	
-	| collapsedNode touchedNodes |
+	| collapsedNode touchedNodes copyOfHeap eh |
+	eh := self executionHistory.
 	
 	self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ].
+	copyOfHeap := self graph minEntropyHeap copy.
 	
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	collapsedNode collapseStep: self historyOfCollapsedNodes size + 1.		
+	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.		
 	touchedNodes := (self graph propagate: collapsedNode).
 	
-	self historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
-	self historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
+	eh historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
+	eh	historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
+	eh historyOfMinEntropyHeap add: copyOfHeap.
 ]
 
 { #category : 'accessing' }
