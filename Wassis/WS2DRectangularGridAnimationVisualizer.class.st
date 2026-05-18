@@ -185,7 +185,7 @@ WS2DRectangularGridAnimationVisualizer >> diffPerStep: anObject [
 	diffPerStep := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'animation' }
 WS2DRectangularGridAnimationVisualizer >> goToIndex: aTargetIndex [
     "Go to the specified index of the visualization"
 
@@ -271,6 +271,16 @@ WS2DRectangularGridAnimationVisualizer >> msDelay: anObject [
 	msDelay := anObject
 ]
 
+{ #category : 'visualization-historyHeap' }
+WS2DRectangularGridAnimationVisualizer >> openHeapPresenter [
+	
+	| heapPresenter heapCanvas |
+	heapPresenter := WSMinHeapPresenter withVisualizer: self.
+	
+	
+	heapPresenter setCanvas: heapCanvas; open.
+]
+
 { #category : 'animation' }
 WS2DRectangularGridAnimationVisualizer >> pause [
 	"Pause the animation"
@@ -292,12 +302,6 @@ WS2DRectangularGridAnimationVisualizer >> play [
 			announcer announce: WSAnimationFinished .
 		]
 	] forkNamed: 'WassisPlayAnimation'
-	
-"	isPlaying := true.
-     (index to: maxIndex) do: [ :i |
-        self stepForward.
-        (Delay forMilliseconds: msDelay) wait. 
-     ] displayingProgress: 'Animation progress'"
 ]
 
 { #category : 'visualization' }
@@ -343,4 +347,45 @@ WS2DRectangularGridAnimationVisualizer >> stepForward [
 	(diff at: #removedShapes) do: [ :eachShape | self canvas removeShape: eachShape ].
 	self canvas addAll: (diff at: #addedShapes).
 	self canvas invalidate
+]
+
+{ #category : 'visualization-historyHeap' }
+WS2DRectangularGridAnimationVisualizer >> visualizeHeap: aHeap [
+    "Given a min heap, returns a RSCanvas with the tree visualization"
+    | heapCanvas nodes edges |
+    heapCanvas := RSCanvas new.
+    
+    nodes := aHeap collectWithIndex: [ :node :i |
+        | composite box label |
+        box := RSBox new
+            size: 60;
+            color: Color lightBlue;
+            borderColor: Color black;
+            borderWidth: 1;
+            yourself.
+        label := RSLabel new
+            text: node position printString , String cr , 'e:' , (node entropy printShowingDecimalPlaces: 2);
+            fontSize: 8;
+            color: Color black;
+            yourself.
+        composite := RSComposite new
+            add: box;
+            add: label;
+            adjustToChildren;
+            yourself.
+        composite @ (RSPopup new text: 'Position: ' , node position printString , ' Entropy: ' , node entropy printString).
+        heapCanvas add: composite.
+        composite ].
+    
+    edges := OrderedCollection new.
+    1 to: aHeap size do: [ :i |
+        | leftIndex rightIndex |
+        leftIndex  := 2 * i.
+        rightIndex := 2 * i + 1.
+        leftIndex  <= aHeap size ifTrue: [ edges add: (RSLine new from: (nodes at: i); to: (nodes at: leftIndex);  yourself) ].
+        rightIndex <= aHeap size ifTrue: [ edges add: (RSLine new from: (nodes at: i); to: (nodes at: rightIndex); yourself) ] ].
+    
+    heapCanvas addAll: edges.
+    RSTreeLayout new on: heapCanvas nodes.
+    ^ heapCanvas
 ]

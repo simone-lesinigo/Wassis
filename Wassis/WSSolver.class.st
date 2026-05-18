@@ -494,8 +494,8 @@ WSSolver >> step [
 	eh := self executionHistory.
 	
 	self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ].
-	copyOfHeap := self graph minEntropyHeap copy.
-	
+	copyOfHeap := (self copyOfNodesWithoutEdges: self graph minEntropyHeap).
+
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
 	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.		
