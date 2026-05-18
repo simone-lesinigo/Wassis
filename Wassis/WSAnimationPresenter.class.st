@@ -74,7 +74,7 @@ WSAnimationPresenter >> initializeResetButton [
 	
 	resetButton := self newButton 
 		label: 'Reset';
-		action: [ self performReset ];
+		action: [ visualizer goToStart ];
 		yourself.
 		
 	resetButton enabled: false
@@ -87,8 +87,7 @@ WSAnimationPresenter >> initializeSlider [
         min: 0;
         max: visualizer maxIndex;      
 		  whenValueChangedDo: [ :v |
-            visualizer goToIndex: v rounded.
-				self updateButtonStatus ]
+            visualizer goToIndex: v rounded ]
 ]
 
 { #category : 'initialization' }
@@ -103,7 +102,7 @@ WSAnimationPresenter >> initializeStepBackButton [
 	
 	stepBackButton := self newButton
       label: 'Step Back';
-      action: [ self performStepBack ];
+      action: [ visualizer stepBack ];
     	yourself.
 
 	stepBackButton enabled: false.
@@ -114,7 +113,7 @@ WSAnimationPresenter >> initializeStepForwardButton [
 	
 	stepButton := self newButton 
 		label: 'Step Forward';
-		action: [ self performStepForward ];
+		action: [ visualizer stepForward ];
 		yourself.
 ]
 
@@ -137,29 +136,6 @@ WSAnimationPresenter >> onAnimationFinished [
 
 	
 	
-]
-
-{ #category : 'event handling' }
-WSAnimationPresenter >> performReset [
-	
-	visualizer goToStart.
-	self updateButtonStatus.
-]
-
-{ #category : 'event handling' }
-WSAnimationPresenter >> performStepBack [
-
-    visualizer stepBack.
-	 self updateButtonStatus.
-    self updateLabelStatus.
-]
-
-{ #category : 'event handling' }
-WSAnimationPresenter >> performStepForward [
-
-    visualizer stepForward.
-	 self updateButtonStatus.
-    self updateLabelStatus.
 ]
 
 { #category : 'accessing' }
