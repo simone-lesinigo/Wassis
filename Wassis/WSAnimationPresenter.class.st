@@ -43,7 +43,7 @@ WSAnimationPresenter >> initializeButtons [
 	
 	self initializeResetButton.
 	self initializeStepBackButton.
-	self initializeStepButton.
+	self initializeStepForwardButton.
 	self initializeplayAndPauseButton 
 	
 
@@ -72,11 +72,7 @@ WSAnimationPresenter >> initializeResetButton [
 	
 	resetButton := self newButton 
 		label: 'Reset';
-		action: [ 
-			visualizer goToStart.
-			self setEnableTo: true forButtons: { playAndPauseButton . stepButton }.
-			self setEnableTo: false forButtons: { resetButton . stepBackButton }.				
-		];
+		action: [ self performReset ];
 		yourself.
 	
 	resetButton enabled: false.
@@ -94,23 +90,18 @@ WSAnimationPresenter >> initializeStepBackButton [
 	
 	stepBackButton := self newButton
       label: 'Step Back';
-      action: [ 
-			self setEnableTo: true forButtons: { playAndPauseButton . stepButton }. 
-			visualizer stepBack. 	
-		];
+      action: [ self performStepBack ];
     	yourself.
 
 	stepBackButton enabled: false.
 ]
 
 { #category : 'initialization' }
-WSAnimationPresenter >> initializeStepButton [
+WSAnimationPresenter >> initializeStepForwardButton [
 	
 	stepButton := self newButton 
 		label: 'Step Forward';
-		action: [ 
-			self setEnableTo: true forButtons: {  resetButton . stepBackButton }. 
-			visualizer stepForward ];
+		action: [ self performStepForward ];
 		yourself.
 ]
 
@@ -137,6 +128,30 @@ WSAnimationPresenter >> onAnimationFinished [
 
 	
 	
+]
+
+{ #category : 'event handling' }
+WSAnimationPresenter >> performReset [
+	
+	visualizer goToStart.
+	self setEnableTo: true forButtons: { playAndPauseButton . stepButton }.
+	self setEnableTo: false forButtons: { resetButton . stepBackButton }.	
+]
+
+{ #category : 'event handling' }
+WSAnimationPresenter >> performStepBack [
+
+    self setEnableTo: true forButtons: { playAndPauseButton . stepButton }.
+    visualizer stepBack.
+    self updateStatusLabel.
+]
+
+{ #category : 'event handling' }
+WSAnimationPresenter >> performStepForward [
+
+    self setEnableTo: true forButtons: { resetButton . stepBackButton }.
+    visualizer stepForward.
+    self updateStatusLabel.
 ]
 
 { #category : 'accessing' }
@@ -243,6 +258,7 @@ WSAnimationPresenter >> togglePlayAndPauseButton [
 
 { #category : 'update' }
 WSAnimationPresenter >> updateStatusLabel [
+	"Update the status label with the percentage"
 
 	 | percentage |
     percentage := (visualizer index / visualizer maxIndex * 100.0) printShowingDecimalPlaces: 1.
