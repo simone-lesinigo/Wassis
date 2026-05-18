@@ -494,8 +494,7 @@ WSSolver >> solveGraph [
 	[ self graph allNodesCollapsed ] whileFalse: [ 
 		[  
 			self step.
-			self graph addOneToCollapsedNodes.		
-			
+			self graph addOneToCollapsedNodes.					
 		] on: WSContradiction 
 		  do: [ 
 			self onContradiction ]
@@ -512,10 +511,10 @@ WSSolver >> step [
 	
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	self historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
-	collapsedNode collapseStep: self historyOfCollapsedNodes size.	
-	
+	collapsedNode collapseStep: self historyOfCollapsedNodes size + 1.		
 	touchedNodes := (self graph propagate: collapsedNode).
+	
+	self historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
 	self historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
 ]
 

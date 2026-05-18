@@ -822,20 +822,17 @@ WSGraph >> reassignSourceDestination: aPath [
 
 { #category : 'propagating' }
 WSGraph >> restoreMinEntropyHeap [
-	"If the entropy is empty, it select a random node to continue the execution"
+	"If the heap is empty, it selects a random node to continue the execution. This is beacuse if the heap is empty, it means that all nodes that are not collapsed yet have the same entropy"
 	
 	| nodesArray isCollapsed nodeToAdd |
 	nodesArray := self nodes.
 	isCollapsed := true.
-	
+
 	[ isCollapsed ] whileTrue: [ 
 		nodeToAdd := nodesArray at: (nodesArray size atRandom). 
 		isCollapsed := nodeToAdd isCollapsed ].
 	
 	self minEntropyHeap add: nodeToAdd
-	
-	
-	
 ]
 
 { #category : 'pathOptimization' }
