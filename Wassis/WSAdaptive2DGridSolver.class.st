@@ -167,20 +167,19 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 	
 ]
 
+{ #category : 'visualization-ClassDistances' }
+WSAdaptive2DGridSolver >> visualizeClassDistancesMatrixFor: aSolver [
+	
+	| newVisualizer |	
+	newVisualizer := aSolver topology visualizer class new.
+	newVisualizer visualizeClassDistancesMatrixFor: aSolver topology layoutStrategy.
+	
+]
+
 { #category : 'visualization-MDS' }
 WSAdaptive2DGridSolver >> visualizeMDSClassesPositioningFor: aSolver [
 	
 	| newVisualizer |
 	newVisualizer := aSolver topology visualizer class new.
 	newVisualizer visualizeMDSPositionFor: aSolver.
-]
-
-{ #category : 'visualization-MDS' }
-WSAdaptive2DGridSolver >> visualizeMDSDistancesMatrixFor: aSolver [
-	
-	| newVisualizer |
-	
-	newVisualizer := aSolver topology visualizer class new.
-	newVisualizer visualizeMDSDistancesMatrixFor: aSolver topology layoutStrategy.
-	
 ]

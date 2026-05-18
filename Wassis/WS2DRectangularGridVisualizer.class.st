@@ -9,6 +9,40 @@ Class {
 	#tag : 'Visualization'
 }
 
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> addBackgroundTileAt: aPoint [
+	"Add a white box to visualize the grid"
+
+    | tile |
+    tile := RSBox new
+        size: self tileVisitor class tileSize;
+        color: Color white;
+        withBorder;
+        position: (self positionOnCanvasForPoint: aPoint);
+        yourself.
+    self canvas add: tile.
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> addBackgroundTilesFor: aSolver notInGroups: groups [
+	"Add all the white boxes to visualize the grid"
+
+    1 to: aSolver graph structure nRows do: [ :row |
+        1 to: aSolver graph structure nColumns do: [ :col |
+            | point |
+            point := col @ row.
+            (groups includesKey: point) ifFalse: [
+                self addBackgroundTileAt: point ] ] ]
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> addClassCompositesFromGroups: groups [
+	"Add all the class black boxes"
+
+    groups keysAndValuesDo: [ :matrixPoint :classesInPos |
+        self canvas add: (self buildClassCompositeAt: matrixPoint forClasses: classesInPos) ]
+]
+
 { #category : 'adding' }
 WS2DRectangularGridVisualizer >> addClickTo: aShape [
 	"Add the inspect when left clicking, the contextual menu when rightclicking"
@@ -111,6 +145,55 @@ WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
 WS2DRectangularGridVisualizer >> asAnimationVisualizer [ 
 	
 	^ WS2DRectangularGridAnimationVisualizer new
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> buildClassCompositeAt: aMatrixPoint forClasses: classesInPos [
+	"Add a class black box in a position"
+
+    | composite |
+    composite := RSComposite new
+        add: (self buildClassTileBoxForCount: classesInPos size);
+        add: (self buildClassCountLabelFor: classesInPos size);
+        adjustToChildren;
+        position: (self positionOnCanvasForPoint: aMatrixPoint);
+        yourself.
+    composite @ (RSPopup new text: (self popupTextFor: classesInPos)).
+    ^ composite
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> buildClassCountLabelFor: count [
+	"Build the label to be placed into the black box of a class"
+
+    ^ RSLabel new
+        text: count printString;
+        color: Color white;
+        fontSize: self tileVisitor class tileSize * 0.6;
+        yourself
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> buildClassTileBoxForCount: count [
+	"Build the black square of a class. The count parameters could be used to assign also a heatmap"
+
+    ^ RSBox new
+        size: self tileVisitor class tileSize;
+        color: Color black;
+        yourself
+]
+
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> buildPositionGroupsFor: aSolver [
+	"Group the classes by the positions assigned from MDS"
+
+    | classes originalPositions |
+    classes := aSolver topology swSystem classes.
+    originalPositions := aSolver topology layoutMatrix.
+    ^ classes groupedBy: [ :eachClass |
+        | pos |
+        pos := originalPositions rowAt: eachClass id.
+        pos first @ pos last ]
 ]
 
 { #category : 'visualization-history' }
@@ -330,6 +413,11 @@ WS2DRectangularGridVisualizer >> openCanvas [
 	self canvas openOnce
 ]
 
+{ #category : 'visualization-MDS' }
+WS2DRectangularGridVisualizer >> popupTextFor: classesInPos [
+    ^ String cr join: (classesInPos collect: #name)
+]
+
 { #category : 'calculating' }
 WS2DRectangularGridVisualizer >> positionOnCanvasForNode: aNode [
 	 "Returns the center position that a node should have on the canvas"
@@ -477,56 +565,11 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 { #category : 'visualization-MDS' }
 WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
     "Create the visualization of the original MDS embedding with background tiles"
-    | classes originalPositions groups |
+    | groups |
     self initializeWith: aSolver.
-    classes := aSolver topology swSystem classes.
-    originalPositions := aSolver topology layoutMatrix.
-    
-    groups := classes groupedBy: [ :eachClass | 
-        | pos |
-        pos := originalPositions rowAt: eachClass id.
-        (pos first) @ (pos last) ].
-
-    1 to: aSolver graph structure nRows do: [ :row |
-        1 to: aSolver graph structure nColumns do: [ :col |
-            | currentPoint |
-            currentPoint := col @ row.
-            
-            (groups includesKey: currentPoint) ifFalse: [
-                | backgroundTile |
-                backgroundTile := RSBox new.
-                backgroundTile 
-                    size: self tileVisitor class tileSize;
-                    color: Color white;
-                    withBorder;
-                    position: (self positionOnCanvasForPoint: currentPoint).
-                self canvas add: backgroundTile.
-            ].
-        ]
-    ].
-
-    groups keysAndValuesDo: [ :matrixPoint :classesInPos | 
-        | shape label composite popupText |
-        shape := RSBox new.
-        shape size: self tileVisitor class tileSize;
-               color: Color black.
-        
-        label := RSLabel new.
-        label text: classesInPos size printString;
-               color: Color white;
-               fontSize: self tileVisitor class tileSize * 0.6.
-        
-        composite := RSComposite new 
-			add: shape;
-         add: label;
-        	adjustToChildren;
-        	position: (self positionOnCanvasForPoint: matrixPoint).
-        
-        popupText := String cr join: (classesInPos collect: #name).
-        composite @ (RSPopup new text: popupText).
-        
-        self canvas add: composite ].
-    
+    groups := self buildPositionGroupsFor: aSolver.
+    self addBackgroundTilesFor: aSolver notInGroups: groups.
+    self addClassCompositesFromGroups: groups.
     self canvas addBorderWithColor: Color black andWidth: 20.
     self addGridLabelsToCanvas: self canvas.
     self canvas openWithTitle: 'Wassis - MDS embedding'
