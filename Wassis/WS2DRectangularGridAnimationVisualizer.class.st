@@ -185,6 +185,17 @@ WS2DRectangularGridAnimationVisualizer >> diffPerStep: anObject [
 	diffPerStep := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WS2DRectangularGridAnimationVisualizer >> goToIndex: aTargetIndex [
+    "Go to the specified index of the visualization"
+
+    (aTargetIndex < 0 or: [ aTargetIndex > maxIndex ]) ifTrue: [ self error: 'Index out of bounds' ].
+
+    index < aTargetIndex
+        ifTrue:  [ index to: aTargetIndex - 1 do: [ :_ | self stepForward ] ]
+        ifFalse: [ index to: aTargetIndex + 1 by: -1 do: [ :_ | self stepBack ] ]
+]
+
 { #category : 'animation' }
 WS2DRectangularGridAnimationVisualizer >> goToStart [
 	"Reset the canvas to the initial state"

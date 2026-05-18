@@ -9,7 +9,8 @@ Class {
 		'stepBackButton',
 		'playAndPauseButton',
 		'stepButton',
-		'statusLabel'
+		'statusLabel',
+		'slider'
 	],
 	#category : 'Wassis-Presenter',
 	#package : 'Wassis',
@@ -23,7 +24,7 @@ WSAnimationPresenter >> applyLayout [
 	layout := SpBoxLayout newVertical
         add: roassalPresenter;
 		  add: statusLabel expand: false;
-		  spacing: 2;
+		  add: slider expand: false;
         add: (SpBoxLayout newHorizontal
             add: resetButton; add: stepBackButton; add: playAndPauseButton; add: stepButton ; 
             yourself) expand: false;
@@ -33,8 +34,8 @@ WSAnimationPresenter >> applyLayout [
 { #category : 'event handling' }
 WSAnimationPresenter >> atStartOfAnimation [
 	"Execute this method when the animation has not started yet"
-		
-	self setEnableTo: false forButtons: { resetButton . stepBackButton }
+	
+	self updateStatus.
 ]
 
 { #category : 'initialization' }
@@ -60,6 +61,7 @@ WSAnimationPresenter >> initializePresenter [
 	
 	self initializeStatusLabel.
 	self initializeButtons.
+	self initializeSlider.
 	self applyLayout.
 	self subscribeToEvents.
 
@@ -74,15 +76,26 @@ WSAnimationPresenter >> initializeResetButton [
 		label: 'Reset';
 		action: [ self performReset ];
 		yourself.
-	
-	resetButton enabled: false.
+		
+	resetButton enabled: false
+]
+
+{ #category : 'initialization' }
+WSAnimationPresenter >> initializeSlider [
+    slider := self newSlider.
+    slider
+        min: 0;
+        max: visualizer maxIndex;      
+		  whenValueChangedDo: [ :v |
+            visualizer goToIndex: v rounded.
+				self updateButtonStatus ]
 ]
 
 { #category : 'initialization' }
 WSAnimationPresenter >> initializeStatusLabel [
 
     statusLabel := self newLabel.
-	 self updateStatusLabel 
+	 self updateLabelStatus 
 ]
 
 { #category : 'initialization' }
@@ -118,12 +131,8 @@ WSAnimationPresenter >> initializeplayAndPauseButton [
 WSAnimationPresenter >> onAnimationFinished [
 	"Execute this method when the animation has finished"
 	
-	self setEnableTo: true forButtons: { resetButton . stepBackButton }.
-	stepButton enabled: false.
-	
-	playAndPauseButton 
-		enabled: false;
-		label: 'Play'.
+	self updateStatus 
+	playAndPauseButton label: 'Play'.
 	
 
 	
@@ -134,24 +143,23 @@ WSAnimationPresenter >> onAnimationFinished [
 WSAnimationPresenter >> performReset [
 	
 	visualizer goToStart.
-	self setEnableTo: true forButtons: { playAndPauseButton . stepButton }.
-	self setEnableTo: false forButtons: { resetButton . stepBackButton }.	
+	self updateButtonStatus.
 ]
 
 { #category : 'event handling' }
 WSAnimationPresenter >> performStepBack [
 
-    self setEnableTo: true forButtons: { playAndPauseButton . stepButton }.
     visualizer stepBack.
-    self updateStatusLabel.
+	 self updateButtonStatus.
+    self updateLabelStatus.
 ]
 
 { #category : 'event handling' }
 WSAnimationPresenter >> performStepForward [
 
-    self setEnableTo: true forButtons: { resetButton . stepBackButton }.
     visualizer stepForward.
-    self updateStatusLabel.
+	 self updateButtonStatus.
+    self updateLabelStatus.
 ]
 
 { #category : 'accessing' }
@@ -235,7 +243,7 @@ WSAnimationPresenter >> subscribeToEvents [
 	
 	visualizer announcer 
 		when: WSAnimationIndexChanged 
-		do: [ self updateStatusLabel ]
+		do: [ self updateStatus  ]
 		for: self
 ]
 
@@ -257,10 +265,34 @@ WSAnimationPresenter >> togglePlayAndPauseButton [
 ]
 
 { #category : 'update' }
-WSAnimationPresenter >> updateStatusLabel [
+WSAnimationPresenter >> updateButtonStatus [
+    | atStart atEnd |
+    atStart := visualizer index = 0.
+    atEnd   := visualizer index = visualizer maxIndex.
+    self setEnableTo: atStart not forButtons: { resetButton . stepBackButton }.
+    self setEnableTo: atEnd not forButtons: { stepButton . playAndPauseButton }
+]
+
+{ #category : 'update' }
+WSAnimationPresenter >> updateLabelStatus [
 	"Update the status label with the percentage"
 
 	 | percentage |
     percentage := (visualizer index / visualizer maxIndex * 100.0) printShowingDecimalPlaces: 1.
 	 statusLabel label: 'Step: ' , visualizer index printString , ' / ' , visualizer maxIndex printString, ' (' , percentage , '%)'
+]
+
+{ #category : 'update' }
+WSAnimationPresenter >> updateSliderIndexStatus [
+	"Update the slider position"
+
+	slider absoluteValue: (visualizer index / visualizer maxIndex).
+]
+
+{ #category : 'update' }
+WSAnimationPresenter >> updateStatus [ 
+	
+	self updateButtonStatus.
+	self updateLabelStatus.
+	self updateSliderIndexStatus.
 ]
