@@ -17,6 +17,106 @@ Class {
 	#tag : 'Visualization'
 }
 
+{ #category : 'visualization-MDS' }
+WSVisualizer >> addAxisLabels: classNames composites: composites columnCount: nCol [
+	"Add the labels on the rows and the columns"
+
+    classNames doWithIndex: [ :name :i |
+        self addRowLabel: name index: i composites: composites columnCount: nCol.
+        self addColLabel: name index: i composites: composites ]
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> addColLabel: name index: i composites: composites [
+	"Create the labels of class names for the columns. Rotate them for better visualization"
+
+    | colNode label offset rotateBy textLength textHeight |
+    offset := 15.
+    rotateBy := -45.
+    colNode := composites at: i.
+    label := RSLabel new
+        text: name;
+        fontSize: self distanceCellSize * 0.2;
+        color: Color black;
+        yourself.
+    canvas add: label.
+    textLength := label encompassingRectangle width.
+    textHeight := label encompassingRectangle height.
+    label rotateByDegrees: rotateBy.
+    label position:
+        colNode position x
+        @ (colNode position y - (self distanceCellSize / 2) - offset - (label encompassingRectangle height / 2)).
+    label translateBy:
+        ((textLength / 2) * ((90 - rotateBy abs) degreesToRadians sin)) - ((textHeight / 2) * (rotateBy abs degreesToRadians sin)) @ 0
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> addRowLabel: name index: i composites: composites columnCount: nCol [
+	"Add the of class names labels for the rows. Align them at the end"
+
+    | rowNode label offset |
+    offset := 30.
+    rowNode := composites at: (i - 1) * nCol + 1.
+    label := RSLabel new
+        text: name;
+        fontSize: self distanceCellSize * 0.2;
+        color: Color black;
+        yourself.
+    canvas add: label.
+    label position:
+        (rowNode position x - (self distanceCellSize / 2) - offset - (label encompassingRectangle width / 2)) @ rowNode position y
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> buildDistanceBox [
+	"Build the box to visualize the distance"
+	
+    | size borderWidth |
+    size := self distanceCellSize.
+    borderWidth := self distanceCellBorderWidth.
+    ^ RSBox new
+        size: size;
+        color: Color white;
+        borderColor: Color black;
+        borderWidth: borderWidth;
+        yourself
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> buildDistanceCompositeFor: aDistance [
+	"Create the composite for a single disatnce between two classes"
+
+    | shape label |
+    shape := self buildDistanceBox.
+    label := self buildDistanceLabelFor: aDistance.
+    ^ RSComposite new
+        add: shape;
+        add: label;
+        adjustToChildren;
+        yourself
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> buildDistanceComposites: distanceValues [
+	"Build the composites to visualize the MDS values"
+	
+    ^ distanceValues collect: [ :eachDistance |
+        self buildDistanceCompositeFor: eachDistance ]
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> buildDistanceLabelFor: aDistance [
+	"Create the labels to put in each composite, represting the distance"
+
+    | text |
+    text := aDistance = Float infinity ifTrue: [ 'Inf' ] ifFalse: [ aDistance printString ].
+    ^ RSLabel new
+        text: text;
+        fontSize: self distanceCellSize * 0.3;
+        color: Color black;
+        yourself
+]
+
 { #category : 'accessing' }
 WSVisualizer >> canvas [
 
@@ -44,11 +144,34 @@ WSVisualizer >> createVisualizationFor: aSolver [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'visualization-MDS' }
+WSVisualizer >> distanceCellBorderWidth [
+
+    ^ 5
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> distanceCellSize [
+
+    ^ 200
+]
+
 { #category : 'initialization' }
 WSVisualizer >> initialize [
 
 	super initialize.
 	self clear
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> layoutComposites: composites columnCount: nCol [
+	"Apply the grid layout on the canvas"
+	
+    canvas addAll: composites.
+    RSGridLayout new
+        gapSize: 0 - self distanceCellBorderWidth;
+        lineItemsCount: nCol;
+        on: canvas nodes
 ]
 
 { #category : 'accessing' }
@@ -61,6 +184,18 @@ WSVisualizer >> nodesShapes [
 WSVisualizer >> nodesShapes: anObject [
 
 	nodesShapes := anObject
+]
+
+{ #category : 'visualization-MDS' }
+WSVisualizer >> openPresenterWith: initialClassDistances classDistances: classDistances composites: composites [
+
+    presenter := WSClassDistancesPresenter new.
+    presenter
+        initialClassDistances: initialClassDistances;
+        classDistances: classDistances;
+        composites: composites;
+        setCanvas: canvas;
+        open
 ]
 
 { #category : 'accessing' }
@@ -99,6 +234,15 @@ WSVisualizer >> solver: anObject [
 	solver := anObject
 ]
 
+{ #category : 'visualization-MDS' }
+WSVisualizer >> sortedClassNamesFrom: aLayoutStrategy [
+	"Sort the class names of the swSystem based on their ID"
+	
+    ^ (aLayoutStrategy classes associations
+        asSortedCollection: [ :a :b | a key < b key ])
+        collect: [ :assoc | assoc value name ]
+]
+
 { #category : 'accessing' }
 WSVisualizer >> tileVisitor [
 
@@ -113,78 +257,17 @@ WSVisualizer >> tileVisitor: anObject [
 
 { #category : 'visualization-MDS' }
 WSVisualizer >> visualizeMDSDistancesMatrixFor: aLayoutStrategy [
-"Create the visualization of the matrix"
+    "Create the visualization of the matrix of distances given to MDS"
 
-	| borderWidth size initialClassDistances classDistances nCol composites classNames |
-	size := 200.
-	borderWidth := 5.
-	nCol := aLayoutStrategy initialClassDistances dimension y.
-	initialClassDistances := aLayoutStrategy initialClassDistances flattenRows .
-	classDistances := aLayoutStrategy classDistances flattenRows.
-	
-	    classNames := (aLayoutStrategy classes associations 
-        asSortedCollection: [ :a :b | a key < b key ])
-        collect: [ :assoc | assoc value name ].
+    | nCol initialClassDistances classDistances classNames composites |
+    nCol := aLayoutStrategy initialClassDistances dimension y.
+    initialClassDistances := aLayoutStrategy initialClassDistances flattenRows.
+    classDistances := aLayoutStrategy classDistances flattenRows.
+    classNames := self sortedClassNamesFrom: aLayoutStrategy.
 
-	composites :=
-		(initialClassDistances collect: [ :eachDistance | 
-				| com shape label |
-				shape := RSBox new 
-					size: size;
-					color: Color white; 
-					borderColor: Color black; borderWidth: borderWidth;
-					yourself.
-				label := RSLabel new 
-					text: (eachDistance = Float infinity ifTrue: [ 'Inf' ] ifFalse: [ eachDistance printString ]);
-					fontSize: size * 0.3;
-					color: Color black; yourself.
-				com := RSComposite new add: shape; add: label; adjustToChildren; yourself.
-		]).
-	
-	canvas addAll: composites.
-	RSGridLayout new
-		gapSize: 0 - borderWidth;
-		lineItemsCount: nCol;
-		on: canvas nodes.
-		
-	classNames doWithIndex: [ :name :i |
-    | rowNode colNode rowLabel colLabel rowOffset colOffset rotateBy textLength |
-    rowOffset := 30.
-    colOffset := 15.
-	 rotateBy := -45.
+    composites := self buildDistanceComposites: initialClassDistances.
+    self layoutComposites: composites columnCount: nCol.
+    self addAxisLabels: classNames composites: composites columnCount: nCol.
 
-    rowNode := composites at: (i - 1) * nCol + 1.
-    rowLabel := RSLabel new
-        text: name;
-        fontSize: size * 0.2;
-        color: Color black;
-        yourself.
-    canvas add: rowLabel.
-    rowLabel position: 
-        (rowNode position x - (size / 2) - rowOffset - (rowLabel encompassingRectangle width / 2)) 
-        @ rowNode position y.
-
-    colNode := composites at: i.
-    colLabel := RSLabel new
-        text: name;
-        fontSize: size * 0.2;
-        color: Color black;
-        yourself.
-   	 canvas add: colLabel.
-	textLength := colLabel encompassingRectangle width.
-    colLabel rotateByDegrees: rotateBy .
-    colLabel position: 
-        colNode position x 
-        @ (colNode position y - (size / 2) - colOffset - (colLabel encompassingRectangle height / 2)).
-	 colLabel translateBy: 
-		((textLength / 2) * ((90 - (rotateBy abs)) degreesToRadians sin)) @ 0.
-].
-		
-	presenter := WSClassDistancesPresenter new.
-	presenter 
-		initialClassDistances: initialClassDistances;
-		classDistances: classDistances;
-		composites: composites;
-		setCanvas: canvas;
-		open.
+    self openPresenterWith: initialClassDistances classDistances: classDistances composites: composites.
 ]

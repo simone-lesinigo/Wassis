@@ -79,11 +79,17 @@ WSClassDistancesPresenter >> initializePresenter [
 WSClassDistancesPresenter >> initializeToggleButton [
 	
 	toggleButton := self newButton 
-		label: 'Toggle';
+		label: 'Calculate distances';
 		action: [
 			showingInitial 
-				ifTrue: [ self switchToMatrix: classDistances ] 
-				ifFalse: [ self switchToMatrix: initialClassDistances ].
+				ifTrue: [ 
+					toggleButton label: 'Return to start'.
+					self switchToMatrix: classDistances.		
+				] 
+				ifFalse: [ 
+					toggleButton label: 'Calculate distances'.
+					self switchToMatrix: initialClassDistances 
+				].
 			showingInitial := showingInitial not.	
 		];
 		yourself.
