@@ -27,8 +27,9 @@ BaselineOfWassis >> baseline: spec [
         spec 
             package: 'Wassis' 
             with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON') ];
-
-			   package: 'Wassis-Tests'
-			   with: [ spec requires: #('Wassis') ].
+            package: 'Wassis-Visualization'
+            with: [ spec requires: #('Wassis' 'Roassal') ];
+            package: 'Wassis-Tests'
+            with: [ spec requires: #('Wassis' 'Wassis-Visualization') ].
     ]
 ]
