@@ -170,6 +170,58 @@ WSMDSLayoutStrategy >> matrix: anObject [
 	matrix := anObject
 ]
 
+{ #category : 'calculating' }
+WSMDSLayoutStrategy >> normalizeMatrix [
+    "Normalize all dimensions using a single global min/max"
+
+    | dim nRows nColumns globalMin globalMax den |
+    dim := self matrix dimension.
+    nRows := dim x.
+    nColumns := dim y.
+
+    globalMin := Float infinity.
+    globalMax := Float infinity negated.
+
+    1 to: nColumns do: [ :col |
+        | values |
+        values := self matrix columnAt: col.
+        globalMin := globalMin min: values min.
+        globalMax := globalMax max: values max ].
+
+    den := globalMax - globalMin.
+
+    1 to: nColumns do: [ :col |
+        | values normalized |
+        values := self matrix columnAt: col.
+        normalized := den = 0
+            ifTrue: [ Array new: nRows withAll: 0.5 ]
+            ifFalse: [ values collect: [ :each | (each - globalMin) / den ] ].
+        self matrix atColumn: col put: normalized ]
+]
+
+{ #category : 'calculating' }
+WSMDSLayoutStrategy >> normalizeMatrix2 [
+	"Normalize the values of each column between 0 and 1"
+
+	| dim nRows nColumns |
+	dim := self matrix dimension.
+	nRows := dim x.
+	nColumns := dim y.
+
+	1 to: nColumns do: [ :col |
+		| values min den normalized |
+		values := self matrix columnAt: col.
+		min := values min.
+		den := values max - min.
+		
+		 normalized := den = 0
+            ifTrue: [ Array new: nRows withAll: 0.5 ]
+            ifFalse: [ values collect: [ :each | (each - min) / den ] ].
+
+		self matrix atColumn: col put: normalized.
+	]
+]
+
 { #category : 'accessing' }
 WSMDSLayoutStrategy >> replaceInfiniteValues [
     "Replace remaining infinite distances with a value larger than the graph diameter"
