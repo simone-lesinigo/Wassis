@@ -216,7 +216,7 @@ WSMDSLayoutStrategy >> createDiagonalEigenvaluesMatrix [
 	dMatrix := PMMatrix zerosRows: dim cols: dim.
 	
 	values := (self eigenvalues first: dim) collect: [ :each | each sqrt ].
-	
+
 	^ dMatrix setDiagonal: values.
 	
 	
@@ -243,10 +243,7 @@ WSMDSLayoutStrategy >> createPositionMatrix [
 	
 	em := self createEm.
 	lambda := self createDiagonalEigenvaluesMatrix.
-	
 	self matrix: (em * lambda).
-
-	"self visualizeEmbedding"
 	
 	
 	
@@ -310,7 +307,7 @@ WSMDSLayoutStrategy >> executeFloydWarshall [
 						m at: i at: j put: (ij min: ikj) ]
 				 ] ] ].
 	
-	self classDistances: self matrix.
+
 	
 ]
 
@@ -371,6 +368,35 @@ WSMDSLayoutStrategy >> matrix: anObject [
 
 { #category : 'calculating' }
 WSMDSLayoutStrategy >> normalizeMatrix [
+    "Normalize all dimensions using a single global min/max"
+
+    | dim nRows nColumns globalMin globalMax den |
+    dim := self matrix dimension.
+    nRows := dim x.
+    nColumns := dim y.
+
+    globalMin := Float infinity.
+    globalMax := Float infinity negated.
+
+    1 to: nColumns do: [ :col |
+        | values |
+        values := self matrix columnAt: col.
+        globalMin := globalMin min: values min.
+        globalMax := globalMax max: values max ].
+
+    den := globalMax - globalMin.
+
+    1 to: nColumns do: [ :col |
+        | values normalized |
+        values := self matrix columnAt: col.
+        normalized := den = 0
+            ifTrue: [ Array new: nRows withAll: 0.5 ]
+            ifFalse: [ values collect: [ :each | (each - globalMin) / den ] ].
+        self matrix atColumn: col put: normalized ]
+]
+
+{ #category : 'calculating' }
+WSMDSLayoutStrategy >> normalizeMatrix2 [
 	"Normalize the values of each column between 0 and 1"
 
 	| dim nRows nColumns |
@@ -414,8 +440,10 @@ WSMDSLayoutStrategy >> run [
 	self fillDirectConnections.
    self executeFloydWarshall.
 	self replaceInfiniteValues. 
+	self classDistances: self matrix.
    self computeEmbedding. 
-   self normalizeMatrix
+   self normalizeMatrix.
+	self visualizeEmbedding.
 ]
 
 { #category : 'calculating' }
@@ -434,16 +462,19 @@ WSMDSLayoutStrategy >> visualizeEmbedding [
     
     shapes := self classes keysAndValuesDo: [ :id :class |
         | row shape scaleBy |
-		  scaleBy := 1000.
+		  scaleBy := 100.
         row := self matrix rowAt: id.
 
         shape := RSComposite new.
-		  shape add: (RSEllipse new size: 100);
-			 add: (RSLabel new text: class name).
+		  shape add: (RSEllipse new size: 10)";
+			 add: (RSLabel new text: class name)".
 		 	shape adjustToChildren.
 
         canvas add: shape.
-        shape translateTo: (row first * scaleBy ) @ (row second * scaleBy ) negated].
+        shape translateTo: (row first * scaleBy ) @ (row second * scaleBy ).
+			 shape @ (RSPopup new text: ('name: {4} {3} Pos: {1} @ {2} ' format: {row first . row second . String cr . class name}))
+].
+		 
     
     canvas @ RSCanvasController.
     ^ canvas open

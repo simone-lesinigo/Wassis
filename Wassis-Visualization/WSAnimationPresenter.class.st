@@ -133,6 +133,7 @@ WSAnimationPresenter >> initializeVisualizationMenuBar [
                 addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
                 addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
                 addItem: [ :sub | sub name: 'Heap'; action: [ self openHeapPresenter ] ];
+					 addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
                 yourself) ] ]
 ]
 
@@ -169,6 +170,14 @@ WSAnimationPresenter >> openClassDistancesPresenter [
         composites: data composites;
         setCanvas: data initialCanvas;
         open
+]
+
+{ #category : 'presenter opening' }
+WSAnimationPresenter >> openClassesGraphPresenter [
+	
+	| visualizer |
+	visualizer:= WSClassesGraphVisualizer withClasses: (model solver topology swSystem classes).
+	visualizer createVisualization.
 ]
 
 { #category : 'presenter opening' }

@@ -68,7 +68,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 WSAdaptive2DGridSolver >> resetEnvironment [
 	
 	WSConfig reset.
-	WSMDSLayoutStrategy resetCache.
+	WSConfig placementStrategy  resetCache.
 	WSTileVisitor resetPathIDColorDictionary 
 	
 	
@@ -154,11 +154,11 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 
 	performanceMetrics 
 		totalTime: totalTime;
-		mdsTime: WSMDSLayoutStrategy computationTime.
+		embeddingTime: WSConfig placementStrategy computationTime.
 	
 	"Only the first solver calculates the MDS position matrix, for the others is cached"
 	self solver id ~= 1 ifTrue: [ 
-		performanceMetrics solverTotalTime: (performanceMetrics solverTotalTime + performanceMetrics mdsTime).
+		performanceMetrics solverTotalTime: (performanceMetrics solverTotalTime + performanceMetrics embeddingTime).
 	].
 	
 	performanceMetrics wastedTime: (totalTime - (performanceMetrics solverTotalTime)).

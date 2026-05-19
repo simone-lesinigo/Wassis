@@ -130,7 +130,7 @@ WSSoftwareSystem >> createPathIDsFromClasses [
 
 { #category : 'creation' }
 WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge [
-    "Classi connesse alla stessa destinazione condividono il pathID"
+    "Classes that are connected to the same class share the same pathID"
     
         | destinationToSources |
     destinationToSources := Dictionary new.

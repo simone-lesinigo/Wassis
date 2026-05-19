@@ -5,7 +5,7 @@ Class {
 	#name : 'WSPerformanceMetrics',
 	#superclass : 'WSAbstractMetrics',
 	#instVars : [
-		'mdsTime',
+		'embeddingTime',
 		'wfcTime',
 		'visualizationTime',
 		'solverTotalTime',
@@ -19,23 +19,23 @@ Class {
 	#tag : 'Metrics'
 }
 
+{ #category : 'accessing' }
+WSPerformanceMetrics >> embeddingTime [
+
+	^ embeddingTime 
+]
+
+{ #category : 'accessing' }
+WSPerformanceMetrics >> embeddingTime: anObject [
+
+	embeddingTime := anObject
+]
+
 { #category : 'initialization' }
 WSPerformanceMetrics >> initialize [ 
 	
 	super initialize.
 	self totalNumberOfTries: 1
-]
-
-{ #category : 'accessing' }
-WSPerformanceMetrics >> mdsTime [
-
-	^ mdsTime
-]
-
-{ #category : 'accessing' }
-WSPerformanceMetrics >> mdsTime: anObject [
-
-	mdsTime := anObject
 ]
 
 { #category : 'accessing' }

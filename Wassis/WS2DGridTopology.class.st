@@ -213,7 +213,7 @@ WS2DGridTopology >> createLayoutMatrix: aSwSystem [
 	
 	| positions colX colY |
 	self layoutStrategy: 
-		(WSMDSLayoutStrategy 
+		(WSConfig placementStrategy 
 			computeForSystem: aSwSystem withDimension: 2).
 
 	positions := layoutStrategy matrix.
@@ -224,7 +224,7 @@ WS2DGridTopology >> createLayoutMatrix: aSwSystem [
 	colY := (positions atColumn: 2) collect: 
 		[ :each | self scaleNormalizedValue: each toInnerRange: self nColumns].
 	
-	self layoutMatrix: ((PMMatrix rows: { colX . colY }) transpose).
+	self layoutMatrix: ((PMMatrix rows: { colY . colX }) transpose).
 ]
 
 { #category : 'matrix' }

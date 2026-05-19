@@ -91,7 +91,15 @@ WSClassesGraphVisualizer >> createVisualization [
 		on: self canvas nodes.
 
 	self canvas @ RSCanvasController.
-	self canvas open
+	self canvas openOnceWithTitle: 'Classes Graph'
+]
+
+{ #category : 'initialization' }
+WSClassesGraphVisualizer >> initialize [ 
+
+	super initialize.
+	self canvas: RSCanvas new.
+	self canvas @ RSCanvasController.
 ]
 
 { #category : 'accessing' }

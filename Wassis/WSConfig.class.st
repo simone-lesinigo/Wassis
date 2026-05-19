@@ -10,7 +10,8 @@ Class {
 		'EmptyTileWeight',
 		'IsHeadless',
 		'MaxNumberOfRegeneratedGraph',
-		'MaxNumberOfTriesPerGraph'
+		'MaxNumberOfTriesPerGraph',
+		'PlacementStrategy'
 	],
 	#category : 'Wassis-Config',
 	#package : 'Wassis',
@@ -122,6 +123,30 @@ WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 	MaxNumberOfTriesPerGraph := anObject
 ]
 
+{ #category : 'accessing-tileWeight' }
+WSConfig class >> placementStrategy [
+	
+	PlacementStrategy ifNil: [ 
+		| strategyKey strategyMap |
+		
+		strategyKey := self configFile atPath: {'placementStartegy'} default: 'MDS'.
+		
+		strategyMap := Dictionary new
+			at: 'MDS' put: WSMDSLayoutStrategy;
+			yourself.
+			
+		self placementStrategy: (strategyMap at: strategyKey).
+	].
+
+	^ PlacementStrategy
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> placementStrategy: anObject [
+
+	PlacementStrategy := anObject
+]
+
 { #category : 'loading' }
 WSConfig class >> readConfigFile [
 	"Read the JSON that contains the configs"
@@ -146,6 +171,7 @@ WSConfig class >> reset [
 	self emptyTileWeight: nil.
 	self classTileWeight: nil.
 	self isHeadless: nil.
+	self placementStrategy: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]
