@@ -216,7 +216,7 @@ WSAnimationPresenter >> onAnimationFinished [
 WSAnimationPresenter >> openClassDistancesPresenter [
 	"Open the presenter that visualize the class distances matrix"
 	 | data classDistancePresenter |
-	  data := WSVisualizer new visualizeClassDistancesMatrixFor: model solver topology layoutStrategy.
+	  data := WSClassDistancesVisualizer new visualizeClassDistancesMatrixFor: model solver topology layoutStrategy.
     classDistancePresenter := WSClassDistancesPresenter new.
     classDistancePresenter
         initialClassDistances: data initialClassDistances;

@@ -94,12 +94,6 @@ WSClassesGraphVisualizer >> createVisualization [
 	self canvas open
 ]
 
-{ #category : 'initialization' }
-WSClassesGraphVisualizer >> initialize [ 
-	super initialize.
-	self canvas: RSCanvas new
-]
-
 { #category : 'accessing' }
 WSClassesGraphVisualizer >> nodesShapes [
 
