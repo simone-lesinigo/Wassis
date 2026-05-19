@@ -123,16 +123,17 @@ WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 	MaxNumberOfTriesPerGraph := anObject
 ]
 
-{ #category : 'accessing-tileWeight' }
+{ #category : 'accessing' }
 WSConfig class >> placementStrategy [
 	
 	PlacementStrategy ifNil: [ 
 		| strategyKey strategyMap |
 		
-		strategyKey := self configFile atPath: {'placementStartegy'} default: 'MDS'.
+		strategyKey := self configFile atPath: {'placementStartegy'} default: 'classicMDS'.
 		
 		strategyMap := Dictionary new
-			at: 'MDS' put: WSMDSLayoutStrategy;
+			at: 'classicMDS' put: WSClassicMDSLayoutStrategy;
+			at: 'metricMDS' put: WSMetricMDSLayoutStrategy ;
 			yourself.
 			
 		self placementStrategy: (strategyMap at: strategyKey).

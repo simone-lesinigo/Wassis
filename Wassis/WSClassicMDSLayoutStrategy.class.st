@@ -2,7 +2,7 @@
 Apply Multi Dimensional Scaling and the return the matrix with th position
 "
 Class {
-	#name : 'WSMDSLayoutStrategy',
+	#name : 'WSClassicMDSLayoutStrategy',
 	#superclass : 'WSLayoutStrategy',
 	#instVars : [
 		'classes',
@@ -25,43 +25,43 @@ Class {
 }
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedDimension [
+WSClassicMDSLayoutStrategy class >> cachedDimension [
 
 	^ cachedDimension
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedDimension: anObject [
+WSClassicMDSLayoutStrategy class >> cachedDimension: anObject [
 
 	cachedDimension := anObject
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedInstance [
+WSClassicMDSLayoutStrategy class >> cachedInstance [
 
 	^ cachedInstance
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> cachedInstance: anObject [
+WSClassicMDSLayoutStrategy class >> cachedInstance: anObject [
 
 	cachedInstance := anObject
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> computationTime [
+WSClassicMDSLayoutStrategy class >> computationTime [
 
 	^ computationTime
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> computationTime: anObject [
+WSClassicMDSLayoutStrategy class >> computationTime: anObject [
 
 	computationTime := anObject
 ]
 
 { #category : 'instance creation' }
-WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimension [
+WSClassicMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimension [
 	"Compute the matrix with the position calculated by MDS"
 	
 	| instance dict |
@@ -85,7 +85,7 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 ]
 
 { #category : 'cleanup' }
-WSMDSLayoutStrategy class >> resetCache [
+WSClassicMDSLayoutStrategy class >> resetCache [
 	
 	self swSystemHash: nil.
 	self cachedInstance: nil.
@@ -94,19 +94,19 @@ WSMDSLayoutStrategy class >> resetCache [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> swSystemHash [
+WSClassicMDSLayoutStrategy class >> swSystemHash [
 
 	^ swSystemHash
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy class >> swSystemHash: anObject [
+WSClassicMDSLayoutStrategy class >> swSystemHash: anObject [
 
 	swSystemHash := anObject
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> applyDoubleCentering [
+WSClassicMDSLayoutStrategy >> applyDoubleCentering [
 	"Calculate double centering on the matrix. It means that both its row means and column means become zero"
 	
     | n rowMeans grandMean |
@@ -137,7 +137,7 @@ WSMDSLayoutStrategy >> applyDoubleCentering [
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> calculateEigenValuesAndVecotors [
+WSClassicMDSLayoutStrategy >> calculateEigenValuesAndVecotors [
 	
 	| aux |
 	aux := self matrix eigen.
@@ -147,31 +147,31 @@ WSMDSLayoutStrategy >> calculateEigenValuesAndVecotors [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> classDistances [
+WSClassicMDSLayoutStrategy >> classDistances [
 
 	^ classDistances
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> classDistances: anObject [
+WSClassicMDSLayoutStrategy >> classDistances: anObject [
 
 	classDistances := anObject
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> classes [
+WSClassicMDSLayoutStrategy >> classes [
 
 	^ classes
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> classes: anObject [
+WSClassicMDSLayoutStrategy >> classes: anObject [
 
 	classes := anObject
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> computeEmbedding [
+WSClassicMDSLayoutStrategy >> computeEmbedding [
 
 	self squareDistanceMatrix.  
 	self applyDoubleCentering.  
@@ -180,7 +180,7 @@ WSMDSLayoutStrategy >> computeEmbedding [
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> computeGraphDiameter [
+WSClassicMDSLayoutStrategy >> computeGraphDiameter [
     "Return the largest finite distance in the matrix"
 
     | n max |
@@ -195,7 +195,7 @@ WSMDSLayoutStrategy >> computeGraphDiameter [
 ]
 
 { #category : 'creation' }
-WSMDSLayoutStrategy >> createCenteringMatrix [
+WSClassicMDSLayoutStrategy >> createCenteringMatrix [
 	"Create the centering matrix I - (1/n * Jn) where where n is the number of objects, I is the n x n identity matrix, and Jn is an n x n matrix of all ones"
 	
 	| identityMatrix jn n |
@@ -207,7 +207,7 @@ WSMDSLayoutStrategy >> createCenteringMatrix [
 ]
 
 { #category : 'creation' }
-WSMDSLayoutStrategy >> createDiagonalEigenvaluesMatrix [
+WSClassicMDSLayoutStrategy >> createDiagonalEigenvaluesMatrix [
 	"Create the diagonal matrix of egeinvalues. Note that it applies the square root"
 	
 	| dim dMatrix values |
@@ -227,7 +227,7 @@ WSMDSLayoutStrategy >> createDiagonalEigenvaluesMatrix [
 ]
 
 { #category : 'creation' }
-WSMDSLayoutStrategy >> createEm [
+WSClassicMDSLayoutStrategy >> createEm [
 	"Create the matrix with the first m eigenvectors on columns"
 	
 	| em |
@@ -236,7 +236,7 @@ WSMDSLayoutStrategy >> createEm [
 ]
 
 { #category : 'creation' }
-WSMDSLayoutStrategy >> createPositionMatrix [
+WSClassicMDSLayoutStrategy >> createPositionMatrix [
 	"Compute X = Em * lambda^(1/2) where Em is the matrix of m largest eigenvectors and lambda is the diagonal matrix of m eigenvalues"
 
 	| em lambda |
@@ -252,43 +252,43 @@ WSMDSLayoutStrategy >> createPositionMatrix [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> dimension [
+WSClassicMDSLayoutStrategy >> dimension [
 
 	^ dimension
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> dimension: anObject [
+WSClassicMDSLayoutStrategy >> dimension: anObject [
 
 	dimension := anObject
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> eigenvalues [
+WSClassicMDSLayoutStrategy >> eigenvalues [
 
 	^ eigenvalues
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> eigenvalues: anObject [
+WSClassicMDSLayoutStrategy >> eigenvalues: anObject [
 
 	eigenvalues := anObject
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> eigenvectors [
+WSClassicMDSLayoutStrategy >> eigenvectors [
 
 	^ eigenvectors
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> eigenvectors: anObject [
+WSClassicMDSLayoutStrategy >> eigenvectors: anObject [
 
 	eigenvectors := anObject
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> executeFloydWarshall [ 
+WSClassicMDSLayoutStrategy >> executeFloydWarshall [ 
 	"Apply the floyd warshall algorithm to compute the distances (in terms of relations) between two classes"
 
 	| v inf m |
@@ -312,7 +312,7 @@ WSMDSLayoutStrategy >> executeFloydWarshall [
 ]
 
 { #category : 'creation' }
-WSMDSLayoutStrategy >> fillDirectConnections [
+WSClassicMDSLayoutStrategy >> fillDirectConnections [
 	"Fill the distance matrix with direct connection weights"
 
 	self classes do: [ :eachClass |
@@ -331,19 +331,19 @@ WSMDSLayoutStrategy >> fillDirectConnections [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> initialClassDistances [
+WSClassicMDSLayoutStrategy >> initialClassDistances [
 
 	^ initialClassDistances
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> initialClassDistances: anObject [
+WSClassicMDSLayoutStrategy >> initialClassDistances: anObject [
 
 	initialClassDistances := anObject
 ]
 
 { #category : 'initialization' }
-WSMDSLayoutStrategy >> initializeDistanceMatrix [
+WSClassicMDSLayoutStrategy >> initializeDistanceMatrix [
 	"Create the distances matrix filled with zeros on the diagonal, and inf in other"
     
     | n |
@@ -355,19 +355,19 @@ WSMDSLayoutStrategy >> initializeDistanceMatrix [
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> matrix [
+WSClassicMDSLayoutStrategy >> matrix [
 
 	^ matrix
 ]
 
 { #category : 'accessing' }
-WSMDSLayoutStrategy >> matrix: anObject [
+WSClassicMDSLayoutStrategy >> matrix: anObject [
 
 	matrix := anObject
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> normalizeMatrix [
+WSClassicMDSLayoutStrategy >> normalizeMatrix [
     "Normalize all dimensions using a single global min/max"
 
     | dim nRows nColumns globalMin globalMax den |
@@ -396,7 +396,7 @@ WSMDSLayoutStrategy >> normalizeMatrix [
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> normalizeMatrix2 [
+WSClassicMDSLayoutStrategy >> normalizeMatrix2 [
 	"Normalize the values of each column between 0 and 1"
 
 	| dim nRows nColumns |
@@ -419,7 +419,7 @@ WSMDSLayoutStrategy >> normalizeMatrix2 [
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> replaceInfiniteValues [
+WSClassicMDSLayoutStrategy >> replaceInfiniteValues [
     "Replace remaining infinite distances with a value larger than the graph diameter"
     
     | n diameter |
@@ -433,7 +433,7 @@ WSMDSLayoutStrategy >> replaceInfiniteValues [
 ]
 
 { #category : 'running' }
-WSMDSLayoutStrategy >> run [
+WSClassicMDSLayoutStrategy >> run [
     "Run MDS: build distance matrix, apply Floyd-Warshall, compute embedding"
     
 	self initializeDistanceMatrix.
@@ -447,14 +447,14 @@ WSMDSLayoutStrategy >> run [
 ]
 
 { #category : 'calculating' }
-WSMDSLayoutStrategy >> squareDistanceMatrix [
+WSClassicMDSLayoutStrategy >> squareDistanceMatrix [
 	"Squares each value of the matrix"
 	
 	self matrix: (self matrix collect: [ :each | each squared ])
 ]
 
 { #category : 'visualization' }
-WSMDSLayoutStrategy >> visualizeEmbedding [
+WSClassicMDSLayoutStrategy >> visualizeEmbedding [
     "Visualize the MDS embedding"
     
     | canvas shapes |

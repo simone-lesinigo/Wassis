@@ -68,7 +68,7 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 WSAdaptive2DGridSolver >> resetEnvironment [
 	
 	WSConfig reset.
-	WSConfig placementStrategy  resetCache.
+	WSConfig placementStrategy resetCache.
 	WSTileVisitor resetPathIDColorDictionary 
 	
 	

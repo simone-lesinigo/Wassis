@@ -8,3 +8,21 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Placement'
 }
+
+{ #category : 'accessing' }
+WSLayoutStrategy class >> computationTime [ 
+
+	^ self subclassResponsibility 
+]
+
+{ #category : 'instance creation' }
+WSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimension [
+	
+	^ self subclassResponsibility 
+]
+
+{ #category : 'initialization' }
+WSLayoutStrategy class >> resetCache [
+	
+	^ self subclassResponsibility 
+]
