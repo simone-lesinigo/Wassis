@@ -159,7 +159,7 @@ WS2DRectangularGridAnimationVisualizer >> createPossibleTilesCanvasFor: aNode [
 	possibleTilesCanvas := RSCanvas new.
 	aNode possibleTiles do: [ :eachTile | 
 		| shape |
-		shape := eachTile accept: self animationData tileVisitor.
+		shape := eachTile accept: self solver topology visualizer tileVisitor.
 		possibleTilesCanvas add: shape.
 		shape borderColor: Color black.
 		shape when: RSMouseLeftClick do: [ eachTile inspect ] for: self

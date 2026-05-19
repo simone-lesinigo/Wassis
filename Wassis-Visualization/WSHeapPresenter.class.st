@@ -20,8 +20,28 @@ WSHeapPresenter >> applyLayout [
 WSHeapPresenter >> initializePresenter [
 	
 	super initializePresenter.
-	self windowTitle: 'Heap Visualization'.
+	self updateWindowTitle.
 	self applyLayout.
 	
+	model announcer 
+		when: WSAnimationIndexChanged 
+		do: [self updateWindowTitle ]
+		for: self
 	
+	
+	
+	
+]
+
+{ #category : 'initialization' }
+WSHeapPresenter >> initializeWindow: aWindow [
+    super initializeWindow: aWindow.
+    aWindow whenClosedDo: [ 
+        model announcer announce: WSHeapPresenterClosed ]
+]
+
+{ #category : 'activation' }
+WSHeapPresenter >> updateWindowTitle [ 
+	
+	self windowTitle: ('Heap Visualization at step {1}' format: { model index }).
 ]
