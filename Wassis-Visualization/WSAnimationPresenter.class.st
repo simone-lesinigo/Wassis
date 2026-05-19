@@ -9,9 +9,7 @@ Class {
 		'stepBackButton',
 		'playAndPauseButton',
 		'stepButton',
-		'classDistancesButton',
-		'mdsPositionButton',
-		'heapButton',
+		'visualizationMenuBar',
 		'statusLabel',
 		'slider'
 	],
@@ -25,9 +23,7 @@ WSAnimationPresenter >> applyLayout [
 	"Apply the layout on the presenter"	
 
 	layout := SpBoxLayout newVertical
-        add: (SpBoxLayout newHorizontal
-        		add: classDistancesButton ; add: mdsPositionButton ; add: heapButton; 
-            yourself) expand: false;
+        add: visualizationMenuBar expand: false;
         add: roassalPresenter;
 		  add: statusLabel expand: false;
 		  add: slider expand: false;
@@ -44,37 +40,10 @@ WSAnimationPresenter >> atStartOfAnimation [
 	self updateStatus.
 ]
 
-{ #category : 'accessing' }
-WSAnimationPresenter >> classDistancesButton [
-
-	^ classDistancesButton
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> classDistancesButton: anObject [
-
-	classDistancesButton := anObject
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> heapButton [
-
-	^ heapButton
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> heapButton: anObject [
-
-	heapButton := anObject
-]
-
 { #category : 'initialization' }
 WSAnimationPresenter >> initializeButtons [
 	"Initialize the buttons of the presenter"
 	
-	self initializeClassDistancesButton. 
-	self initializeMDSPositionButton.
-	self initializeHeapButton.
 	self initializeResetButton.
 	self initializeStepBackButton.
 	self initializeStepForwardButton.
@@ -87,33 +56,6 @@ WSAnimationPresenter >> initializeButtons [
 
 ]
 
-{ #category : 'initialization-buttons' }
-WSAnimationPresenter >> initializeClassDistancesButton [
-	
-	classDistancesButton := self newButton 
-		label: 'Open Class Distances Visualization';
-		action: [ self openClassDistancesPresenter ];
-		yourself.
-]
-
-{ #category : 'initialization-buttons' }
-WSAnimationPresenter >> initializeHeapButton [
-	
-	heapButton := self newButton 
-		label: 'Open Heap Visualization';
-		action: [ self openHeapPresenter ];
-		yourself.
-]
-
-{ #category : 'initialization-buttons' }
-WSAnimationPresenter >> initializeMDSPositionButton [
-	
-	mdsPositionButton := self newButton 
-		label: 'Open MDS Position Visualization';
-		action: [ self openMDSPositionPresenter ];
-		yourself.
-]
-
 { #category : 'initialization' }
 WSAnimationPresenter >> initializePresenter [
 
@@ -121,6 +63,7 @@ WSAnimationPresenter >> initializePresenter [
 	self windowTitle: 'Wassis-Animation'.
 	
 	self initializeStatusLabel.
+	self initializeVisualizationMenuBar.
 	self initializeButtons.
 	self initializeSlider.
 	self applyLayout.
@@ -179,6 +122,20 @@ WSAnimationPresenter >> initializeStepForwardButton [
 		yourself.
 ]
 
+{ #category : 'initialization' }
+WSAnimationPresenter >> initializeVisualizationMenuBar [
+
+    visualizationMenuBar := self newMenuBar.
+    visualizationMenuBar addGroup: [ :group |
+        group addItem: [ :item |
+            item name: 'Visualization';
+            subMenu: (SpMenuPresenter new
+                addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
+                addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
+                addItem: [ :sub | sub name: 'Heap'; action: [ self openHeapPresenter ] ];
+                yourself) ] ]
+]
+
 { #category : 'initialization-buttons' }
 WSAnimationPresenter >> initializeplayAndPauseButton [
 	
@@ -186,18 +143,6 @@ WSAnimationPresenter >> initializeplayAndPauseButton [
 		label: 'Play';
 		action: [ self togglePlayAndPauseButton ];
 		yourself.
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> mdsPositionButton [
-
-	^ mdsPositionButton
-]
-
-{ #category : 'accessing' }
-WSAnimationPresenter >> mdsPositionButton: anObject [
-
-	mdsPositionButton := anObject
 ]
 
 { #category : 'event handling' }
@@ -226,7 +171,16 @@ WSAnimationPresenter >> openClassDistancesPresenter [
         open
 ]
 
-{ #category : 'initialization-buttons' }
+{ #category : 'presenter opening' }
+WSAnimationPresenter >> openHeapPresenter [
+	
+	| heapVisualizer heapPresenter |
+	heapVisualizer := WSHeapVisualizer withModel: model.
+	heapPresenter := WSHeapPresenter withModel: model.
+	heapPresenter setCanvas: heapVisualizer canvas; open
+]
+
+{ #category : 'presenter opening' }
 WSAnimationPresenter >> openMDSPositionPresenter [
 	
 	| newVisualizer |
@@ -380,4 +334,16 @@ WSAnimationPresenter >> updateStatus [
 	self updateSliderIndexStatus.
 	model  isPlaying ifTrue: [ ^ self ].
 	self updateButtonStatus.
+]
+
+{ #category : 'accessing' }
+WSAnimationPresenter >> visualizationMenuBar [
+
+	^ visualizationMenuBar
+]
+
+{ #category : 'accessing' }
+WSAnimationPresenter >> visualizationMenuBar: anObject [
+
+	visualizationMenuBar := anObject
 ]

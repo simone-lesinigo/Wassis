@@ -10,9 +10,9 @@ Class {
 		'lowEntropyColor',
 		'highEntropyColor'
 	],
-	#category : 'Wassis-Visualization-Visualization',
+	#category : 'Wassis-Visualization-Data',
 	#package : 'Wassis-Visualization',
-	#tag : 'Visualization'
+	#tag : 'Data'
 }
 
 { #category : 'instance creation' }

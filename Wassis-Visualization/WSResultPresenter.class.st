@@ -40,7 +40,7 @@ WSResultPresenter >> initializeShowAnimationButton [
 		yourself.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'presenter opening' }
 WSResultPresenter >> openAnimationPresenter [
 	 "Open the presenter with the animation"
 	

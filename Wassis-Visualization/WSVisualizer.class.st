@@ -9,8 +9,7 @@ Class {
 		'tileVisitor',
 		'shapesNodes',
 		'nodesShapes',
-		'solver',
-		'presenter'
+		'solver'
 	],
 	#category : 'Wassis-Visualization-Visualization',
 	#package : 'Wassis-Visualization',
@@ -61,18 +60,6 @@ WSVisualizer >> nodesShapes [
 WSVisualizer >> nodesShapes: anObject [
 
 	nodesShapes := anObject
-]
-
-{ #category : 'accessing' }
-WSVisualizer >> presenter [
-
-	^ presenter
-]
-
-{ #category : 'accessing' }
-WSVisualizer >> presenter: anObject [
-
-	presenter := anObject
 ]
 
 { #category : 'accessing' }

@@ -1,3 +1,6 @@
+"
+Triggered when the animatio took a step forward
+"
 Class {
 	#name : 'WSAnimationStepForward',
 	#superclass : 'Announcement',
