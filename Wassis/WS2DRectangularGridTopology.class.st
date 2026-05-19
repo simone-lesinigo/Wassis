@@ -368,6 +368,16 @@ WS2DRectangularGridTopology >> createUncollapsedTile [
 	
 ]
 
+{ #category : 'visualization' }
+WS2DRectangularGridTopology >> createVisualizationFor: aSolver [
+
+	| presenter canvas |
+	presenter := WSResultPresenter new.
+	canvas := self visualizer createCanvasFor: aSolver.
+	presenter solver: aSolver; setCanvas: canvas; open. 
+	
+]
+
 { #category : 'accessing' }
 WS2DRectangularGridTopology >> emptyTile [
 

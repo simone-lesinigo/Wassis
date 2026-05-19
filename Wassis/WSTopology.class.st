@@ -86,6 +86,12 @@ WSTopology >> createTileset [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'visualization' }
+WSTopology >> createVisualizationFor: aSolver [
+	
+	^ self subclassResponsibility 
+]
+
 { #category : 'creation' }
 WSTopology >> initializeWith: aSwSystem [
 

@@ -225,20 +225,6 @@ WSSolver >> copyOfNodesWithoutEdges: touchedNodes [
 	  ]) asOrderedCollection 
 ]
 
-{ #category : 'visualization-historyWave' }
-WSSolver >> createFullWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
-	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
-
-	| visualizer |
-	visualizer := self topology visualizer asAnimationVisualizer.
-	visualizer 
-		createFullWaveVisualization: self 
-		withMilliSecDelay: aDelay 
-		withColorMap: (WSEntropyColorMap 
-			fromColor: aLowEntropyColor  
-			toColor: aHighEntropyColor).
-]
-
 { #category : 'visualization-history' }
 WSSolver >> createHistoryVisualization [
 	"Create a timelapse with the progress of the collapse of the solution"
@@ -271,21 +257,7 @@ WSSolver >> createTemporaryVisualization [
 { #category : 'visualization' }
 WSSolver >> createVisualization [ 
 	
-	self topology visualizer createVisualizationFor: self
-]
-
-{ #category : 'visualization-historyWave' }
-WSSolver >> createWaveVisualizationWithMilliSecDelay: aDelay fromColor: aLowEntropyColor toColor: aHighEntropyColor [
-	"Create a timelapse with the progress of the collapse of the solution and the visualization of the wave"
-
-	| class visualizer |
-	class := self topology visualizer class.
-	visualizer := class new.
-	visualizer 
-		createWaveVisualization: self 
-		withMilliSecDelay: aDelay 
-		fromColor: aLowEntropyColor 
-		toColor: aHighEntropyColor
+	self topology createVisualizationFor: self
 ]
 
 { #category : 'accessing' }
