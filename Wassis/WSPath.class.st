@@ -7,8 +7,8 @@ Class {
 	#instVars : [
 		'nodes',
 		'length',
-		'firstNode',
-		'lastNode',
+		'firstNodes',
+		'lastNodes',
 		'pathID',
 		'sourceClasses',
 		'destinationClasses',
@@ -31,6 +31,18 @@ WSPath class >> withID: anID [
 WSPath >> addDestinationClass: aNode [
 
     self destinationClasses add: aNode.
+]
+
+{ #category : 'adding' }
+WSPath >> addFirstNode: aNode [
+	
+	self firstNodes add: aNode
+]
+
+{ #category : 'adding' }
+WSPath >> addLastNode: aNode [
+	
+	self lastNodes add: aNode
 ]
 
 { #category : 'adding' }
@@ -94,15 +106,15 @@ WSPath >> efficiency: anObject [
 ]
 
 { #category : 'accessing' }
-WSPath >> firstNode [
+WSPath >> firstNodes [
 
-	^ firstNode
+	^ firstNodes
 ]
 
 { #category : 'accessing' }
-WSPath >> firstNode: anObject [
+WSPath >> firstNodes: anObject [
 
-	firstNode := anObject
+	firstNodes := anObject
 ]
 
 { #category : 'testing' }
@@ -117,19 +129,21 @@ WSPath >> initialize [
 	 self nodes: IdentitySet new.
 	 self sourceClasses: OrderedCollection new.
 	 self destinationClasses: OrderedCollection new.
-	 self touchedClasses: OrderedCollection new
+	 self touchedClasses: OrderedCollection new.
+	 self firstNodes: OrderedCollection new.
+	 self lastNodes: OrderedCollection new.
 ]
 
 { #category : 'accessing' }
-WSPath >> lastNode [
+WSPath >> lastNodes [
 
-	^ lastNode
+	^ lastNodes
 ]
 
 { #category : 'accessing' }
-WSPath >> lastNode: anObject [
+WSPath >> lastNodes: anObject [
 
-	lastNode := anObject
+	lastNodes := anObject
 ]
 
 { #category : 'accessing' }

@@ -57,25 +57,17 @@ WSGraph >> addOneToCollapsedNodes [
 	self numberOfCollapsedNodes: (self numberOfCollapsedNodes + 1)
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSGraph >> adjacentPathNodeIn: aPath for: aNode [
     "Returns the node in aPath adjacent to aNode, or nil if the path is a single point"
     | idx pathNodes |
     pathNodes := aPath nodes asOrderedCollection .
-    pathNodes size < 2 ifTrue: [ ^ nil ]. "Gestione caso nodo singolo"
+    pathNodes size < 2 ifTrue: [ ^ nil ].
     
     idx := pathNodes indexOf: aNode.
     idx = 1 ifTrue: [ ^ pathNodes second ].
     idx = pathNodes size ifTrue: [ ^ pathNodes at: pathNodes size - 1 ].
     ^ pathNodes at: idx + 1
-
-"adjacentPathNodeIn: aPath for: aNode
-    ""Returns the node in aPath adjacent to aNode (its neighbour within the path)""
-    | idx |
-    idx := aPath nodes indexOf: aNode.
-    idx = 1 ifTrue: [ ^ aPath nodes second ].
-    idx = aPath nodes size ifTrue: [ ^ aPath nodes at: aPath nodes size - 1 ].
-    ^ aPath nodes at: idx + 1"
 ]
 
 { #category : 'collapse' }
@@ -85,7 +77,29 @@ WSGraph >> allNodesCollapsed [
 	^ self numberOfNodes = self numberOfCollapsedNodes
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
+WSGraph >> assignFirstAndLastNodesFor: aPath [
+	"Assign or reassign firstNodes and lastNodes to a path based on its source and destination classes"
+	
+	| pathNodes sourceNodes destinationNodes |
+	pathNodes := aPath nodes asSet.
+	
+	sourceNodes := (aPath sourceClasses flatCollect: [ :eachClassNode | eachClassNode outgoingEdges collect: [ :edge | edge target ] ]) asSet.
+	destinationNodes := (aPath destinationClasses flatCollect: [ :eachClassNode | eachClassNode outgoingEdges collect: [ :edge | edge target ] ]) asSet.
+
+	aPath firstNodes: OrderedCollection new.
+	aPath lastNodes: OrderedCollection new.
+	
+	pathNodes do: [ :eachPathNode | 
+		(sourceNodes includes: eachPathNode) ifTrue: [ aPath addFirstNode: eachPathNode ].	
+		(destinationNodes includes: eachPathNode) ifTrue: [ aPath addLastNode: eachPathNode ].	
+	]
+	
+
+
+]
+
+{ #category : 'deprecated' }
 WSGraph >> assignSourceAndDestination: aPath [
 	"Assign sources and destination to a path"
 	
@@ -103,13 +117,39 @@ WSGraph >> assignSourceAndDestination: aPath [
             ifFalse: [ aPath addDestinationClass: aClassNode ] ]
 ]
 
+{ #category : 'path reification' }
+WSGraph >> assignSourceAndDestinationFor: aPath [
+	"Assign correct sources and destinations to a path"
+	
+	| allClassNodes allWSClasses |
+	allClassNodes := aPath touchedClasses asSet.
+	
+	allWSClasses := (allClassNodes collect: [ :node | node tileInWhichCollapsed wsClass ]) asSet.
+	
+	aPath sourceClasses: OrderedCollection new.
+	aPath destinationClasses: OrderedCollection new.
+	
+	allClassNodes do: [ :aClassNode |
+		| wsClass isSource |
+		wsClass := aClassNode tileInWhichCollapsed wsClass.
+		
+		isSource := wsClass connectedWith anySatisfy: [ :conn |
+			(allWSClasses includes: conn target) and: [ conn target ~= wsClass ] 
+		].
+	
+		isSource
+			ifTrue: [ aPath addSourceClass: aClassNode ]
+			ifFalse: [ aPath addDestinationClass: aClassNode ] 
+	].
+]
+
 { #category : '2DGrid' }
 WSGraph >> atRow: row atColumn: column [
 	
 	^ self structure atRow: row atColumn: column 
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
     "Return the border node of aFootprint that is adjacent to aPathNode"
     
@@ -117,7 +157,7 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
         detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = aPathNode ] ]
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSGraph >> calculatePathMetrics [
 	"Calculate the efficiency of a paths"
 	self paths do: [ :eachPath | 
@@ -158,7 +198,7 @@ WSGraph >> calculatePathMetrics [
 	]
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> clearPath: aPath [
 	"Clear a path replacing each tile with the empty tile"
 
@@ -182,20 +222,20 @@ WSGraph >> clearPath: aPath [
 
 	aPath nodes: OrderedCollection new.
 	aPath length: Float infinity.
-	aPath firstNode: nil.
-	aPath lastNode: nil.
+	aPath firstNodes: nil.
+	aPath lastNodes: nil.
 	
 	^ touchedNodes 
 	
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> clearPathWithID: anID [
 
 	^ self clearPath: (self paths at: anID)
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNode [
     "Collapse a node to the right path tile, preserving existing path directions"
 
@@ -221,7 +261,7 @@ WSGraph >> collectFootprintFrom: aNode size: n [
 	^ self structure collectFootprintFrom: aNode size: n
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'path reification' }
 WSGraph >> computeShortestPathFor: aPath [
     "Compute the shortest path nodes for aPath. Returns an OrderedCollection of nodes."
     aPath touchedClasses size = 2
@@ -281,7 +321,7 @@ WSGraph >> correctPaths [
 	].
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSGraph >> createPaths [
     "Create the instances of wsPaths"
     
@@ -308,7 +348,6 @@ WSGraph >> createPaths [
                 (pathID notNil and: [ ((visitedNodesPerPath at: pathID) includes: eachEdge target) not ]) ifTrue: [
                     | newPath visited |
                     newPath := WSPath withID: pathID.
-                    newPath firstNode: eachEdge target.
                     newPath addTouchedClass: eachClassNode.
                     
                     visited := Set with: eachClassNode.
@@ -319,7 +358,8 @@ WSGraph >> createPaths [
                    
                     (visitedNodesPerPath at: pathID) addAll: newPath nodes.
                     
-                    self assignSourceAndDestination: newPath.
+                    self assignSourceAndDestinationFor: newPath.
+						  self assignFirstAndLastNodesFor: newPath.
                     (self paths at: pathID) add: newPath ] ] ] ]
 ]
 
@@ -370,11 +410,11 @@ WSGraph >> destroyPathLoops [
 		collectionOfPaths do: [ :eachPath | 
 			eachPath touchedClasses size == 1 ifTrue: [ 
 				eachPath nodes do: [ :eachNode | 
-					((eachNode ~= eachPath firstNode) and: [ eachNode isNotCrossingNode ]) ifTrue: [ 
+					((eachNode ~= eachPath firstNodes) and: [ eachNode isNotCrossingNode ]) ifTrue: [ 
 						eachNode collapseTo: emptyTile 
 					]
 				].
-				eachPath nodes: (OrderedCollection with: eachPath firstNode)
+				eachPath nodes: (OrderedCollection with: eachPath firstNodes)
 			]
 		]
 	]
@@ -398,7 +438,7 @@ WSGraph >> destroyRandomLoops [
                 eachNode collapseTo: emptyTile ] ] ]
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> findOptimalPathWithID: pathID [
 	"Find optimal path between two classes. Does NOT change the exit for each class"
 	
@@ -407,15 +447,15 @@ WSGraph >> findOptimalPathWithID: pathID [
     pathObject := self paths at: pathID.
 
     shortestPath := self 
-        runDijkstraFrom: pathObject firstNode 
-        to: pathObject lastNode 
+        runDijkstraFrom: pathObject firstNodes 
+        to: pathObject lastNodes 
         withExtraNodes: #() 
         pathID: pathID.
 
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
@@ -444,7 +484,7 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> findOptimalPathWithID: pathID fromClass: aClass toBackbone: backboneNodes [
 	"Find the optimal path bewteen a class and another path"
 	
@@ -469,7 +509,7 @@ WSGraph >> findOptimalPathWithID: pathID fromClass: aClass toBackbone: backboneN
     ^ shortestPath
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
     | node tile reverseDir |
     node := anEdge target.
@@ -479,7 +519,6 @@ WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
     tile := node tileInWhichCollapsed.
     
     tile isClassTile ifTrue: [
-        aPath lastNode: anEdge source.
         aPath addTouchedClass: node.
         ^ self ].
     
@@ -497,7 +536,7 @@ WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
         ^ self ].
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> getAdjacentClassForNode: aNode [
 	
     ^ (aNode outgoingEdges 
@@ -541,8 +580,8 @@ WSGraph >> isInBoundsRow: row column: col [
 	^ self structure isInBoundsRow: row column: col 
 ]
 
-{ #category : 'pathReification' }
-WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pathID: pathID [
+{ #category : 'path reification' }
+WSGraph >> mergePath2: pathA withPath: pathB usingConnection: connectionNodes pathID: pathID [
     "Merge two paths into one, collapsing the connection nodes as path tiles.
      connectionNodes: first and last are already path tiles, middle ones are empty tiles."
     | mergedPath connectionMiddle adjA adjB |
@@ -584,19 +623,69 @@ WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pat
     connectionMiddle do: [ :node | mergedPath addNode: node].
     pathB nodes do: [ :node | mergedPath addNode: node ].
     
-    mergedPath firstNode: pathA firstNode; lastNode: pathB lastNode.
+    mergedPath firstNodes: pathA firstNodes; lastNodes: pathB lastNodes.
     
     pathA sourceClasses do: [ :c | mergedPath addSourceClass: c ].
     pathB sourceClasses do: [ :c | mergedPath addSourceClass: c ].
     pathA destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
     pathB destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
 	 mergedPath touchedClasses: (mergedPath sourceClasses, mergedPath destinationClasses).
-    self reassignSourceDestination: mergedPath.
+    self assignSourceAndDestinationFor: mergedPath.
     
     ^ mergedPath
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
+WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pathID: pathID [
+	"Merge two paths into one, collapsing the connection nodes as path tiles."
+	| mergedPath connectionMiddle |
+	
+	mergedPath := WSPath withID: pathID.
+	
+	2 to: connectionNodes size - 1 do: [ :i |
+		| prevNode currNode nextNode |
+		prevNode := connectionNodes at: i - 1.
+		currNode := connectionNodes at: i.
+		nextNode := connectionNodes at: i + 1.
+		
+		self collapseNode: currNode
+			toPathTile: pathID
+			between: prevNode
+			and: nextNode ].
+	
+	connectionNodes size > 1 ifTrue: [
+		| firstConn secondConn lastConn secondLastConn adjA adjB |
+		firstConn := connectionNodes first.
+		secondConn := connectionNodes second.
+		lastConn := connectionNodes last.
+		secondLastConn := connectionNodes at: connectionNodes size - 1.
+		
+		adjA := (self adjacentPathNodeIn: pathA for: firstConn).
+		self collapseNode: firstConn
+			toPathTile: pathID
+			between: (adjA ifNil: [ firstConn ])
+			and: secondConn.
+		
+		adjB := (self adjacentPathNodeIn: pathB for: lastConn).
+		self collapseNode: lastConn
+			toPathTile: pathID
+			between: secondLastConn
+			and: (adjB ifNil: [ lastConn ]) ].
+	
+	connectionMiddle := connectionNodes copyFrom: 2 to: connectionNodes size - 1.
+	pathA nodes do: [ :node | mergedPath addNode: node ].
+	connectionMiddle do: [ :node | mergedPath addNode: node].
+	pathB nodes do: [ :node | mergedPath addNode: node ].
+	
+	mergedPath touchedClasses: (pathA touchedClasses , pathB touchedClasses) asSet asOrderedCollection.
+	
+	self assignSourceAndDestinationFor: mergedPath.
+	self assignFirstAndLastNodesFor: mergedPath.
+	
+	^ mergedPath
+]
+
+{ #category : 'path reification' }
 WSGraph >> mergePathsWithSameID [
 	"If two paths with the same ID are not connected, merge them"
 
@@ -607,11 +696,11 @@ WSGraph >> mergePathsWithSameID [
             bestPair := nil.
             bestShortestPath := nil.
 
-				dijkstraNodes := OrderedCollection new.
+				dijkstraNodes := Set new.
     
 			    dijkstraNodes addAll: (self nodes select: [ :eachNode | 
 					eachNode isNotClassNode 
-					and: ([eachNode isNotCrossingNode ]) ]).
+					and: ([eachNode isNotCrossingNode]) ]).
 
             collectionOfPaths doWithIndex: [ :pathA :i |
                 collectionOfPaths doWithIndex: [ :pathB :j |
@@ -687,14 +776,14 @@ WSGraph >> numberOfNodes: anObject [
 	numberOfNodes := anObject
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 	"Optimize all the paths, decide if you allow exit changing"
 
 	self optimizePathsWithPathIDs: (self topology allPathIDs) allowExitsModification: aBoolean 
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> optimizePathsWithExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
@@ -723,7 +812,7 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 	^ touchedNodes
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 	"Optimize all the paths which pathID is in pathIDs"
 
@@ -732,7 +821,7 @@ WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 		ifFalse: [ ^ self optimizePathsWithoutExitModification: pathIDs ] 
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
@@ -802,7 +891,7 @@ WSGraph >> propagateEdge: eachEdge from: currentNode into: queue [
     ^ neighbourNode
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'deprecated' }
 WSGraph >> reassignSourceDestination: aPath [
     "Reassign source and destination after the merge"
     | allTouched |
@@ -835,7 +924,7 @@ WSGraph >> restoreMinEntropyHeap [
 	self minEntropyHeap add: nodeToAdd
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode [
 
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -868,7 +957,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode [
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
 
     | dijkstra dijkstraEdges shortestPath |
@@ -896,7 +985,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes [
 
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -925,7 +1014,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes [
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID [
 	"Run dijkstra from startNode to endNode"
 
@@ -973,7 +1062,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     ^ shortestPath
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID zeroNodes: zeroNodes [
     "Run dijkstra from startNode to endNode"
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -1023,7 +1112,7 @@ WSGraph >> selectNextNodeToCollapse [
 
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSGraph >> setPathLengths [
 
 "	self paths keysAndValuesDo: [ :key :allPaths |
@@ -1053,7 +1142,7 @@ WSGraph >> structure: anObject [
 	structure := anObject
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> substitute: oldPath with: optimalPath [
 	"Replace a generated path by erasing it with the optimal path created by Dijkstra"
 
@@ -1067,8 +1156,8 @@ WSGraph >> substitute: oldPath with: optimalPath [
                         toPathTile: pathID
                         between: (self getAdjacentClassForNode: optimalPath first)
                         and: (self getAdjacentClassForNode: optimalPath first).
-        oldPath firstNode: loneNode.
-        oldPath lastNode: loneNode.
+        oldPath firstNodes: loneNode.
+        oldPath lastNodes: loneNode.
         oldPath addNode: loneNode.
         oldPath length: 1.
         ^ self ].
@@ -1077,7 +1166,7 @@ WSGraph >> substitute: oldPath with: optimalPath [
         toPathTile: pathID
         between: (self getAdjacentClassForNode: optimalPath first)
         and: optimalPath second).
-	oldPath firstNode: newFirstNode.
+	oldPath firstNodes: newFirstNode.
 	oldPath addNode: newFirstNode.
 
     2 to: optimalPath size - 1 do: [ :i |
@@ -1094,13 +1183,13 @@ WSGraph >> substitute: oldPath with: optimalPath [
         toPathTile: pathID
         between: (optimalPath at: optimalPath size - 1)
         and: (self getAdjacentClassForNode: optimalPath last)).
-	oldPath lastNode: newLastNode.
+	oldPath lastNodes: newLastNode.
 	oldPath addNode: newLastNode.
 	
 	oldPath length: oldPath nodes size
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
 
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
@@ -1113,7 +1202,7 @@ WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aB
 	"aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]"
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'path optimization' }
 WSGraph >> substituteMergedPath: oldPath with: optimalPath [
     "Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
     | pathID optimalSet |
@@ -1158,7 +1247,7 @@ WSGraph >> topology: anObject [
 	topology := anObject
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: aPathID [
     "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
     
@@ -1184,7 +1273,7 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
       add: aPathID.
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> updateExitTilesFor: generatedPath [
     "Understand which footprint is adjacent to which path node, then update the exits"
 
@@ -1194,16 +1283,16 @@ WSGraph >> updateExitTilesFor: generatedPath [
     footprint2 := generatedPath destinationClasses footPrint.
     
     firstAdjacent := ((footprint1 borderNodes: self topology) 
-        anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNode ] ])
+        anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNodes ] ])
             ifTrue: [ footprint1 ]
             ifFalse: [ footprint2 ].
     lastAdjacent := firstAdjacent = footprint1 ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
     
-    generatedPath sourceClasses: (self borderNodeOf: firstAdjacent adjacentTo: generatedPath firstNode).
-    generatedPath destinationClasses: (self borderNodeOf: lastAdjacent adjacentTo: generatedPath lastNode).
+    generatedPath sourceClasses: (self borderNodeOf: firstAdjacent adjacentTo: generatedPath firstNodes).
+    generatedPath destinationClasses: (self borderNodeOf: lastAdjacent adjacentTo: generatedPath lastNodes).
     
-    self updateExitForFootprint: firstAdjacent adjacentTo: generatedPath firstNode withPathID: pathID.
-    self updateExitForFootprint: lastAdjacent adjacentTo: generatedPath lastNode withPathID: pathID.
+    self updateExitForFootprint: firstAdjacent adjacentTo: generatedPath firstNodes withPathID: pathID.
+    self updateExitForFootprint: lastAdjacent adjacentTo: generatedPath lastNodes withPathID: pathID.
 ]
 
 { #category : 'propagating' }
