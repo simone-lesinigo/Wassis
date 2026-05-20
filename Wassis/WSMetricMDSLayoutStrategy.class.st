@@ -84,32 +84,33 @@ WSMetricMDSLayoutStrategy >> calculateStressFor: positions [
 WSMetricMDSLayoutStrategy >> computeBMatrixFor: positions [ 
 	"Compute the B matrix for the SMACOF majorization step"
 	
-	| n bMatrix |
+	| n |
 	n := positions size.
-	bMatrix := Array new: n.
-	1 to: n do: [ :i | bMatrix at: i put: (Array new: n withAll: 0) ].
 	
-	1 to: n do: [ :i |
-		| rowSum |
+	^ (1 to: n) collect: [ :i |
+		| rowSum row |
 		rowSum := 0.
-		1 to: n do: [ :j |
-			i ~= j ifTrue: [
-				| targetDist currentDist bValue |
-				targetDist := self classDistances at: i at: j.
-				currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
-				
-				bValue := currentDist > 1.0e-6
-					ifTrue: [ (targetDist / currentDist) negated ]
-					ifFalse: [ 0 ].
+		
+		row := (1 to: n) collect: [ :j |
+			i = j 
+				ifTrue: [ 0 ]
+				ifFalse: [ 
+					| targetDist currentDist bValue |
+					targetDist := self classDistances at: i at: j.
+					currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
 					
-				(bMatrix at: i) at: j put: bValue.
-				rowSum := rowSum - bValue.
-			]
+					bValue := currentDist > 1.0e-6
+						ifTrue: [ (targetDist / currentDist) negated ]
+						ifFalse: [ 0 ].
+						
+					rowSum := rowSum - bValue.
+					bValue
+				]
 		].
-
-		(bMatrix at: i) at: i put: rowSum.
+		
+		row at: i put: rowSum.
+		row
 	].
-	^ bMatrix
 ]
 
 { #category : 'calculating' }
@@ -184,7 +185,7 @@ WSMetricMDSLayoutStrategy >> runSMACOF: initialPositions [
 	iteration := 0.
 	
 	[ iteration < self maxIterations ] whileTrue: [
-		| bMatrix newPositions |
+		| bMatrix |
 		iteration := iteration + 1.
 		
 		currentStress := self calculateStressFor: currentPositions.
@@ -197,22 +198,22 @@ WSMetricMDSLayoutStrategy >> runSMACOF: initialPositions [
 		bMatrix := self computeBMatrixFor: currentPositions.
 		
 		"X_new = (1/n) * B * X_old"
-		newPositions := Array new: n.
-		1 to: n do: [ :i |
+		currentPositions := (1 to: n) collect: [ :i |
 			| newX newY |
 			newX := 0.
 			newY := 0.
+			
 			1 to: n do: [ :j |
 				| bVal posJ |
 				bVal := (bMatrix at: i) at: j.
 				posJ := currentPositions at: j.
-				newX := newX + (bVal * (posJ at: 1)).
-				newY := newY + (bVal * (posJ at: 2)).
+				
+				newX := newX + (bVal * posJ first).
+				newY := newY + (bVal * posJ second).
 			].
-			newPositions at: i put: { newX / n . newY / n }.
+			
+			{ newX / n . newY / n }
 		].
-		
-		currentPositions := newPositions.
 	].
 	
 	^ currentPositions

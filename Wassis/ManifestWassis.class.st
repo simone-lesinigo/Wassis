@@ -20,7 +20,7 @@ ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
 ManifestWassis class >> ruleModifiesCollectionRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:43:57.955716+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #addGroupHoverTo: #false)) #'2026-04-08T17:20:22.802378+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:34.41926+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:43:57.955716+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #addGroupHoverTo: #false)) #'2026-04-08T17:20:22.802378+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:34.41926+02:00') #(#(#RGMethodDefinition #(#WSMetricMDSLayoutStrategy #computeBMatrixFor: #false)) #'2026-05-20T09:48:06.757867+02:00') )
 ]
 
 { #category : 'code-critics' }
