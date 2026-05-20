@@ -206,8 +206,8 @@ WS2DRectangularGridVisualizer >> createCanvasFor: aSolver [
 	"aSolver getNotEmptyNodes do: [ :eachNode | self createShapeFor: eachNode  ]."
 	
 	"self registerMouseHoverForPaths."
-"	self canvas addBorderWithColor: Color black andWidth: 20.
-	self addGridLabelsToCanvas: self canvas."
+	self canvas addBorderWithColor: Color black andWidth: 20.
+	self addGridLabelsToCanvas: self canvas.
 	"self groupFootprintShapes."
 	^ self canvas
 	

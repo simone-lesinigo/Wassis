@@ -157,44 +157,73 @@ WSGraph >> borderNodeOf: aFootprint adjacentTo: aPathNode [
         detect: [ :aNode | aNode outgoingEdges anySatisfy: [ :eachEdge | eachEdge target = aPathNode ] ]
 ]
 
+{ #category : 'path optimization' }
+WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes [
+	"Build the weighted edge collection for Dijkstra, avoiding redundant structures"
+	
+	| dijkstraEdges |
+	dijkstraEdges := OrderedCollection new.
+	
+	dijkstraNodes do: [ :eachNode |
+		eachNode outgoingEdges do: [ :eachEdge |
+			| targetNode |
+			targetNode := eachEdge target.
+			
+			((dijkstraNodes includes: targetNode) and: [ 
+				(self shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID) not ])
+					ifTrue: [
+						| weight |
+						weight := (targetNode isPathNode and: [ (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
+							ifTrue: [ WSConfig dijkstraTraversingPathWeight ]
+							ifFalse: [ 1 ].
+							
+						dijkstraEdges add: { eachNode . targetNode . weight } ] ] ].
+						
+	^ dijkstraEdges
+]
+
+{ #category : 'as yet unclassified' }
+WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: zeroNodes [
+	"Build the weighted edge collection for Dijkstra, managing zero-weight backbone snapping and foreign path penalties"
+	
+	| dijkstraEdges |
+	dijkstraEdges := OrderedCollection new.
+	
+	dijkstraNodes do: [ :eachNode |
+		(eachNode respondsTo: #outgoingEdges) ifTrue: [
+			eachNode outgoingEdges do: [ :eachEdge |
+				| targetNode |
+				targetNode := eachEdge target.
+				
+				((dijkstraNodes includes: targetNode) and: [ 
+					(self shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID) not ])
+						ifTrue: [
+							| weight |
+							(zeroNodes includes: targetNode) 
+								ifTrue: [ weight := 0 ]
+								ifFalse: [
+									(targetNode isPathNode and: [ (targetNode tileInWhichCollapsed pathIDs includes: pathID) not ])
+										ifTrue: [ weight := WSConfig dijkstraTraversingPathWeight ]
+										ifFalse: [ weight := 1 ] ].
+							
+							dijkstraEdges add: { eachNode . targetNode . weight } ] ] ] ].
+							
+	^ dijkstraEdges
+]
+
 { #category : 'path reification' }
 WSGraph >> calculatePathMetrics [
-	"Calculate the efficiency of a paths"
-	self paths do: [ :eachPath | 
-		eachPath touchedClasses size = 2 
-			ifTrue: [ 
-				| shortestPath |
-				shortestPath := 
-					self findOptimalPathWithID: eachPath pathID
-					andClasses: 
-						(eachPath sourceClasses first tileInWhichCollapsed wsClass) -> (eachPath destinationClasses first tileInWhichCollapsed wsClass).
-				eachPath efficiency: (shortestPath size / eachPath length).
-				eachPath shortestPath: (shortestPath copy)
-			] 
-			ifFalse: [
-    | pairs allPaths backbone optimalNodes |
-    pairs := eachPath sourceClasses flatCollect: [ :src |
-        eachPath destinationClasses collect: [ :dst |
-            (src tileInWhichCollapsed wsClass) -> (dst tileInWhichCollapsed wsClass) ] ].
-
-    allPaths := pairs collect: [ :pair |
-        self findOptimalPathWithID: eachPath pathID andClasses: pair ].
-
-	backbone := allPaths detectMax: [ :each | each size ].
-	optimalNodes := backbone asSet.
+	"Calculate and assign the efficiency metrics for all paths"
 	
-	eachPath sourceClasses flatCollect: [ :eachSource |
-		| p |
-		p := self 
-			findOptimalPathWithID: eachPath pathID 
-			fromClass: eachSource tileInWhichCollapsed wsClass
-			toBackbone: optimalNodes.
-		optimalNodes addAll: p.
-	].
-
-    eachPath efficiency: (optimalNodes size / eachPath length).
-    eachPath shortestPath: optimalNodes asOrderedCollection.
-]
+	self paths do: [ :eachPath | 
+		| optimalNodes |
+		optimalNodes := self computeShortestPathFor: eachPath.
+		
+		eachPath shortestPath: optimalNodes.
+		
+		eachPath length > 0 
+			ifTrue: [ eachPath efficiency: (optimalNodes size / eachPath length) ]
+			ifFalse: [ eachPath efficiency: 0 ].
 	]
 ]
 
@@ -273,21 +302,23 @@ WSGraph >> computeShortestPathFor: aPath [
                           -> (aPath destinationClasses first tileInWhichCollapsed wsClass).
             ^ shortestPath asOrderedCollection ]
         ifFalse: [
-            | pairs allPaths backbone optimalNodes |
+            | pairs allPaths backbone optimalNodes remainingClasses |
             pairs := aPath sourceClasses flatCollect: [ :src |
                 aPath destinationClasses collect: [ :dst |
                     (src tileInWhichCollapsed wsClass) -> (dst tileInWhichCollapsed wsClass) ] ].
             allPaths := pairs collect: [ :pair |
                 self findOptimalPathWithID: aPath pathID andClasses: pair ].
             backbone := allPaths detectMax: [ :each | each size ].
-            optimalNodes := backbone asSet.
-            aPath sourceClasses do: [ :eachSource |
-                | p |
-                p := self
-                    findOptimalPathWithID: aPath pathID
-                    fromClass: eachSource tileInWhichCollapsed wsClass
-                    toBackbone: optimalNodes.
-                optimalNodes addAll: p ].
+            optimalNodes := (backbone ifNil: [ OrderedCollection new ]) asSet.
+
+				remainingClasses := (aPath touchedClasses collect: [ :node | node tileInWhichCollapsed wsClass ]) asSet.
+				remainingClasses do: [ :eachClass |
+					| p |
+					p := self
+						findOptimalPathWithID: aPath pathID
+						fromClass: eachClass
+						toBackbone: optimalNodes.
+				optimalNodes addAll: p ].
             ^ optimalNodes asOrderedCollection ]
 ]
 
@@ -439,24 +470,7 @@ WSGraph >> destroyRandomLoops [
 ]
 
 { #category : 'path optimization' }
-WSGraph >> findOptimalPathWithID: pathID [
-	"Find optimal path between two classes. Does NOT change the exit for each class"
-	
-    | pathObject shortestPath |
-
-    pathObject := self paths at: pathID.
-
-    shortestPath := self 
-        runDijkstraFrom: pathObject firstNodes 
-        to: pathObject lastNodes 
-        withExtraNodes: #() 
-        pathID: pathID.
-
-    ^ shortestPath
-]
-
-{ #category : 'path optimization' }
-WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
+WSGraph >> findOptimalPathWithID2: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
 	| footprint1 footprint2 shortestPath |
@@ -484,29 +498,105 @@ WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
     ^ shortestPath
 ]
 
+{ #category : 'deprecated' }
+WSGraph >> findOptimalPathWithID: pathID [
+	"Find optimal path between two classes. Does NOT change the exit for each class"
+	
+    | pathObject shortestPath |
+
+    pathObject := self paths at: pathID.
+
+    shortestPath := self 
+        runDijkstraFrom: pathObject firstNodes 
+        to: pathObject lastNodes 
+        withExtraNodes: #() 
+        pathID: pathID.
+
+    ^ shortestPath
+]
+
+{ #category : 'path optimization' }
+WSGraph >> findOptimalPathWithID: pathID andClasses: classes [
+	"Find optimal path between two classes. Reuses the graph structure to boost performance."
+
+	| footprint1 footprint2 border1 border2 dijkstraNodes dijkstraEdges shortestPath |
+	footprint1 := self topology classFootprint at: classes key.
+	footprint2 := self topology classFootprint at: classes value.
+
+	border1 := footprint1 borderNodes: self topology.
+	border2 := footprint2 borderNodes: self topology.
+
+	dijkstraNodes := Set new.
+	dijkstraNodes addAll: border1; addAll: border2.
+	dijkstraNodes addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
+
+	dijkstraEdges := self buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes.
+
+	shortestPath := nil.
+
+	border1 do: [ :node1 |
+		| dijkstra |
+		dijkstra := AIDijkstra new.
+		dijkstra nodes: dijkstraNodes; edges: dijkstraEdges from: #first to: #second weight: #third.
+		
+		border2 do: [ :node2 |
+			| candidate |
+			candidate := (dijkstra runFrom: node1 to: node2) asOrderedCollection.
+			
+			candidate isNotEmpty ifTrue: [ 
+				(shortestPath isNil or: [ candidate size < shortestPath size ])
+					ifTrue: [ shortestPath := candidate ] ] ] ].
+
+	(shortestPath notNil and: [ shortestPath size >= 2 ]) ifTrue: [
+		shortestPath removeFirst.
+		shortestPath removeLast ].
+
+	^ shortestPath ifNil: [ OrderedCollection new ]
+]
+
 { #category : 'path optimization' }
 WSGraph >> findOptimalPathWithID: pathID fromClass: aClass toBackbone: backboneNodes [
-	"Find the optimal path bewteen a class and another path"
+	"Find the optimal path between a class and the current backbone using a virtual target trick"
 	
-	| footprint shortestPath |
-    footprint := self topology classFootprint at: aClass.
-    shortestPath := nil.
-    
-    (footprint borderNodes: self topology) do: [ :node1 |
-        backboneNodes do: [ :node2 |
-            | candidate |
-            candidate := self
-                runDijkstraFrom: node1
-                to: node2
-                withExtraNodes: { node1. node2 }
-                pathID: pathID
-					 zeroNodes: backboneNodes.
-            candidate isNotEmpty ifTrue: [
-                (shortestPath isNil or: [ candidate size < shortestPath size ])
-                    ifTrue: [ shortestPath := candidate ] ] ] ].
-    shortestPath ifNil: [ ^ #() ].
-    shortestPath removeFirst.
-    ^ shortestPath
+	| footprint borderNodes dijkstraNodes dijkstraEdges virtualTarget shortestPath |
+	backboneNodes isEmpty ifTrue: [ ^ #() ].
+	
+	footprint := self topology classFootprint at: aClass.
+	borderNodes := footprint borderNodes: self topology.
+	
+	(borderNodes anySatisfy: [ :n | backboneNodes includes: n ]) ifTrue: [ ^ #() ].
+
+	dijkstraNodes := Set new.
+	dijkstraNodes addAll: borderNodes; addAll: backboneNodes.
+	dijkstraNodes addAll: (self nodes flattened select: [ :eachNode | eachNode isNotClassNode ]).
+	
+	virtualTarget := Object new.
+	dijkstraNodes add: virtualTarget.
+
+	dijkstraEdges := self buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: backboneNodes.
+	
+	backboneNodes do: [ :bNode |
+		dijkstraEdges add: { bNode . virtualTarget . 0 } ].
+
+	shortestPath := nil.
+
+	borderNodes do: [ :node1 |
+		| dijkstra candidate |
+		dijkstra := AIDijkstra new.
+		dijkstra nodes: dijkstraNodes; edges: dijkstraEdges from: #first to: #second weight: #third.
+		
+		candidate := (dijkstra runFrom: node1 to: virtualTarget) asOrderedCollection.
+		
+		candidate isNotEmpty ifTrue: [
+			candidate removeLast. 
+			(shortestPath isNil or: [ candidate size < shortestPath size ])
+				ifTrue: [ shortestPath := candidate ] ] ].
+
+	shortestPath ifNil: [ ^ #() ].
+	
+	shortestPath isNotEmpty ifTrue: [ shortestPath removeFirst ].
+
+	^ shortestPath
 ]
 
 { #category : 'path reification' }
@@ -924,7 +1014,7 @@ WSGraph >> restoreMinEntropyHeap [
 	self minEntropyHeap add: nodeToAdd
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> runDijkstraFrom: startNode to: endNode [
 
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -958,7 +1048,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode [
 ]
 
 { #category : 'path optimization' }
-WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
+WSGraph >> runDijkstraFrom: startNode to: endNode onNodes: dijkstraNodes [
 
     | dijkstra dijkstraEdges shortestPath |
     dijkstraEdges := OrderedCollection new.
@@ -969,7 +1059,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
 	        targetNode := eachEdge target.
 	        (dijkstraNodes includes: targetNode) ifTrue: [
 	            weight := targetNode isPathNode
-	                ifTrue: [ 100 ]
+	                ifTrue: [ WSConfig dijkstraTraversingPathWeight ]
 	                ifFalse: [ 1 ].
 	            dijkstraEdges add: { eachNode . targetNode . weight } ] ] ].
     
@@ -985,7 +1075,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode  onNodes: dijkstraNodes [
     ^ shortestPath
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes [
 
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -1114,20 +1204,37 @@ WSGraph >> selectNextNodeToCollapse [
 
 { #category : 'path reification' }
 WSGraph >> setPathLengths [
+	"Set the lengths for each path"
 
-"	self paths keysAndValuesDo: [ :key :allPaths |
-		allPaths do: [ :eachPath | 
-			eachPath nodes: eachPath nodes asOrderedCollection.
-			eachPath computeLength 
-		]
-	]."
+	self paths do: [ :eachPath |
+		eachPath nodes: eachPath nodes asOrderedCollection.
+		eachPath computeLength 
+	]
 
-		self paths keysAndValuesDo: [ :key :eachPath |
+]
 
-			eachPath nodes: eachPath nodes asOrderedCollection.
-			eachPath computeLength 
-		]
-
+{ #category : 'path optimization' }
+WSGraph >> shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID [
+	"Determine if an edge violates topology constraints for the given pathID"
+	
+	"Class -> Path: controlla se si può uscire dalla classe in quella direzione"
+	(eachNode isClassNode and: [ targetNode isPathNode ]) ifTrue: [
+		^ ((eachNode tileInWhichCollapsed edges at: eachEdge direction) includes: pathID) not ].
+		
+	"Path -> Class: controlla se si può entrare nella classe da quella direzione"
+(eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
+		| allowedIDs |
+		allowedIDs := targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection ifAbsent: [ #() ].
+		^ (allowedIDs includes: pathID) not and: [ (allowedIDs includes: #'00') not ]
+	].
+		
+	"Path -> Path: Evita la sovrapposizione con path estranei"
+	(eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
+		| targetIDs |
+		targetIDs := targetNode tileInWhichCollapsed pathIDs.
+		(targetIDs includes: pathID) ifFalse: [ ^ true ] ].
+		
+	^ false
 ]
 
 { #category : 'accessing' }

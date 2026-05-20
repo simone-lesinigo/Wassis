@@ -51,6 +51,12 @@ WSConfig class >> configFile: anObject [
 	ConfigFile := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WSConfig class >> dijkstraTraversingPathWeight [
+	
+	^ 100
+]
+
 { #category : 'accessing-tileWeight' }
 WSConfig class >> emptyTileWeight [
 	

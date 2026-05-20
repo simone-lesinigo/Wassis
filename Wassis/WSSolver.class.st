@@ -410,11 +410,11 @@ WSSolver >> reifyWFCPaths [
 	self graph deleteUselessCrossingFromAllPaths."
 	self graph mergePathsWithSameID.
 	"self graph correctPaths."
-	"self graph paths keysAndValuesDo: [ :key :value |
+	self graph paths keysAndValuesDo: [ :key :value |
 		self graph paths at: key put: value first.
 	].
 	self graph setPathLengths.
-	self graph calculatePathMetrics.----------------------"
+	self graph calculatePathMetrics.
 
 	
 	
@@ -435,7 +435,7 @@ WSSolver >> run [
 	
 	self topology rebuildClassNodes: self graph.
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
-	"self updateGraphMetrics."
+	self updateGraphMetrics.
 	
 	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun
 	

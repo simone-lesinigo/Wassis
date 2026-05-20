@@ -10,6 +10,13 @@ Class {
 }
 
 { #category : 'code-critics' }
+ManifestWassis class >> ruleBadMessageRule2V1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #buildDijkstraEdgesFor:onNodes:zeroNodes: #false)) #'2026-05-20T16:06:04.747638+02:00') )
+]
+
+{ #category : 'code-critics' }
 ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
 
 	<ignoreForCoverage>
@@ -20,7 +27,7 @@ ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
 ManifestWassis class >> ruleModifiesCollectionRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:43:57.955716+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #addGroupHoverTo: #false)) #'2026-04-08T17:20:22.802378+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:34.41926+02:00') #(#(#RGMethodDefinition #(#WSMetricMDSLayoutStrategy #computeBMatrixFor: #false)) #'2026-05-20T09:48:06.757867+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:43:57.955716+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #addGroupHoverTo: #false)) #'2026-04-08T17:20:22.802378+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:34.41926+02:00') #(#(#RGMethodDefinition #(#WSMetricMDSLayoutStrategy #computeBMatrixFor: #false)) #'2026-05-20T09:48:06.757867+02:00') #(#(#RGMethodDefinition #(#WSGraph #buildDijkstraEdgesFor:onNodes: #false)) #'2026-05-20T15:54:48.882537+02:00') #(#(#RGMethodDefinition #(#WSGraph #buildDijkstraEdgesFor:onNodes:zeroNodes: #false)) #'2026-05-20T16:06:09.715499+02:00') )
 ]
 
 { #category : 'code-critics' }
@@ -28,4 +35,11 @@ ManifestWassis class >> ruleReGuardClauseRuleV1FalsePositive [
 
 	<ignoreForCoverage>
 	^ #(#(#(#RGMethodDefinition #(#WSGraph #createPathFrom: #false)) #'2026-04-13T09:39:43.872158+02:00') #(#(#RGMethodDefinition #(#WSGraph #followPath:from:visited:pathID: #false)) #'2026-04-19T10:18:50.309636+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridVisualizer #createVisualizationFor: #false)) #'2026-05-15T11:57:02.162738+02:00') )
+]
+
+{ #category : 'code-critics' }
+ManifestWassis class >> ruleUnclassifiedMethodsRuleV1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #buildDijkstraEdgesFor:onNodes:zeroNodes: #false)) #'2026-05-20T16:06:06.881351+02:00') )
 ]
