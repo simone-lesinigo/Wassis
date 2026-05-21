@@ -20,7 +20,7 @@ ManifestWassis class >> ruleBadMessageRule2V1FalsePositive [
 ManifestWassis class >> ruleCollectionProtocolRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:44:00.417506+02:00') #(#(#RGMethodDefinition #(#WSGraph #updateExitFor:withPathID: #false)) #'2026-04-01T16:30:50.230472+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridTopology #buildAvailableSlotsFor: #false)) #'2026-04-10T15:08:02.6527+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:37.701565+02:00') #(#(#RGMethodDefinition #(#WSGraph #correctPaths #false)) #'2026-04-28T09:57:44.168605+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridTopology #buildTileSpecsForPathID: #false)) #'2026-04-28T20:03:07.400643+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes:pathID: #false)) #'2026-03-31T14:44:00.417506+02:00') #(#(#RGMethodDefinition #(#WSGraph #updateExitFor:withPathID: #false)) #'2026-04-01T16:30:50.230472+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridTopology #buildAvailableSlotsFor: #false)) #'2026-04-10T15:08:02.6527+02:00') #(#(#RGMethodDefinition #(#WSGraph #runDijkstraFrom:to:withExtraNodes: #false)) #'2026-04-20T16:49:37.701565+02:00') #(#(#RGMethodDefinition #(#WSGraph #correctPaths #false)) #'2026-04-28T09:57:44.168605+02:00') #(#(#RGMethodDefinition #(#WS2DRectangularGridTopology #buildTileSpecsForPathID: #false)) #'2026-04-28T20:03:07.400643+02:00') #(#(#RGMethodDefinition #(#WSGraph #substituteMergedPath:with: #false)) #'2026-05-21T12:37:39.003957+02:00') )
 ]
 
 { #category : 'code-critics' }

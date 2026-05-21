@@ -220,6 +220,37 @@ WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: zeroN
 	^ dijkstraEdges
 ]
 
+{ #category : 'path optimization' }
+WSGraph >> calculateBestConnectionsFrom: optimalSet toClasses: touchedClasses [
+	"Find the single best connection point for each logical class to avoid multiple attachments"
+	
+	| classToEdges chosen |
+	classToEdges := Dictionary new.
+	
+	optimalSet do: [ :pNode |
+		pNode outgoingEdges do: [ :edge |
+			(edge target isClassNode and: [ touchedClasses includes: edge target ]) ifTrue: [
+				| wsClass |
+				wsClass := edge target tileInWhichCollapsed wsClass.
+				(classToEdges at: wsClass ifAbsentPut: [ OrderedCollection new ]) 
+					add: (pNode -> edge target).
+			]
+		]
+	].
+	
+	chosen := Set new.
+	
+	classToEdges valuesDo: [ :edges |
+		| bestEdge |
+		bestEdge := edges detectMin: [ :assoc | 
+			assoc key outgoingEdges count: [ :e | optimalSet includes: e target ] 
+		].
+		chosen add: bestEdge.
+	].
+	
+	^ chosen
+]
+
 { #category : 'path reification' }
 WSGraph >> calculatePathMetrics [
 	"Calculate and assign the efficiency metrics for all paths"
@@ -264,10 +295,11 @@ WSGraph >> clearPath: aPath [
 				eachNode collapseTo: emptyTile. ]	
 	].
 
-	aPath nodes: OrderedCollection new.
-	aPath length: Float infinity.
-	aPath firstNodes: nil.
-	aPath lastNodes: nil.
+	aPath 
+		nodes: OrderedCollection new;
+		length: Float infinity;
+		firstNodes: OrderedCollection new;
+		lastNodes: OrderedCollection new.
 	
 	^ touchedNodes 
 	
@@ -487,7 +519,7 @@ WSGraph >> destroyRandomLoops [
                 eachNode collapseTo: emptyTile ] ] ]
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> findOptimalPathWithID2: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
 
@@ -848,7 +880,7 @@ WSGraph >> optimizePaths: pathIDs [
 		| generatedPath optimalPath |
 		generatedPath := self paths at: eachPathID.		
 		optimalPath := self computeShortestPathFor: generatedPath.
-		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
+		self substituteIfShorter: optimalPath with: generatedPath.
 	]. 
 
 	^ touchedNodes
@@ -1257,7 +1289,7 @@ WSGraph >> substitute: oldPath with: optimalPath [
 	^ touchedNodes
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aBoolean [
 
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
@@ -1271,6 +1303,19 @@ WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aB
 ]
 
 { #category : 'path optimization' }
+WSGraph >> substituteIfShorter: optimalPath with: generatedPath [
+
+	optimalPath size < generatedPath length ifFalse: [ ^ self ].
+	
+	generatedPath touchedClasses size = 2 
+		ifTrue: [ self substitute: generatedPath with: optimalPath. ]
+		ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ]
+	
+
+	"aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]"
+]
+
+{ #category : 'deprecated' }
 WSGraph >> substituteMergedPath2: oldPath with: optimalPath [
     "Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
     | pathID optimalSet |
@@ -1307,11 +1352,15 @@ WSGraph >> substituteMergedPath2: oldPath with: optimalPath [
 WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 	"Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
 	
-	| pathID optimalSet touchedNodes |
+	| pathID optimalSet touchedNodes chosenClassConnections |
 	pathID := oldPath pathID.
 	
 	touchedNodes := (self clearPath: oldPath) asSet.
 	optimalSet := optimalPath asSet.
+	
+	chosenClassConnections := self 
+		calculateBestConnectionsFrom: optimalSet 
+		toClasses: oldPath touchedClasses.
 	
 	optimalPath do: [ :eachNode |
 		| neighborsDir dict |
@@ -1326,7 +1375,8 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 			select: [ :eachEdge |
 				(optimalSet includes: eachEdge target) 
 				or: [ 
-					eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] 
+					chosenClassConnections includes: (eachNode -> eachEdge target)
+					"eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] "
 				] 
 			]
 			thenCollect: [ :eachEdge | eachEdge direction ].
