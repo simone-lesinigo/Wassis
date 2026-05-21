@@ -191,7 +191,7 @@ WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes [
 	^ dijkstraEdges
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'pathOptimization' }
 WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: zeroNodes [
 	"Build the weighted edge collection for Dijkstra, managing zero-weight backbone snapping and foreign path penalties"
 	
@@ -686,61 +686,6 @@ WSGraph >> initialize [
 WSGraph >> isInBoundsRow: row column: col [
 
 	^ self structure isInBoundsRow: row column: col 
-]
-
-{ #category : 'path reification' }
-WSGraph >> mergePath2: pathA withPath: pathB usingConnection: connectionNodes pathID: pathID [
-    "Merge two paths into one, collapsing the connection nodes as path tiles.
-     connectionNodes: first and last are already path tiles, middle ones are empty tiles."
-    | mergedPath connectionMiddle adjA adjB |
-    
-    mergedPath := WSPath withID: pathID.
-    
-	"Collassa nodi di mezzo"
-    connectionMiddle := connectionNodes copyFrom: 2 to: connectionNodes size - 1.
-    connectionMiddle doWithIndex: [ :aNode :i |
-        | prevNode nextNode |
-        prevNode := connectionNodes at: i.      
-        nextNode := connectionNodes at: i + 2.
-        self collapseNode: aNode
-            toPathTile: pathID
-            between: prevNode
-            and: nextNode ].
-    
-    "Ricollassa il primo nodo"
-    connectionNodes size > 1 ifTrue: [
-        | firstConn secondConn lastConn secondLastConn |
-        firstConn := connectionNodes first.
-        secondConn := connectionNodes second.
-        lastConn := connectionNodes last.
-        secondLastConn := connectionNodes at: connectionNodes size - 1.
-        
-		adjA := (self adjacentPathNodeIn: pathA for: firstConn).
-        self collapseNode: firstConn
-            toPathTile: pathID
-            between: (adjA ifNil: [ firstConn ])
-            and: secondConn.
-        
-		  adjB := (self adjacentPathNodeIn: pathB for: lastConn).
-        self collapseNode: lastConn
-            toPathTile: pathID
-            between: secondLastConn
-            and: (adjB ifNil: [ lastConn ]) ].
-    
-    pathA nodes do: [ :node | mergedPath addNode: node ].
-    connectionMiddle do: [ :node | mergedPath addNode: node].
-    pathB nodes do: [ :node | mergedPath addNode: node ].
-    
-    mergedPath firstNodes: pathA firstNodes; lastNodes: pathB lastNodes.
-    
-    pathA sourceClasses do: [ :c | mergedPath addSourceClass: c ].
-    pathB sourceClasses do: [ :c | mergedPath addSourceClass: c ].
-    pathA destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
-    pathB destinationClasses do: [ :c | mergedPath addDestinationClass: c ].
-	 mergedPath touchedClasses: (mergedPath sourceClasses, mergedPath destinationClasses).
-    self assignSourceAndDestinationFor: mergedPath.
-    
-    ^ mergedPath
 ]
 
 { #category : 'path reification' }
