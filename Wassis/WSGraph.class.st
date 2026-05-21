@@ -317,16 +317,19 @@ WSGraph >> computeShortestPathFor: aPath [
                           -> (aPath destinationClasses first tileInWhichCollapsed wsClass).
             ^ shortestPath asOrderedCollection ]
         ifFalse: [
-            | pairs allPaths backbone optimalNodes remainingClasses |
+            | pairs allPaths backbone optimalNodes remainingClasses bestAssociation backbonePair |
             pairs := aPath sourceClasses flatCollect: [ :src |
                 aPath destinationClasses collect: [ :dst |
                     (src tileInWhichCollapsed wsClass) -> (dst tileInWhichCollapsed wsClass) ] ].
             allPaths := pairs collect: [ :pair |
-                self findOptimalPathWithID: aPath pathID andClasses: pair ].
-            backbone := allPaths detectMax: [ :each | each size ].
+                pair -> (self findOptimalPathWithID: aPath pathID andClasses: pair) ].
+				bestAssociation := allPaths detectMax: [ :eachAssociation | eachAssociation value size ].
+				backbonePair := bestAssociation key.
+            backbone := bestAssociation value.
             optimalNodes := (backbone ifNil: [ OrderedCollection new ]) asSet.
 
-				remainingClasses := (aPath touchedClasses collect: [ :node | node tileInWhichCollapsed wsClass ]) asSet.
+				remainingClasses := ((aPath touchedClasses collect: [ :node | node tileInWhichCollapsed wsClass ]) asSet)
+					reject: [ :eachClass | eachClass = backbonePair key or: [ eachClass = backbonePair value ] ].
 				remainingClasses do: [ :eachClass |
 					| p |
 					p := self
@@ -803,7 +806,7 @@ WSGraph >> mergePathsWithSameID [
 
 				dijkstraNodes := Set new.
     
-			    dijkstraNodes addAll: (self nodes select: [ :eachNode | 
+			   dijkstraNodes addAll: (self nodes select: [ :eachNode | 
 					eachNode isNotClassNode 
 					and: ([eachNode isNotCrossingNode]) ]).
 
@@ -1220,17 +1223,18 @@ WSGraph >> setPathLengths [
 { #category : 'path optimization' }
 WSGraph >> shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID [
 	"Determine if an edge violates topology constraints for the given pathID"
-	
-	"Class -> Path: controlla se si può uscire dalla classe in quella direzione"
+
+	"Class -> Path: Controlla se il pathID può USCIRE dalla classe in questa direzione"
 	(eachNode isClassNode and: [ targetNode isPathNode ]) ifTrue: [
-		^ ((eachNode tileInWhichCollapsed edges at: eachEdge direction) includes: pathID) not ].
+		| allowedIDs |
+		allowedIDs := eachNode tileInWhichCollapsed edges at: eachEdge direction ifAbsent: [ #() ].
+		^ ((allowedIDs includes: '00') or: [ allowedIDs includes: pathID ]) not ].
 		
 	"Path -> Class: controlla se si può entrare nella classe da quella direzione"
 (eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
 		| allowedIDs |
 		allowedIDs := targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection ifAbsent: [ #() ].
-		^ (allowedIDs includes: pathID) not and: [ (allowedIDs includes: #'00') not ]
-	].
+		^ ((allowedIDs includes: '00') or: [ allowedIDs includes: pathID ]) not ].
 		
 	"Path -> Path: Evita la sovrapposizione con path estranei"
 	(eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
