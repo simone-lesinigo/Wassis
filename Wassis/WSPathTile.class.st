@@ -77,8 +77,8 @@ WSPathTile >> optimizePath: aPathID withSolver: aSolver [
     | touchedNodes |
         
     touchedNodes := aSolver graph optimizePaths: { aPathID }.
-    aSolver createVisualization.
-    "aSolver updateVisualizationFor: touchedNodes."
+    "aSolver createVisualization."
+    aSolver updateVisualizationFor: touchedNodes.
 ]
 
 { #category : 'accessing' }

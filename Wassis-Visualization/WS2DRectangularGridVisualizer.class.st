@@ -476,7 +476,6 @@ WS2DRectangularGridVisualizer >> updateVisualizationFor: aNodesArray [
 	aNodesArray do: [ :eachNode | self updateNodeVisualization: eachNode ].
 
 	"self refreshMouseHoverForPaths."
-	self halt.
 	self canvas signalUpdate
 ]
 

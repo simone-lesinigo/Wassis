@@ -880,7 +880,8 @@ WSGraph >> optimizePaths: pathIDs [
 		| generatedPath optimalPath |
 		generatedPath := self paths at: eachPathID.		
 		optimalPath := self computeShortestPathFor: generatedPath.
-		self substituteIfShorter: optimalPath with: generatedPath.
+		touchedNodes addAll: 
+			(self substituteIfShorter: optimalPath with: generatedPath).
 	]. 
 
 	^ touchedNodes
@@ -1304,15 +1305,18 @@ WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aB
 
 { #category : 'path optimization' }
 WSGraph >> substituteIfShorter: optimalPath with: generatedPath [
-
+	
+	| touchedNodes |
+	
 	optimalPath size < generatedPath length ifFalse: [ ^ self ].
+	touchedNodes := 
+		generatedPath touchedClasses size = 2 
+			ifTrue: [ self substitute: generatedPath with: optimalPath. ]
+			ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ].
 	
-	generatedPath touchedClasses size = 2 
-		ifTrue: [ self substitute: generatedPath with: optimalPath. ]
-		ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ]
-	
-
-	"aBoolean ifTrue: [ self updateExitTilesFor: generatedPath ]"
+	self updateExitTilesFor: generatedPath.
+	generatedPath efficiency: 1.
+	^ touchedNodes 
 ]
 
 { #category : 'deprecated' }
@@ -1376,7 +1380,6 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 				(optimalSet includes: eachEdge target) 
 				or: [ 
 					chosenClassConnections includes: (eachNode -> eachEdge target)
-					"eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] "
 				] 
 			]
 			thenCollect: [ :eachEdge | eachEdge direction ].
@@ -1408,7 +1411,7 @@ WSGraph >> topology: anObject [
 	topology := anObject
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: aPathID [
     "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
     
@@ -1438,22 +1441,27 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
 WSGraph >> updateExitTilesFor: generatedPath [
     "Understand which footprint is adjacent to which path node, then update the exits"
 
-    | pathID footprint1 footprint2 firstAdjacent lastAdjacent |
+    | pathID |
     pathID := generatedPath pathID.
-    footprint1 := generatedPath sourceClasses footPrint.
-    footprint2 := generatedPath destinationClasses footPrint.
-    
-    firstAdjacent := ((footprint1 borderNodes: self topology) 
-        anySatisfy: [ :aNode | aNode outgoingEdges anySatisfy: [ :e | e target = generatedPath firstNodes ] ])
-            ifTrue: [ footprint1 ]
-            ifFalse: [ footprint2 ].
-    lastAdjacent := firstAdjacent = footprint1 ifTrue: [ footprint2 ] ifFalse: [ footprint1 ].
-    
-    generatedPath sourceClasses: (self borderNodeOf: firstAdjacent adjacentTo: generatedPath firstNodes).
-    generatedPath destinationClasses: (self borderNodeOf: lastAdjacent adjacentTo: generatedPath lastNodes).
-    
-    self updateExitForFootprint: firstAdjacent adjacentTo: generatedPath firstNodes withPathID: pathID.
-    self updateExitForFootprint: lastAdjacent adjacentTo: generatedPath lastNodes withPathID: pathID.
+
+	 generatedPath touchedClasses do: [ :eachClassNode | 
+		| footprint |
+		footprint := eachClassNode footPrint.
+		(footprint borderNodes: self topology) do: [ :eachBorderNode |
+			| tile dir |
+			tile := eachBorderNode tileInWhichCollapsed.
+			dir := eachBorderNode outgoingEdges 
+				select: [ :eachEdge | 
+					(eachEdge target tileInWhichCollapsed edges at: eachEdge oppositeDirection) includes: pathID ]
+				thenCollect: [ :eachEdge | eachEdge direction ].
+			
+			tile edges keysAndValuesDo: [ :eachDir : eachValue | 
+				(dir includes: eachDir) 
+					ifTrue: [ tile edges at: eachDir put: (OrderedCollection with: pathID)  ]
+					ifFalse: [ tile edges at: eachDir put: (OrderedCollection with: '00') ]
+			].
+		]
+	 ].	
 ]
 
 { #category : 'propagating' }
