@@ -84,8 +84,17 @@ WSGraph >> assignFirstAndLastNodesFor: aPath [
 	| pathNodes sourceNodes destinationNodes |
 	pathNodes := aPath nodes asSet.
 	
-	sourceNodes := (aPath sourceClasses flatCollect: [ :eachClassNode | eachClassNode outgoingEdges collect: [ :edge | edge target ] ]) asSet.
-	destinationNodes := (aPath destinationClasses flatCollect: [ :eachClassNode | eachClassNode outgoingEdges collect: [ :edge | edge target ] ]) asSet.
+	sourceNodes := 
+		(aPath sourceClasses flatCollect: 
+			[ :eachClassNode | 
+				eachClassNode outgoingEdges collect: 
+					[ :edge | edge target ] ]) asSet.
+			
+	destinationNodes := 
+		(aPath destinationClasses flatCollect: 
+			[ :eachClassNode | 
+				eachClassNode outgoingEdges collect: 
+					[ :edge | edge target ] ]) asSet.
 
 	aPath firstNodes: OrderedCollection new.
 	aPath lastNodes: OrderedCollection new.
@@ -218,12 +227,18 @@ WSGraph >> calculatePathMetrics [
 	self paths do: [ :eachPath | 
 		| optimalNodes |
 		optimalNodes := self computeShortestPathFor: eachPath.
-		
-		eachPath shortestPath: optimalNodes.
-		
-		eachPath length > 0 
-			ifTrue: [ eachPath efficiency: (optimalNodes size / eachPath length) ]
-			ifFalse: [ eachPath efficiency: 0 ].
+				
+		(optimalNodes size < eachPath length) 
+			ifTrue: [  
+				eachPath 
+					efficiency: (optimalNodes size / eachPath length);
+					shortestPath: optimalNodes
+			]
+			ifFalse: [ 
+				eachPath 
+				efficiency: 1; 
+				shortestPath: eachPath nodes 
+			].
 	]
 ]
 
@@ -364,7 +379,7 @@ WSGraph >> createPaths [
         self paths at: pathID put: OrderedCollection new.
         visitedNodesPerPath at: pathID put: Set new ].
     
-    self topology classFootprint keysAndValuesDo: [ :eachClass :eachFootprint |
+    self topology classFootprint do: [ :eachFootprint |
         (eachFootprint borderNodes: self topology) do: [ :eachClassNode |
             | tileEdges |
             tileEdges := eachClassNode tileInWhichCollapsed edges.
@@ -874,27 +889,16 @@ WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 ]
 
 { #category : 'path optimization' }
-WSGraph >> optimizePathsWithExitModification: pathIDs [
+WSGraph >> optimizePaths: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
 	| touchedNodes |
 	touchedNodes := Set new.
 
 	pathIDs do: [ :eachPathID |
-		| generatedPath optimalPath classes |
 		
-		generatedPath := self paths at: eachPathID.
-		
-"		classes := self topology allPathIDs keyAtValue: eachPathID.
-		optimalPath :=  self findOptimalPathWithID: eachPathID andClasses: classes.
-		touchedNodes addAll: generatedPath nodes; addAll: optimalPath.
-		
-		generatedPath sourceClasses: (((self topology classFootprint at: classes key) borderNodes: self topology) first).
-		generatedPath destinationClasses: (((self topology classFootprint at: classes value) borderNodes: self topology) first)."
-		
-		
-		
-		
+		| generatedPath optimalPath |
+		generatedPath := self paths at: eachPathID.		
 		optimalPath := self computeShortestPathFor: generatedPath.
 		self substituteIfShorter: optimalPath for: generatedPath updatingExits: true.	
 	]. 
@@ -902,16 +906,16 @@ WSGraph >> optimizePathsWithExitModification: pathIDs [
 	^ touchedNodes
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> optimizePathsWithPathIDs: pathIDs allowExitsModification: aBoolean [
 	"Optimize all the paths which pathID is in pathIDs"
 
 	aBoolean 
-		ifTrue: [ ^ self optimizePathsWithExitModification: pathIDs ] 
+		ifTrue: [ ^ self optimizePaths: pathIDs ] 
 		ifFalse: [ ^ self optimizePathsWithoutExitModification: pathIDs ] 
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> optimizePathsWithoutExitModification: pathIDs [
 	"Optimize all the paths which pathID is in pathIDs"
 	
@@ -1253,47 +1257,55 @@ WSGraph >> structure: anObject [
 WSGraph >> substitute: oldPath with: optimalPath [
 	"Replace a generated path by erasing it with the optimal path created by Dijkstra"
 
-    | newFirstNode newLastNode pathID |
-    pathID := oldPath pathID.
-    self clearPath: oldPath.
+	| pathID sourceClass destClass touchedNodes newFirstNode newLastNode |
+	pathID := oldPath pathID.
+	sourceClass := oldPath sourceClasses first.
+	destClass := oldPath destinationClasses first.
+	
+	touchedNodes := (self clearPath: oldPath) asSet.
 
 	optimalPath size = 1 ifTrue: [
-        | loneNode |
-        loneNode := self collapseNode: optimalPath first
-                        toPathTile: pathID
-                        between: (self getAdjacentClassForNode: optimalPath first)
-                        and: (self getAdjacentClassForNode: optimalPath first).
-        oldPath firstNodes: loneNode.
-        oldPath lastNodes: loneNode.
-        oldPath addNode: loneNode.
-        oldPath length: 1.
-        ^ self ].
+		| loneNode |
+		loneNode := self collapseNode: optimalPath first
+						toPathTile: pathID
+						between: sourceClass
+						and: destClass.
+		
+		oldPath firstNodes: {loneNode} asOrderedCollection.
+		oldPath lastNodes: {loneNode} asOrderedCollection.
+		oldPath addNode: loneNode.
+		oldPath length: 1.
+		
+		touchedNodes add: loneNode.
+		^ touchedNodes ].
 
-    newFirstNode := (self collapseNode: optimalPath first
-        toPathTile: pathID
-        between: (self getAdjacentClassForNode: optimalPath first)
-        and: optimalPath second).
-	oldPath firstNodes: newFirstNode.
+	newFirstNode := self collapseNode: optimalPath first
+						toPathTile: pathID
+						between: sourceClass
+						and: optimalPath second.
+	oldPath firstNodes: {newFirstNode} asOrderedCollection.
 	oldPath addNode: newFirstNode.
 
-    2 to: optimalPath size - 1 do: [ :i |
+	2 to: optimalPath size - 1 do: [ :i |
 		| newNode |
-       newNode := self collapseNode: (optimalPath at: i)
-           toPathTile: pathID
-           between: (optimalPath at: i - 1)
-           and: (optimalPath at: i + 1).
-		oldPath addNode: newNode
-		
-	 ].
+		newNode := self collapseNode: (optimalPath at: i)
+						toPathTile: pathID
+						between: (optimalPath at: i - 1)
+						and: (optimalPath at: i + 1).
+		oldPath addNode: newNode ].
 
-    newLastNode := (self collapseNode: optimalPath last
-        toPathTile: pathID
-        between: (optimalPath at: optimalPath size - 1)
-        and: (self getAdjacentClassForNode: optimalPath last)).
-	oldPath lastNodes: newLastNode.
+	newLastNode := self collapseNode: optimalPath last
+						toPathTile: pathID
+						between: (optimalPath at: optimalPath size - 1)
+						and: destClass.
+	oldPath lastNodes: {newLastNode} asOrderedCollection.
 	oldPath addNode: newLastNode.
 	
-	oldPath length: oldPath nodes size
+	oldPath length: oldPath nodes size.
+	
+	touchedNodes addAll: optimalPath.
+	
+	^ touchedNodes
 ]
 
 { #category : 'path optimization' }
@@ -1310,7 +1322,7 @@ WSGraph >> substituteIfShorter: optimalPath for: generatedPath updatingExits: aB
 ]
 
 { #category : 'path optimization' }
-WSGraph >> substituteMergedPath: oldPath with: optimalPath [
+WSGraph >> substituteMergedPath2: oldPath with: optimalPath [
     "Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
     | pathID optimalSet |
     pathID := oldPath pathID.
@@ -1340,6 +1352,49 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
  
     
 
+]
+
+{ #category : 'path optimization' }
+WSGraph >> substituteMergedPath: oldPath with: optimalPath [
+	"Replace a merged path by recollapsing each node based on its actual neighbors in optimalPath"
+	
+	| pathID optimalSet touchedNodes |
+	pathID := oldPath pathID.
+	
+	touchedNodes := (self clearPath: oldPath) asSet.
+	optimalSet := optimalPath asSet.
+	
+	optimalPath do: [ :eachNode |
+		| neighborsDir dict |
+		dict := Dictionary new.
+		
+		eachNode tileInWhichCollapsed edges keysAndValuesDo: [ :key :value |
+			value isEmpty 
+				ifTrue: [ dict at: key put: '00' ]
+				ifFalse: [ dict at: key put: value first ] ].
+				
+		neighborsDir := eachNode outgoingEdges 
+			select: [ :eachEdge |
+				(optimalSet includes: eachEdge target) 
+				or: [ 
+					eachEdge target isClassNode and: [ oldPath touchedClasses includes: eachEdge target ] 
+				] 
+			]
+			thenCollect: [ :eachEdge | eachEdge direction ].
+		
+		neighborsDir do: [ :eachDir | dict at: eachDir put: pathID ].
+		eachNode collapseTo: (self topology tileset tileForDirections: dict).
+		
+		touchedNodes add: eachNode.
+	].
+
+	oldPath nodes: optimalPath asOrderedCollection.
+	oldPath length: optimalPath size.
+
+	self assignSourceAndDestinationFor: oldPath.
+	self assignFirstAndLastNodesFor: oldPath.
+
+	^ touchedNodes
 ]
 
 { #category : 'accessing' }

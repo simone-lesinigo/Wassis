@@ -435,7 +435,7 @@ WS2DGridTopology >> moveClass: aClass toNode: aNode inGraph: aGraph [
 
 	touchedNodes 
 		addAll: newNodes;
-		addAll: (aGraph optimizePathsWithExitModification: (self swSystem pathIDsOf: aClass)).
+		addAll: (aGraph optimizePaths: (self swSystem pathIDsOf: aClass)).
 
 	^ touchedNodes 
 ]

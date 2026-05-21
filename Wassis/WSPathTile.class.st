@@ -42,7 +42,7 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 		
    aMenu 
 		add: 'Optimize Path'
-   		target: [ self optimizePathWithUserConfirmation: currentPathID withSolver: aSolver ]
+   		target: [ self optimizePath: currentPathID withSolver: aSolver ]
       selector: #value.
 ]
 
@@ -71,19 +71,12 @@ WSPathTile >> isPathTile [
 ]
 
 { #category : 'control' }
-WSPathTile >> optimizePathWithUserConfirmation: aPathID withSolver: aSolver [
+WSPathTile >> optimizePath: aPathID withSolver: aSolver [
 	"Create the dialog to ask the user if he wants to allow exits modification or not"
 
-    | allowExits touchedNodes |
-
-    allowExits := UIManager default 
-        confirm: 'Do you want to allow exit modification?' 
-        label: 'Question'.
+    | touchedNodes |
         
-    touchedNodes := 
-		aSolver graph 
-        optimizePathsWithPathIDs: { aPathID } 
-        allowExitsModification: allowExits.
+    touchedNodes := aSolver graph optimizePaths: { aPathID }.
     aSolver createVisualization.
     "aSolver updateVisualizationFor: touchedNodes."
 ]
