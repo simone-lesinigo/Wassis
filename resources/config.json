@@ -1,6 +1,6 @@
 {
     "isHeadless": true,
-    "placementStrategy": "classicMDS",
+    "placementStrategy": "metricMDS",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 20,
         "maxNumberOfRegeneratedGraph": 10
