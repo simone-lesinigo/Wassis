@@ -165,6 +165,7 @@ WSMetricMDSLayoutStrategy >> run [
     self fillDirectConnections.
     self executeFloydWarshall.
     self replaceInfiniteValues.
+	 self halt.
     self classDistances: self matrix deepCopy.
     self applyPowerTransformation.
 

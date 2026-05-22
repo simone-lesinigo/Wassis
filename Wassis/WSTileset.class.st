@@ -46,7 +46,7 @@ WSTileset >> pathTiles: anObject [
 	pathTiles := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'finding' }
 WSTileset >> tileForDirections: dirToPathID [
 	"Return the tile each edge contains the pathID in dirToPathID"
 

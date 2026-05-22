@@ -1089,7 +1089,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes [
     ^ shortestPath
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID [
 	"Run dijkstra from startNode to endNode"
 
@@ -1137,7 +1137,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
     ^ shortestPath
 ]
 
-{ #category : 'path optimization' }
+{ #category : 'deprecated' }
 WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pathID: pathID zeroNodes: zeroNodes [
     "Run dijkstra from startNode to endNode"
     | dijkstra dijkstraNodes dijkstraEdges shortestPath |
@@ -1201,18 +1201,20 @@ WSGraph >> setPathLengths [
 { #category : 'path optimization' }
 WSGraph >> shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID [
 	"Determine if an edge violates topology constraints for the given pathID"
-
+	| emptyEdgeSymbol |
+	emptyEdgeSymbol := self topology emptyEdgeSymbol.
+	
 	"Class -> Path: Controlla se il pathID può USCIRE dalla classe in questa direzione"
 	(eachNode isClassNode and: [ targetNode isPathNode ]) ifTrue: [
 		| allowedIDs |
 		allowedIDs := eachNode tileInWhichCollapsed edges at: eachEdge direction ifAbsent: [ #() ].
-		^ ((allowedIDs includes: '00') or: [ allowedIDs includes: pathID ]) not ].
+		^ ((allowedIDs includes: emptyEdgeSymbol ) or: [ allowedIDs includes: pathID ]) not ].
 		
 	"Path -> Class: controlla se si può entrare nella classe da quella direzione"
 (eachNode isPathNode and: [ targetNode isClassNode ]) ifTrue: [
 		| allowedIDs |
 		allowedIDs := targetNode tileInWhichCollapsed edges at: eachEdge oppositeDirection ifAbsent: [ #() ].
-		^ ((allowedIDs includes: '00') or: [ allowedIDs includes: pathID ]) not ].
+		^ ((allowedIDs includes: emptyEdgeSymbol) or: [ allowedIDs includes: pathID ]) not ].
 		
 	"Path -> Path: Evita la sovrapposizione con path estranei"
 	(eachNode isPathNode and: [ targetNode isPathNode ]) ifTrue: [
@@ -1372,7 +1374,7 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 		
 		eachNode tileInWhichCollapsed edges keysAndValuesDo: [ :key :value |
 			value isEmpty 
-				ifTrue: [ dict at: key put: '00' ]
+				ifTrue: [ dict at: key put: self topology emptyEdgeSymbol ]
 				ifFalse: [ dict at: key put: value first ] ].
 				
 		neighborsDir := eachNode outgoingEdges 
@@ -1458,7 +1460,7 @@ WSGraph >> updateExitTilesFor: generatedPath [
 			tile edges keysAndValuesDo: [ :eachDir : eachValue | 
 				(dir includes: eachDir) 
 					ifTrue: [ tile edges at: eachDir put: (OrderedCollection with: pathID)  ]
-					ifFalse: [ tile edges at: eachDir put: (OrderedCollection with: '00') ]
+					ifFalse: [ tile edges at: eachDir put: (OrderedCollection with: self topology emptyEdgeSymbol) ]
 			].
 		]
 	 ].	
