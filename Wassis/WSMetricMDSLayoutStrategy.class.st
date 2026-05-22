@@ -23,8 +23,8 @@ WSMetricMDSLayoutStrategy >> applyPowerTransformation [
     1 to: n do: [ :i |
         1 to: n do: [ :j |
             | v |
-            v := self classDistances at: i at: j.
-            self classDistances at: i at: j put: (v raisedTo: power) ] ].
+            v := self matrix at: i at: j.
+            self matrix at: i at: j put: (v raisedTo: power) ] ].
 ]
 
 { #category : 'calculating' }
@@ -71,7 +71,7 @@ WSMetricMDSLayoutStrategy >> calculateStressFor: positions [
 	1 to: n - 1 do: [ :i |
 		(i + 1) to: n do: [ :j |
 			| targetDist currentDist diff |
-			targetDist := self classDistances at: i at: j.
+			targetDist := self matrix at: i at: j.
 			currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
 			diff := targetDist - currentDist.
 			stress := stress + (diff * diff).
@@ -96,7 +96,7 @@ WSMetricMDSLayoutStrategy >> computeBMatrixFor: positions [
 				ifTrue: [ 0 ]
 				ifFalse: [ 
 					| targetDist currentDist bValue |
-					targetDist := self classDistances at: i at: j.
+					targetDist := self matrix at: i at: j.
 					currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
 					
 					bValue := currentDist > 1.0e-6
@@ -165,7 +165,6 @@ WSMetricMDSLayoutStrategy >> run [
     self fillDirectConnections.
     self executeFloydWarshall.
     self replaceInfiniteValues.
-	 self halt.
     self classDistances: self matrix deepCopy.
     self applyPowerTransformation.
 
