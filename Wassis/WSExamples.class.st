@@ -190,7 +190,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient
+		createForClass: AlignmentMorph 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

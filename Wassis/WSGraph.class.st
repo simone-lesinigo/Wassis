@@ -980,14 +980,14 @@ WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
         neighbour := eachEdge target.
         (neighbour isCollapsed and: [ neighbour isPathNode and: [ neighbour tileInWhichCollapsed isPlaceholderTile ] ])
             ifTrue: [
-                | resolvedTile |
-                resolvedTile := (neighbour resolvePathTile: neighbour tileInWhichCollapsed).
-                resolvedTile ~= (neighbour tileInWhichCollapsed) 
+                | updatedTile |
+                updatedTile := (neighbour resolvePathTile: neighbour tileInWhichCollapsed).
+                updatedTile ~= (neighbour tileInWhichCollapsed) 
 						ifTrue: [
-						  resolvedTile isResolvedTile ifTrue: [ queue add: neighbour ].
+						  updatedTile isResolvedTile ifTrue: [ queue add: neighbour ].
                     neighbour
-                        possibleTiles: (Set with: resolvedTile);
-                        tileInWhichCollapsed: resolvedTile ] ] ] ].
+                        possibleTiles: (Set with: updatedTile);
+                        tileInWhichCollapsed: updatedTile ] ] ] ].
 	
 
 ]

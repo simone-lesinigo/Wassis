@@ -53,7 +53,7 @@ WSClassesGraphVisualizer >> createLines [
     self classesArray do: [ :eachClass |
 		targets := eachClass connectedWith 
 			collect: [ :eachConnection | eachConnection target ].
-
+		
         targets isNotEmpty ifTrue: [
             RSEdgeBuilder line
                 canvas: self canvas;
