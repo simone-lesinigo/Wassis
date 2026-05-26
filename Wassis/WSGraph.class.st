@@ -970,18 +970,26 @@ WSGraph >> propagateEdge: eachEdge from: currentNode into: queue [
 { #category : 'propagating' }
 WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
     "After collapsing to a resolved path tile, force neighbours with placeholders to re-resolve. Returns all nodes that were updated"
-
-    aCollapsedNode outgoingEdges do: [ :edge |
+	 
+	| queue |
+	queue := OrderedCollection with: aCollapsedNode.
+	
+	[ queue isEmpty ] whileFalse: [ 
+		(queue removeFirst) outgoingEdges do: [ :eachEdge |
         | neighbour |
-        neighbour := edge target.
+        neighbour := eachEdge target.
         (neighbour isCollapsed and: [ neighbour isPathNode and: [ neighbour tileInWhichCollapsed isPlaceholderTile ] ])
             ifTrue: [
                 | resolvedTile |
-                resolvedTile := neighbour resolvePathTile: neighbour tileInWhichCollapsed.
-                resolvedTile ~= neighbour tileInWhichCollapsed ifTrue: [
+                resolvedTile := (neighbour resolvePathTile: neighbour tileInWhichCollapsed).
+                resolvedTile ~= (neighbour tileInWhichCollapsed) 
+						ifTrue: [
+						  resolvedTile isResolvedTile ifTrue: [ queue add: neighbour ].
                     neighbour
                         possibleTiles: (Set with: resolvedTile);
-                        tileInWhichCollapsed: resolvedTile ] ] ]
+                        tileInWhichCollapsed: resolvedTile ] ] ] ].
+	
+
 ]
 
 { #category : 'deprecated' }
@@ -1364,7 +1372,7 @@ WSGraph >> substituteIfShorter: optimalPath with: generatedPath [
 	
 	| touchedNodes |
 	
-	optimalPath size < generatedPath length ifFalse: [ ^ self ].
+	optimalPath size < generatedPath length ifFalse: [ ^ { } ].
 	touchedNodes := 
 		generatedPath touchedClasses size = 2 
 			ifTrue: [ self substitute: generatedPath with: optimalPath. ]

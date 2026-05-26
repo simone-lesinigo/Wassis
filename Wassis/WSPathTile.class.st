@@ -103,7 +103,7 @@ WSPathTile >> isResolvedTile [
 
 { #category : 'control' }
 WSPathTile >> optimizePath: aPathID withSolver: aSolver [
-	"Create the dialog to ask the user if he wants to allow exits modification or not"
+	"Optimize the path and update the visualization"
 
     | touchedNodes |
         

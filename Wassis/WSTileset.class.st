@@ -29,7 +29,9 @@ WSTileset >> addTiles: aTilesArray [
 
 { #category : 'finding' }
 WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
-
+	 "Create the requested tiles with the passed directions"
+	 <toDO> "Need refactoring (for directions and topology)"
+	
     | edges tile matchingSpec abstractPattern pathIDsList translationMap |
     edges := Dictionary new.
     dirToPathID keysAndValuesDo: [ :dir :sym |
