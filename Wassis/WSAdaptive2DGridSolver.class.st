@@ -51,13 +51,6 @@ WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 	self solver createHistoryVisualizationWithMilliSecDelay: aDelay
 ]
 
-{ #category : 'visualization' }
-WSAdaptive2DGridSolver >> createTemporaryVisualizationFor: aSolver [
-	
-	aSolver createTemporaryVisualization.
-	self halt.
-]
-
 { #category : 'logging' }
 WSAdaptive2DGridSolver >> logGridSize: size [
 	
@@ -81,7 +74,6 @@ WSAdaptive2DGridSolver >> run [
 	block := [  
 		metrics := WSMetrics new.
 		self resetEnvironment.
-		"self createGraphVisualization."
 		WSCurrentMetrics value: metrics during: [
 			| totalTime |
 			totalTime := [ 
@@ -135,7 +127,7 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 		andID: aID).
 	
 	currentSolver addInitialMetrics.
-	
+
 "	self visualizeMDSClassesPositioningFor: currentSolver.
 	self visualizeMDSDistancesMatrixFor: currentSolver.
 	self createTemporaryVisualizationFor: currentSolver."

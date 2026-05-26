@@ -141,11 +141,46 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
 ]
 
 { #category : 'tileset' }
+WS2DRectangularGridTopology >> buildTileSpecs [
+	"Build the specification of the path tiles"
+	
+	| empty straightTileWeight cornerTileWeight mergingTileWeight crossingTileWeight tileSpecs firstPathSymbol secondPathSymbol |
+	empty := WSConfig emptyEdgeSymbol.
+	firstPathSymbol :=  WSConfig firstPathSymbol.
+	secondPathSymbol := WSConfig secondPathSymbol.
+   straightTileWeight := WS2DRectangularGridConfig straightTileWeight.
+   cornerTileWeight := WS2DRectangularGridConfig cornerTileWeight.
+	mergingTileWeight := WS2DRectangularGridConfig mergingTileWeight.
+	crossingTileWeight := WS2DRectangularGridConfig crossingTileWeight.
+	
+	tileSpecs := {
+        { 1.  straightTileWeight . { empty. firstPathSymbol. firstPathSymbol. empty } . { firstPathSymbol } }.
+        { 2.  straightTileWeight . { firstPathSymbol. empty. empty. firstPathSymbol  } . { firstPathSymbol } }.
+        { 3.  cornerTileWeight   . { firstPathSymbol. empty. firstPathSymbol. empty  } . { firstPathSymbol } }.
+        { 4.  cornerTileWeight   . { firstPathSymbol. firstPathSymbol. empty. empty  } . { firstPathSymbol } }.
+        { 5.  cornerTileWeight   . { empty. empty. firstPathSymbol. firstPathSymbol  } . { firstPathSymbol } }.
+        { 6.  cornerTileWeight   . { empty. firstPathSymbol. empty. firstPathSymbol  } . { firstPathSymbol } }.
+        { 7.  mergingTileWeight  . { firstPathSymbol. firstPathSymbol. empty. firstPathSymbol } . { firstPathSymbol } }.
+        { 8.  mergingTileWeight  . { firstPathSymbol. empty. firstPathSymbol. firstPathSymbol } . { firstPathSymbol } }.
+        { 9.  mergingTileWeight  . { firstPathSymbol. firstPathSymbol. firstPathSymbol. empty } . { firstPathSymbol } }.
+        { 10. mergingTileWeight  . { empty. firstPathSymbol. firstPathSymbol. firstPathSymbol } . { firstPathSymbol } }.
+        { 11. mergingTileWeight  . { firstPathSymbol. firstPathSymbol. firstPathSymbol. firstPathSymbol } . { firstPathSymbol } }.
+		  { 12. crossingTileWeight. { secondPathSymbol. firstPathSymbol.  firstPathSymbol.  secondPathSymbol }. { firstPathSymbol. secondPathSymbol } }.
+		  { 13. crossingTileWeight. { firstPathSymbol.   secondPathSymbol. firstPathSymbol. secondPathSymbol }. { firstPathSymbol. secondPathSymbol } }.
+		  { 14. crossingTileWeight. { firstPathSymbol.   firstPathSymbol. secondPathSymbol. secondPathSymbol }. { firstPathSymbol. secondPathSymbol } } .
+    } asOrderedCollection.
+
+	^ tileSpecs 
+	
+
+]
+
+{ #category : 'tileset' }
 WS2DRectangularGridTopology >> buildTileSpecsForPathID: aPathID [
 	"Build the specification of the path tiles for a certain ID"
 	
 	| empty straightTileWeight cornerTileWeight mergingTileWeight crossingTileWeight tileSpecs |
-	empty := self class emptyEdgeSymbol.
+	empty := WSConfig emptyEdgeSymbol.
    straightTileWeight := WS2DRectangularGridConfig straightTileWeight.
    cornerTileWeight := WS2DRectangularGridConfig cornerTileWeight.
 	mergingTileWeight := WS2DRectangularGridConfig mergingTileWeight.
@@ -183,7 +218,7 @@ WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
     
     | result ees posDir |
     result := Dictionary new.
-    ees := self class emptyEdgeSymbol.
+    ees := WSConfig emptyEdgeSymbol.
     posDir := self class positionDirection.
 
     nodeEdges keysAndValuesDo: [ :aNode :dirPathDict |
@@ -262,6 +297,29 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 ]
 
 { #category : 'tileset' }
+WS2DRectangularGridTopology >> createAllPathTiles [
+	"Create all the necessary path tiles for all entities and returns them"
+
+	| pathTiles tileSpecs |
+	
+	pathTiles := OrderedCollection new.
+   
+    tileSpecs := self buildTileSpecs.
+    
+	 pathTiles := (tileSpecs collect: [ :spec |
+		WSPathTile 
+			withID: spec first
+			withWeight: spec second
+			withEdges: (self createTileEdgesFrom: (spec third))
+			withPathIDs: spec fourth
+     ]).
+
+	"self tileset pathTiles at: aSymbol put: pathTiles. "
+
+	^ pathTiles 
+]
+
+{ #category : 'tileset' }
 WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
@@ -312,7 +370,7 @@ WS2DRectangularGridTopology >> createEmptyTile [
 	
 	| emptyEdgeSymbol |
 	
-	emptyEdgeSymbol := self class emptyEdgeSymbol.
+	emptyEdgeSymbol := WSConfig emptyEdgeSymbol.
 	
 	^ WSEmptyTile withEdges: 
 		(self createTileEdgesFrom: { 

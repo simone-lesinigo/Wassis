@@ -51,10 +51,16 @@ WSConfig class >> configFile: anObject [
 	ConfigFile := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 WSConfig class >> dijkstraTraversingPathWeight [
 	
 	^ 100
+]
+
+{ #category : 'accessing-symbols' }
+WSConfig class >> emptyEdgeSymbol [ 
+	
+	^ 'emptyEdge'
 ]
 
 { #category : 'accessing-tileWeight' }
@@ -74,6 +80,12 @@ WSConfig class >> emptyTileWeight: anObject [
 	EmptyTileWeight := anObject
 ]
 
+{ #category : 'accessing-symbols' }
+WSConfig class >> firstPathSymbol [
+	
+	^ 'firstPath'
+]
+
 { #category : 'accessing' }
 WSConfig class >> isHeadless [ 
 
@@ -91,10 +103,23 @@ WSConfig class >> isHeadless: anObject [
 	IsHeadless := anObject
 ]
 
-{ #category : 'testing' }
+{ #category : 'accessing' }
 WSConfig class >> isNotHeadless [
 	
 	^ self isHeadless not 
+]
+
+{ #category : 'accessing-symbols' }
+WSConfig class >> isPathID: aSymbol [
+	"Every symbol that is not a placeHolder and not equal to the emptyEdgeSymbol, is by construction a pathID symbol"
+
+    ^ (self isPlaceholder: aSymbol) not and: [ aSymbol ~= self emptyEdgeSymbol ]
+]
+
+{ #category : 'accessing-symbols' }
+WSConfig class >> isPlaceholder: aSymbol [
+
+    ^ aSymbol = self firstPathSymbol or: [ aSymbol = self secondPathSymbol ]
 ]
 
 { #category : 'accessing-backtracking' }
@@ -181,4 +206,10 @@ WSConfig class >> reset [
 	self placementStrategy: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
+]
+
+{ #category : 'accessing-symbols' }
+WSConfig class >> secondPathSymbol [
+	
+	^ 'secondPath'
 ]

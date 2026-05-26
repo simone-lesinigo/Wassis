@@ -192,6 +192,24 @@ WSSolver >> calculateAvgConnectedClassesDistance [
 	^ dict
 ]
 
+{ #category : 'post processing' }
+WSSolver >> classifyPathTiles [
+    "Iterates over all graph nodes, groups tiles by their pathID, and registers them into the tileset"
+
+    | pathGroups |
+    pathGroups := Dictionary new.
+
+    self graph nodes do: [ :eachNode |
+        | tile |
+        tile := eachNode tileInWhichCollapsed.
+        tile isPathTile ifTrue: [
+            tile pathIDs do: [ :aPathID |
+                (pathGroups at: aPathID ifAbsentPut: [ Set new ]) add: tile ] ] ].
+
+    pathGroups keysAndValuesDo: [ :aSymbol :pathTiles |
+        self topology tileset pathTiles at: aSymbol put: pathTiles ].
+]
+
 { #category : 'pathOptimization' }
 WSSolver >> clearAllPathsOf: aClass [
 	"Destroy all the paths associated to a class"
@@ -432,8 +450,11 @@ WSSolver >> run [
 	
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	WSLogger log: 'Solution found'.
-	
+
+	self graph resolveAllPlaceholders.
+	self classifyPathTiles.
 	self topology rebuildClassNodes: self graph.
+
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
 	self updateGraphMetrics.
 	

@@ -14,12 +14,22 @@ Class {
 
 { #category : 'instance creation' }
 WSPathTile class >> withID: anID withWeight: aWeight withEdges: edges withPathIDs: pathIDs [
-	
+
 	^ self new
 		id: anID;
       weight: aWeight;
       edges: edges;
 		pathIDs: pathIDs
+]
+
+{ #category : 'comparing' }
+WSPathTile >> = anObject [
+
+    self class = anObject class ifFalse: [ ^ false ].
+
+    ^ self id = anObject id
+        and: [ self pathIDs = anObject pathIDs
+        and: [ self edges = anObject edges ] ]
 ]
 
 { #category : 'visualization' }
@@ -50,6 +60,12 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 WSPathTile >> buildPopup [ 
 	
 	^ RSPopup new text: [ 'Path Tile: ', self pathID ]
+]
+
+{ #category : 'comparing' }
+WSPathTile >> hash [
+
+    ^ self id hash bitXor: self pathIDs hash
 ]
 
 { #category : 'testing' }
@@ -103,4 +119,25 @@ WSPathTile >> pathIDs: anObject [
 WSPathTile >> secondaryPathID [
 
 	self isCrossingTile ifTrue: [ ^ self pathIDs second ]
+]
+
+{ #category : 'as yet unclassified' }
+WSPathTile >> specializedWith: aPlaceholderMapping [
+    "Return a new tile with placeholders replaced by real pathIDs.
+     aPlaceholderMapping: 'firstPath' -> #17, 'secondPath' -> #23, etc."
+
+    | newEdges newPathIDs |
+    newEdges := Dictionary new.
+    self edges keysAndValuesDo: [ :direction :symbols |
+        newEdges 
+            at: direction 
+            put: (symbols collect: [ :sym | aPlaceholderMapping at: sym ifAbsent: [ sym ] ]) ].
+
+    newPathIDs := self pathIDs collect: [ :pid | aPlaceholderMapping at: pid ifAbsent: [ pid ] ].
+
+    ^ self class
+        withID: self id
+        withWeight: self weight
+        withEdges: newEdges
+        withPathIDs: newPathIDs
 ]

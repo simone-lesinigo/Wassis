@@ -49,6 +49,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 		topology: aTopology;
 		numberOfNodes: allNodes size;
 		minEntropyHeap: (Heap new addAll: collapsedNodes shuffled; yourself) 
+
 ]
 
 { #category : 'collapse' }
@@ -984,6 +985,50 @@ WSGraph >> reassignSourceDestination: aPath [
             ifFalse: [ aPath addDestinationClass: aClassNode ] ]
 ]
 
+{ #category : 'post processing' }
+WSGraph >> resolveAllPlaceholders [
+	"Iterates over the graph resolving all placeholders inherited from collapsed neighbours"
+	
+	| nodesWithPlaceholders |
+	
+	"1. Inizializza la coda"
+	nodesWithPlaceholders := (self nodes select: [ :eachNode | 
+		eachNode tileInWhichCollapsed edges anySatisfy: [ :eachEdge | 
+			WSConfig isPlaceholder: eachEdge first ] ]) asOrderedCollection.
+
+	[ nodesWithPlaceholders isEmpty ] whileFalse: [
+		| currentNode currentTile resolvedTile |
+		currentNode := nodesWithPlaceholders removeFirst.
+		currentTile := currentNode tileInWhichCollapsed.
+		resolvedTile := currentNode resolvePathTile: currentTile.
+
+		"2. Abbiamo fatto progressi? (La tessera è cambiata?)"
+		resolvedTile = currentTile
+			ifFalse: [
+				"SÌ! Salviamo la nuova tessera parzialmente o totalmente risolta"
+				currentNode
+					possibleTiles: (Set with: resolvedTile);
+					tileInWhichCollapsed: resolvedTile.
+				
+				"Se ha ancora ALTRI placeholder (es. firstPath risolto, ma secondPath no), si rimette in coda"
+				(resolvedTile edges anySatisfy: [ :e | WSConfig isPlaceholder: e first ])
+					ifTrue: [ nodesWithPlaceholders addLast: currentNode ].
+					
+				"SVEGLIAMO I VICINI: Dato che ho scoperto un mio colore, avviso i vicini irrisolti"
+				currentNode outgoingEdges do: [ :eachEdge | 
+					| neighbour |
+					neighbour := eachEdge target.
+					
+					(neighbour isCollapsed and: [ 
+						(nodesWithPlaceholders includes: neighbour) not and: [ 
+							neighbour tileInWhichCollapsed edges anySatisfy: [ :sym | WSConfig isPlaceholder: sym first ] ] ])
+						ifTrue: [ nodesWithPlaceholders addLast: neighbour ] ] ]
+			
+			"Se resolvedTile = currentTile (NESSUN progresso), NON RIMETTIAMO IN CODA il currentNode. 
+			 Resterà fuori dalla coda finché un vicino risolto non lo sveglierà."
+	].
+]
+
 { #category : 'propagating' }
 WSGraph >> restoreMinEntropyHeap [
 	"If the heap is empty, it selects a random node to continue the execution. This is beacuse if the heap is empty, it means that all nodes that are not collapsed yet have the same entropy"
@@ -1202,7 +1247,7 @@ WSGraph >> setPathLengths [
 WSGraph >> shouldSkipEdge: eachEdge from: eachNode to: targetNode forPath: pathID [
 	"Determine if an edge violates topology constraints for the given pathID"
 	| emptyEdgeSymbol |
-	emptyEdgeSymbol := self topology emptyEdgeSymbol.
+	emptyEdgeSymbol := WSConfig emptyEdgeSymbol.
 	
 	"Class -> Path: Controlla se il pathID può USCIRE dalla classe in questa direzione"
 	(eachNode isClassNode and: [ targetNode isPathNode ]) ifTrue: [
@@ -1374,7 +1419,7 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 		
 		eachNode tileInWhichCollapsed edges keysAndValuesDo: [ :key :value |
 			value isEmpty 
-				ifTrue: [ dict at: key put: self topology emptyEdgeSymbol ]
+				ifTrue: [ dict at: key put: WSConfig emptyEdgeSymbol ]
 				ifFalse: [ dict at: key put: value first ] ].
 				
 		neighborsDir := eachNode outgoingEdges 
@@ -1418,7 +1463,7 @@ WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: 
     "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
     
     | emptySymbol exitEdge exitEdgeSymbols |
-    emptySymbol := self topology class emptyEdgeSymbol.
+    emptySymbol := WSConfig emptyEdgeSymbol.
     
     "Remove pathID from all exits of all nodes in the footprint"
     aFootprint nodes do: [ :aNode |
@@ -1460,7 +1505,7 @@ WSGraph >> updateExitTilesFor: generatedPath [
 			tile edges keysAndValuesDo: [ :eachDir : eachValue | 
 				(dir includes: eachDir) 
 					ifTrue: [ tile edges at: eachDir put: (OrderedCollection with: pathID)  ]
-					ifFalse: [ tile edges at: eachDir put: (OrderedCollection with: self topology emptyEdgeSymbol) ]
+					ifFalse: [ tile edges at: eachDir put: (OrderedCollection with: WSConfig emptyEdgeSymbol) ]
 			].
 		]
 	 ].	

@@ -95,8 +95,8 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
     ^ result
 ]
 
-{ #category : 'tileset' }
-WS2DGridTopology >> createAllPathTiles [
+{ #category : 'deprecated' }
+WS2DGridTopology >> createAllPathTiles2 [
 	"Create all the necessary path tiles for all entities and returns them"
 
 	| pathTiles |

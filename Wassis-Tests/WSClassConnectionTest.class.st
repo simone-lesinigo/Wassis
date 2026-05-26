@@ -9,15 +9,15 @@ Class {
 WSClassConnectionTest >> testAddRelation [
 	
 	| class1 class2 |
-	class1 := WFCClass new.
-	class2 := WFCClass new.
+	class1 := WSClass new.
+	class2 := WSClass new.
 	
 	class1 addConnection: 
-		(WFCClassConnection 
+		(WSClassConnection 
 			withTarget: class2 
-			andRelation: WFCRelationType inheritance).
+			andRelation: WSRelationType inheritance).
 			
-	class1 addRelation: WFCRelationType usage withClass: class2.
+	class1 addRelation: WSRelationType usage withClass: class2.
 	
 	
 	
@@ -27,10 +27,10 @@ WSClassConnectionTest >> testAddRelation [
 WSClassConnectionTest >> testAddRelationNoConnection [
 	
 	| class1 class2 |
-	class1 := WFCClass new.
-	class2 := WFCClass new.
+	class1 := WSClass new.
+	class2 := WSClass new.
 			
-	class1 addRelation: WFCRelationType usage withClass: class2
+	class1 addRelation: WSRelationType usage withClass: class2
 	
 	
 	
@@ -40,13 +40,13 @@ WSClassConnectionTest >> testAddRelationNoConnection [
 WSClassConnectionTest >> testRelationsWeight [
 	
 	| class1 class2 weight |
-	class1 := WFCClass new.
-	class2 := WFCClass new.
+	class1 := WSClass new.
+	class2 := WSClass new.
 	
 	class1 addConnection: 
-		(WFCClassConnection 
+		(WSClassConnection 
 			withTarget: class2 
-			andRelations: {WFCRelationType inheritance . WFCRelationType association }).
+			andRelations: {WSRelationType inheritance . WSRelationType association }).
 			
 	weight := class1 connectedWith first weight.
 	self assert: weight equals: 1.5

@@ -22,12 +22,6 @@ WSTopology class >> createOppositeDirections [
 	^ self subclassResponsibility 
 ]
 
-{ #category : 'directionSymbol' }
-WSTopology class >> emptyEdgeSymbol [
-	
-	^ '00'
-]
-
 { #category : 'accessing' }
 WSTopology >> allPathIDs [
 
@@ -90,12 +84,6 @@ WSTopology >> createTileset [
 WSTopology >> createVisualizationFor: aSolver [
 	
 	^ self subclassResponsibility 
-]
-
-{ #category : 'directionSymbol' }
-WSTopology >> emptyEdgeSymbol [ 
-	
-	^ self class emptyEdgeSymbol
 ]
 
 { #category : 'creation' }
