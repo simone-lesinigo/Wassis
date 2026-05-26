@@ -95,6 +95,24 @@ WSNode >> areEdgesCompatible: edgeA with: edgeB [
 	^ false
 ]
 
+{ #category : 'propagating' }
+WSNode >> buildCollapsedConstraints [
+    "Return an OrderedCollection of (direction -> neighbourEdgeSymbol) for each collapsed neighbour. Computed once per propagation step and reused for all tile candidates"
+
+    | constraints |
+
+    constraints := OrderedCollection new.
+    self outgoingEdges do: [ :eachEdge |
+        | neighbour |
+        neighbour := eachEdge target.
+        neighbour isCollapsed ifTrue: [
+            | neighbourEdge |
+            neighbourEdge := (neighbour tileInWhichCollapsed edges at: eachEdge oppositeDirection) first.
+            constraints add: eachEdge direction -> neighbourEdge ] ].
+
+    ^ constraints
+]
+
 { #category : 'accessing' }
 WSNode >> collapseStep [
 
@@ -331,6 +349,61 @@ WSNode >> isTileConsistent: aTile [
 	^ true
 ]
 
+{ #category : 'propagating' }
+WSNode >> isTileEdgeCompatible: aTile oppositeDirection: oppositeDirection aNodeEdges: aNodeEdges [
+    "True if aTile has at least one edge in oppositeDirection compatible with aNodeEdges"
+
+    ^ (aTile edges at: oppositeDirection) anySatisfy: [ :myEdge |
+        aNodeEdges anySatisfy: [ :theirEdge |
+            self areEdgesCompatible: myEdge with: theirEdge ] ]
+]
+
+{ #category : 'propagating' }
+WSNode >> isTilePlaceholderConsistent: aTile collapsedConstraints: constraints [
+    "True if the placeholder assignments of aTile are consistent across all collapsed neighbours
+
+	Examples: 
+	1) Tile: north=firstPath, south=firstPath, east=empty, west=empty
+		Constraints: north→#17, south→#17
+
+		north: myEdge=firstPath, neighbourEdge=#17 → p1=nil → p1:=#17
+		south: myEdge=firstPath, neighbourEdge=#17 → p1=#17, #17=#17 → true
+
+	2) Tile: north=firstPath, south=firstPath, east=empty, west=empty
+		Constraints: north→#17, south→#23
+
+		north: myEdge=firstPath, neighbourEdge=#17 → p1:=#17
+		south: myEdge=firstPath, neighbourEdge=#23 → p1=#17, #23≠#17 → return false
+		
+	3) Tile: north=firstPath, south=firstPath, east=secondPath, west=secondPath
+		Constraints: north→#17, east→#17
+
+		north: myEdge=firstPath,  neighbourEdge=#17 → p1:=#17
+		east:  myEdge=secondPath, neighbourEdge=#17 → p2:=#17
+		p1=#17 = p2=#17 → return false"
+
+    | p1 p2 |
+    p1 := nil. 
+    p2 := nil. 
+
+    constraints do: [ :eachConstraint |
+        | myEdge neighbourEdge |
+        myEdge := (aTile edges at: eachConstraint key) first.
+        neighbourEdge := eachConstraint value.
+
+        (WSConfig isPathID: neighbourEdge) ifTrue: [
+            (myEdge = WSConfig firstPathSymbol) ifTrue: [
+                p1 ifNil: [ p1 := neighbourEdge ]
+                   ifNotNil: [ p1 = neighbourEdge ifFalse: [ ^ false ] ] ].
+            (myEdge = WSConfig secondPathSymbol) ifTrue: [
+                p2 ifNil: [ p2 := neighbourEdge ]
+                   ifNotNil: [ p2 = neighbourEdge ifFalse: [ ^ false ] ] ] ] ].
+
+    (p1 notNil and: [ p1 = p2 ]) ifTrue: [ ^ false ].
+
+    ^ true
+]
+
 { #category : 'updating' }
 WSNode >> keepTilesWithIDin: anArray [
 	"Keep all the tiles in a WFCNode where the ID is in anArray, reject the other"
@@ -398,83 +471,19 @@ WSNode >> possibleTiles: anObject [
 	possibleTiles := anObject
 ]
 
-{ #category : 'deprecated' }
-WSNode >> reducePossibilitiesBasedOn2: aNode withConnectionEdge: anEdge [
-	"Reduce the possible tiles and return the removed ones in a single fast pass."
-	
-	| anEdgeDirection anEdgeOpposite aNodeEdges fixedPaths oldTiles newTiles removedTiles firstSym secondSym |
-	
-	anEdgeDirection := anEdge direction.
-	anEdgeOpposite := anEdge oppositeDirection.
-	firstSym := WSConfig firstPathSymbol.
-	secondSym := WSConfig secondPathSymbol.
-	
-	aNodeEdges := Set new.
-	aNode possibleTiles do: [ :eachTile |
-		(eachTile edges at: anEdgeDirection) do: [ :sym | aNodeEdges add: sym ] ].
-
-	fixedPaths := OrderedCollection new: 4.
-	self outgoingEdges do: [ :edge |
-		edge target isCollapsed ifTrue: [
-			| sym |
-			sym := (edge target tileInWhichCollapsed edges at: edge oppositeDirection) first.
-			(WSConfig isPlaceholder: sym) ifFalse: [ fixedPaths add: (edge direction -> sym) ] ] ].
-
-	oldTiles := self possibleTiles.
-	newTiles := OrderedCollection new: oldTiles size.
-	removedTiles := OrderedCollection new: oldTiles size.
-	
-	oldTiles do: [ :eachTile |
-		| isLocallyCompatible |
-		
-		isLocallyCompatible := (eachTile edges at: anEdgeOpposite) anySatisfy: [ :myEdge |
-			aNodeEdges anySatisfy: [ :theirEdge | self areEdgesCompatible: myEdge with: theirEdge ] ].
-		
-		isLocallyCompatible 
-			ifFalse: [ removedTiles add: eachTile ]
-			ifTrue: [
-				| isGloballyConsistent p1 p2 |
-				isGloballyConsistent := true.
-				p1 := nil. 
-				p2 := nil.
-				
-				1 to: fixedPaths size do: [ :i |
-					isGloballyConsistent ifTrue: [
-						| assoc dir concrete tileSym |
-						assoc := fixedPaths at: i.
-						dir := assoc key.
-						concrete := assoc value.
-						
-						tileSym := (eachTile edges at: dir) first.
-						
-						tileSym = firstSym ifTrue: [
-							p1 ifNil: [ p1 := concrete ] 
-							   ifNotNil: [ p1 = concrete ifFalse: [ isGloballyConsistent := false ] ] ].
-						tileSym = secondSym ifTrue: [
-							p2 ifNil: [ p2 := concrete ] 
-							   ifNotNil: [ p2 = concrete ifFalse: [ isGloballyConsistent := false ] ] ] ] ].
-							   
-				isGloballyConsistent 
-					ifTrue: [ newTiles add: eachTile ]
-					ifFalse: [ removedTiles add: eachTile ] ] ].
-	
-	self possibleTiles: newTiles.
-	^ removedTiles
-]
-
 { #category : 'propagating' }
-WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
-	"Reduce the possible tiles and return the removed ones in a single fast pass."
+WSNode >> reducePossibilitiesBasedOn3: aNode withConnectionEdge: anEdge [
+	"Reduce the possible tiles and return the removed ones"
 	
 	| direction oppositeDirection aNodeEdges oldTiles newTiles  |
 	direction := anEdge direction.
 	oppositeDirection := anEdge oppositeDirection.
 	
-	aNodeEdges := aNode possibleTiles flatCollect: [ :eachTile | eachTile edges at: direction].
-
+	aNodeEdges := aNode possibleTiles flatCollectAsSet: [ :eachTile | eachTile edges at: direction ].
+	
 	oldTiles := self possibleTiles copy.
 	
-    newTiles := oldTiles select: [ :eachTile |
+   newTiles := oldTiles select: [ :eachTile |
         ((eachTile edges at: oppositeDirection) anySatisfy: [ :myEdge |
             aNodeEdges anySatisfy: [ :theirEdge |
                 self areEdgesCompatible: myEdge with: theirEdge ] ])
@@ -483,6 +492,37 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 	self possibleTiles: newTiles.
 	
 	^ oldTiles difference: newTiles
+
+
+
+]
+
+{ #category : 'propagating' }
+WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
+	"Reduce the possible tiles and return the removed ones"
+	
+	| direction oppositeDirection aNodeEdges newTiles removedTiles collapsedConstraints |
+	direction := anEdge direction.
+	oppositeDirection := anEdge oppositeDirection.
+	
+	aNodeEdges := aNode possibleTiles flatCollectAsSet: [ :eachTile | eachTile edges at: direction ].
+	collapsedConstraints := self buildCollapsedConstraints.
+
+    newTiles := OrderedCollection new: self possibleTiles size.
+    removedTiles := OrderedCollection new.
+
+    self possibleTiles do: [ :eachTile |
+        ((self isTileEdgeCompatible: eachTile oppositeDirection: oppositeDirection aNodeEdges: aNodeEdges)
+         and: [ self isTilePlaceholderConsistent: eachTile collapsedConstraints: collapsedConstraints ])
+            ifTrue:  [ newTiles add: eachTile ]
+            ifFalse: [ removedTiles add: eachTile ] ].
+
+    self possibleTiles: newTiles.
+
+    ^ removedTiles
+
+
+
 ]
 
 { #category : 'collapse' }
