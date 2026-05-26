@@ -967,6 +967,32 @@ WSGraph >> propagateEdge: eachEdge from: currentNode into: queue [
     ^ neighbourNode
 ]
 
+{ #category : 'propagating' }
+WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
+    "After collapsing to a resolved path tile, force neighbours with placeholders to re-resolve. Returns all nodes that were updated"
+
+    | updated |
+    updated := OrderedCollection new.
+
+    aCollapsedNode outgoingEdges do: [ :edge |
+        | neighbour |
+        neighbour := edge target.
+        (neighbour isCollapsed and: [ neighbour isPathNode and: [ neighbour tileInWhichCollapsed isPlaceholderTile ] ])
+            ifTrue: [
+                | resolvedTile |
+					 neighbour copyWithoutEdges emit.
+                resolvedTile := neighbour resolvePathTile: neighbour tileInWhichCollapsed.
+                resolvedTile ~= neighbour tileInWhichCollapsed ifTrue: [
+                    neighbour
+                        possibleTiles: (Set with: resolvedTile);
+                        tileInWhichCollapsed: resolvedTile.
+ 						neighbour copyWithoutEdges emit.
+                    updated add: neighbour.
+                    updated addAll: (self propagatePathIDResolutionFrom: neighbour) ] ] ].
+
+    ^ updated
+]
+
 { #category : 'deprecated' }
 WSGraph >> reassignSourceDestination: aPath [
     "Reassign source and destination after the merge"
@@ -985,7 +1011,7 @@ WSGraph >> reassignSourceDestination: aPath [
             ifFalse: [ aPath addDestinationClass: aClassNode ] ]
 ]
 
-{ #category : 'post processing' }
+{ #category : 'deprecated' }
 WSGraph >> resolveAllPlaceholders [
 	"Iterates over the graph resolving all placeholders inherited from collapsed neighbours"
 	

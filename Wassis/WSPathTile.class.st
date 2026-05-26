@@ -86,6 +86,21 @@ WSPathTile >> isPathTile [
 	^ true
 ]
 
+{ #category : 'testing' }
+WSPathTile >> isPlaceholderTile [
+	"Method that check if a tile is still a placeholder"
+	
+	 ^ self edges anySatisfy: [ :eachEdge | WSConfig isPlaceholder: eachEdge first ]
+	
+]
+
+{ #category : 'testing' }
+WSPathTile >> isResolvedTile [
+	"Method that check if a tile is not a placeholder"
+
+	^ self isPlaceholderTile not
+]
+
 { #category : 'control' }
 WSPathTile >> optimizePath: aPathID withSolver: aSolver [
 	"Create the dialog to ask the user if he wants to allow exits modification or not"

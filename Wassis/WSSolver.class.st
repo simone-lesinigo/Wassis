@@ -451,7 +451,7 @@ WSSolver >> run [
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	WSLogger log: 'Solution found'.
 
-	self graph resolveAllPlaceholders.
+"	self graph resolveAllPlaceholders."
 	self classifyPathTiles.
 	self topology rebuildClassNodes: self graph.
 
@@ -491,9 +491,13 @@ WSSolver >> step [
 
 	collapsedNode := (self graph selectNextNodeToCollapse).
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.		
-	touchedNodes := (self graph propagate: collapsedNode).
+	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.	
 	
+	(collapsedNode isPathNode and: [ collapsedNode tileInWhichCollapsed isResolvedTile ]) 
+		ifTrue: [ self graph propagatePathIDResolutionFrom: collapsedNode ].
+		
+	touchedNodes := (self graph propagate: collapsedNode).
+
 	eh historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
 	eh	historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
 	eh historyOfMinEntropyHeap add: copyOfHeap.
