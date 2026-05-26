@@ -38,7 +38,7 @@ WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
     pathIDsList := pathIDsSet asArray.
     translationMap := Dictionary new.
     pathIDsList isNotEmpty ifTrue: [ translationMap at: (pathIDsList first) put: WSConfig firstPathSymbol ].
-    pathIDsList size >= 2 ifTrue: [ translationMap at: (pathIDsList at: 2) put: WSConfig secondPathSymbol ].
+    pathIDsList size >= 2 ifTrue: [ translationMap at: (pathIDsList second) put: WSConfig secondPathSymbol ].
     translationMap at: WSConfig emptyEdgeSymbol put: WSConfig emptyEdgeSymbol.
 
     abstractPattern := { #up . #left . #right . #down } collect: [ :dir | | realSym |
@@ -47,7 +47,7 @@ WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
 
     matchingSpec := WS2DRectangularGridTopology new buildTileSpecs 
         detect: [ :spec | spec third = abstractPattern ]
-        ifNone: [ self error: 'Geometria non trovata nelle tileSpecs!' ].
+        ifNone: [ self error: 'Tile doesn not exist' ].
 
     tile := WSPathTile
         withID: matchingSpec first
@@ -55,8 +55,7 @@ WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
         withEdges: edges
         withPathIDs: pathIDsSet asOrderedCollection.
 
-    pathIDsSet do: [ :pid |
-        (self pathTiles at: pid ifAbsentPut: [ Set new ]) add: tile ].
+    pathIDsSet do: [ :pid | (self pathTiles at: pid ifAbsentPut: [ Set new ]) add: tile ].
         
     ^ tile
 ]

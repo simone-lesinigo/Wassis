@@ -192,7 +192,7 @@ WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes [
 	^ dijkstraEdges
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: zeroNodes [
 	"Build the weighted edge collection for Dijkstra, managing zero-weight backbone snapping and foreign path penalties"
 	
@@ -951,8 +951,8 @@ WSGraph >> propagate: aNode [
 
 { #category : 'propagating' }
 WSGraph >> propagateEdge: eachEdge from: currentNode into: queue [
-
     "Returns the neighbour node if it was affected by the propagation, nil otherwise"
+
     | neighbourNode removedTiles |
     neighbourNode := eachEdge target.
     neighbourNode isCollapsed ifTrue: [ ^ nil ].
@@ -991,7 +991,6 @@ WSGraph >> resolveAllPlaceholders [
 	
 	| nodesWithPlaceholders |
 	
-	"1. Inizializza la coda"
 	nodesWithPlaceholders := (self nodes select: [ :eachNode | 
 		eachNode tileInWhichCollapsed edges anySatisfy: [ :eachEdge | 
 			WSConfig isPlaceholder: eachEdge first ] ]) asOrderedCollection.
@@ -1002,19 +1001,15 @@ WSGraph >> resolveAllPlaceholders [
 		currentTile := currentNode tileInWhichCollapsed.
 		resolvedTile := currentNode resolvePathTile: currentTile.
 
-		"2. Abbiamo fatto progressi? (La tessera è cambiata?)"
 		resolvedTile = currentTile
 			ifFalse: [
-				"SÌ! Salviamo la nuova tessera parzialmente o totalmente risolta"
 				currentNode
 					possibleTiles: (Set with: resolvedTile);
 					tileInWhichCollapsed: resolvedTile.
 				
-				"Se ha ancora ALTRI placeholder (es. firstPath risolto, ma secondPath no), si rimette in coda"
 				(resolvedTile edges anySatisfy: [ :e | WSConfig isPlaceholder: e first ])
 					ifTrue: [ nodesWithPlaceholders addLast: currentNode ].
 					
-				"SVEGLIAMO I VICINI: Dato che ho scoperto un mio colore, avviso i vicini irrisolti"
 				currentNode outgoingEdges do: [ :eachEdge | 
 					| neighbour |
 					neighbour := eachEdge target.
@@ -1023,9 +1018,6 @@ WSGraph >> resolveAllPlaceholders [
 						(nodesWithPlaceholders includes: neighbour) not and: [ 
 							neighbour tileInWhichCollapsed edges anySatisfy: [ :sym | WSConfig isPlaceholder: sym first ] ] ])
 						ifTrue: [ nodesWithPlaceholders addLast: neighbour ] ] ]
-			
-			"Se resolvedTile = currentTile (NESSUN progresso), NON RIMETTIAMO IN CODA il currentNode. 
-			 Resterà fuori dalla coda finché un vicino risolto non lo sveglierà."
 	].
 ]
 

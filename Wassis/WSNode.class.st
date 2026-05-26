@@ -83,17 +83,14 @@ WSNode >> areEdgesCompatible2: edgeA with: edgeB [
 WSNode >> areEdgesCompatible: edgeA with: edgeB [
     "Two edges are compatible if:
      - they are equal, OR
+	  - both are placeholders OR
      - one is a real pathID (not empty, not placeholder) and the other is a placeholder"
-
-	| emptySymbol |
 	
 	edgeA = edgeB ifTrue: [ ^ true ].
+	((WSConfig isPlaceholder: edgeA) and: [ WSConfig isPlaceholder: edgeB ]) ifTrue: [ ^ true ].
 
-	emptySymbol := WSConfig emptyEdgeSymbol.
-	(edgeA = emptySymbol or: [ edgeB = emptySymbol ]) ifTrue: [ ^ false ].
-
-	(WSConfig isPlaceholder: edgeA) ifTrue: [ ^ (WSConfig isPlaceholder: edgeB) not ].
-	(WSConfig isPlaceholder: edgeB) ifTrue: [ ^ true ].
+	(WSConfig isPlaceholder: edgeA) ifTrue: [ ^ (WSConfig isPathID: edgeB)].
+	(WSConfig isPlaceholder: edgeB) ifTrue: [ ^ (WSConfig isPathID: edgeA)].
 
 	^ false
 ]
@@ -273,9 +270,8 @@ WSNode >> isPathNode [
 
 { #category : 'propagating' }
 WSNode >> isPlaceholderAssignmentConsistentFor: aTile [
-    "For each collapsed neighbour, check that the placeholder on that side
-     maps to the same real pathID consistently.
-     Example: firstPath on right → #1, firstPath on bottom → #2 = INCONSISTENT"
+    "For each collapsed neighbour, check that the placeholder on that side maps to the same real pathID consistently.
+     Example: firstPath on right → #1, firstPath on bottom → #2 => INCONSISTENT"
 
     | assignment |
     assignment := Dictionary new. 
@@ -285,7 +281,7 @@ WSNode >> isPlaceholderAssignmentConsistentFor: aTile [
         neighbour := edge target.
         neighbour isCollapsed ifTrue: [
             myEdge := (aTile edges at: edge direction) first.
-            neighbourEdge := (neighbour tileInWhichCollapsed edges at: edge reverseEdge direction) first.
+            neighbourEdge := (neighbour tileInWhichCollapsed edges at: edge oppositeDirection) first.
 
             ((WSConfig isPlaceholder: myEdge) and: [ WSConfig isPathID: neighbourEdge ]) ifTrue: [
                     | existing |
@@ -470,9 +466,9 @@ WSNode >> reducePossibilitiesBasedOn2: aNode withConnectionEdge: anEdge [
 WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 	"Reduce the possible tiles and return the removed ones in a single fast pass."
 	
-		| direction oppositeDirection aNodeEdges oldTiles newTiles  |
+	| direction oppositeDirection aNodeEdges oldTiles newTiles  |
 	direction := anEdge direction.
-	oppositeDirection := anEdge reverseEdge direction.
+	oppositeDirection := anEdge oppositeDirection.
 	
 	aNodeEdges := aNode possibleTiles flatCollect: [ :eachTile | eachTile edges at: direction].
 
@@ -483,7 +479,7 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
             aNodeEdges anySatisfy: [ :theirEdge |
                 self areEdgesCompatible: myEdge with: theirEdge ] ])
         and: [ self isPlaceholderAssignmentConsistentFor: eachTile ] ].
-	
+
 	self possibleTiles: newTiles.
 	
 	^ oldTiles difference: newTiles

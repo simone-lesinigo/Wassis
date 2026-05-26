@@ -314,7 +314,8 @@ WS2DRectangularGridTopology >> createAllPathTiles [
 			withPathIDs: spec fourth
      ]).
 
-	"self tileset pathTiles at: aSymbol put: pathTiles. "
+	self tileset pathTiles at: WSConfig firstPathSymbol put: pathTiles. 
+	self tileset pathTiles at: WSConfig secondPathSymbol put: pathTiles. 
 
 	^ pathTiles 
 ]

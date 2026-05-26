@@ -72,6 +72,9 @@ WSTileVisitor class >> withPathIDs: aPathIDsArray [
 		aPathIDsArray do: [ :eachID | 
 			pcd at: eachID put: (colorWheel removeFirst)].
 		
+		pcd at: WSConfig firstPathSymbol put: Color black.
+		pcd at: WSConfig secondPathSymbol put: Color black.
+		
 		PathIDColorDictionary := pcd.
 		PathIDCache := aPathIDsArray 
 	].

@@ -210,7 +210,7 @@ WSSolver >> classifyPathTiles [
         self topology tileset pathTiles at: aSymbol put: pathTiles ].
 ]
 
-{ #category : 'pathOptimization' }
+{ #category : 'path optimization' }
 WSSolver >> clearAllPathsOf: aClass [
 	"Destroy all the paths associated to a class"
 	| pathIDs touchedNodes |
@@ -418,7 +418,7 @@ WSSolver >> onContradiction [
 		ifTrue: [ WSMaxTriesReached signal.  ]
 ]
 
-{ #category : 'pathReification' }
+{ #category : 'path reification' }
 WSSolver >> reifyWFCPaths [
 	"Create the instances of WFCPath"
 	self graph createPaths.
