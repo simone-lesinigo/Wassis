@@ -91,7 +91,7 @@ WSTileset >> tileForDirections: dirToPathID [
 	
 	pathIDs addAll: (dirToPathID select: [ :eachValue | eachValue ~= WSConfig emptyEdgeSymbol ]).
 	
-	pathIDs flattened do: [ :eachPathID | candidates addAll: (self pathTiles at: eachPathID) ].
+	pathIDs flattened do: [ :eachPathID | candidates addAll: (self pathTiles at: eachPathID ifAbsent: [ {} ]) ].
 
     ^ (candidates detect: [ :eachTile |
         dirToPathID associations allSatisfy: [ :assoc |
