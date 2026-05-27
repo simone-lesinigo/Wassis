@@ -971,8 +971,9 @@ WSGraph >> propagateEdge: eachEdge from: currentNode into: queue [
 WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
     "After collapsing to a resolved path tile, force neighbours with placeholders to re-resolve. Returns all nodes that were updated"
 	 
-	| queue |
+	| queue resolvedNodes |
 	queue := OrderedCollection with: aCollapsedNode.
+	resolvedNodes := OrderedCollection new.
 	
 	[ queue isEmpty ] whileFalse: [ 
 		(queue removeFirst) outgoingEdges do: [ :eachEdge |
@@ -984,10 +985,18 @@ WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
                 updatedTile := (neighbour resolvePathTile: neighbour tileInWhichCollapsed).
                 updatedTile ~= (neighbour tileInWhichCollapsed) 
 						ifTrue: [
-						  updatedTile isResolvedTile ifTrue: [ queue add: neighbour ].
                     neighbour
                         possibleTiles: (Set with: updatedTile);
-                        tileInWhichCollapsed: updatedTile ] ] ] ].
+                        tileInWhichCollapsed: updatedTile.
+
+						 resolvedNodes add: neighbour.
+						 updatedTile isResolvedTile ifTrue: [ queue add: neighbour ] 
+						] 
+				] 
+		  ] 
+	 ].
+
+	^ resolvedNodes 
 	
 
 ]

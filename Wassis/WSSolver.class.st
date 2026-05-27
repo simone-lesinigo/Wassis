@@ -483,7 +483,7 @@ WSSolver >> solveGraph [
 WSSolver >> step [
 	"Take a step of the algorithm (select a node to collapse, collapse it and propagate)"
 	
-	| collapsedNode touchedNodes copyOfHeap eh |
+	| collapsedNode touchedNodes copyOfHeap eh resolvedNodes |
 	eh := self executionHistory.
 	
 	self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ].
@@ -493,10 +493,15 @@ WSSolver >> step [
 	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
 	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.	
 	
-	(collapsedNode isPathNode and: [ collapsedNode tileInWhichCollapsed isResolvedTile ]) 
-		ifTrue: [ self graph propagatePathIDResolutionFrom: collapsedNode ].
+	resolvedNodes := 
+		(collapsedNode isPathNode and: [ collapsedNode tileInWhichCollapsed isResolvedTile ]) 
+			ifTrue: [ self graph propagatePathIDResolutionFrom: collapsedNode ]
+			ifFalse: [ {} ].
 		
 	touchedNodes := (self graph propagate: collapsedNode).
+	
+	resolvedNodes do: [ :eachResolvedNode |
+        touchedNodes addAll: (self graph propagate: eachResolvedNode) ].
 
 	eh historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
 	eh	historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
