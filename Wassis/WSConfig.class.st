@@ -160,7 +160,7 @@ WSConfig class >> placementStrategy [
 	PlacementStrategy ifNil: [ 
 		| strategyKey strategyMap |
 		
-		strategyKey := self configFile atPath: {'placementStrategy'} default: 'classicMDS'.
+		strategyKey := self configFile atPath: {'placementStrategy'} default: 'metricMDS'.
 		
 		strategyMap := Dictionary new
 			at: 'classicMDS' put: WSClassicMDSLayoutStrategy;
