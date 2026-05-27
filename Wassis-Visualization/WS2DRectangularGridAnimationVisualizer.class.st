@@ -97,15 +97,14 @@ WS2DRectangularGridAnimationVisualizer >> createAnimationWithColorMap: anEntropy
 WS2DRectangularGridAnimationVisualizer >> createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap [
 	"Given the initial shapes on the canvas (step 0) it creates the differences for each step"
 	
-	self solver executionHistory historyOfCollapsedNodes doWithIndex: [ :eachNode :i |
-		| collapsedNodeShape waveTouchedNodesShapes allShapes |
-		
-		collapsedNodeShape := self createShapeFor: eachNode.
+	self solver executionHistory historyOfCollapsedNodes doWithIndex: [ :eachCollectionOfNode :i |
+		| allCollapsedNodeShape waveTouchedNodesShapes allShapes |
+		allCollapsedNodeShape := eachCollectionOfNode collect: [ :eachNode | self createShapeFor: eachNode ].
 		
 		waveTouchedNodesShapes := self
 			createWaveShapeFor: (self solver executionHistory historyOfTouchedNodes at: i)
 	       withColorMap: anEntropyColorMap.
-		allShapes := { collapsedNodeShape } , waveTouchedNodesShapes.
+		allShapes :=  allCollapsedNodeShape, waveTouchedNodesShapes.
 		
 		diffPerStep at: i at: #removedShapes put: OrderedCollection new.
 		diffPerStep at: i at: #addedShapes put: OrderedCollection new.

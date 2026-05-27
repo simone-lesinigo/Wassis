@@ -499,11 +499,10 @@ WSSolver >> step [
 			ifFalse: [ {} ].
 		
 	touchedNodes := (self graph propagate: collapsedNode).
-	
 	resolvedNodes do: [ :eachResolvedNode |
         touchedNodes addAll: (self graph propagate: eachResolvedNode) ].
 
-	eh historyOfCollapsedNodes add: collapsedNode copyWithoutEdges.
+	eh historyOfCollapsedNodes add: (self copyOfNodesWithoutEdges: ({ collapsedNode }, resolvedNodes)).
 	eh	historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
 	eh historyOfMinEntropyHeap add: copyOfHeap.
 ]
