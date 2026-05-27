@@ -407,8 +407,8 @@ WSSolver >> onContradiction [
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
-	
-	bt restartFromClassesGraphForSolver: self.
+	"bt restartFromClassesGraphForSolver: self."
+	bt addOneToContradictionPerGraph.
 
 	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
 
