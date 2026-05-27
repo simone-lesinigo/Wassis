@@ -2,8 +2,8 @@
     "isHeadless": true,
     "placementStrategy": "metricMDS",
     "WSBacktracking": {
-        "maxNumberOfTriesPerGraph": 50,
-        "maxNumberOfRegeneratedGraph": 30
+        "maxNumberOfTriesPerGraph": 0,
+        "maxNumberOfRegeneratedGraph": 500
     },
     "WSTile": {
         "emptyTileWeight": 4000,
