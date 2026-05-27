@@ -225,12 +225,12 @@ WSGraph >> buildDijkstraEdgesFor: pathID onNodes: dijkstraNodes zeroNodes: zeroN
 WSGraph >> calculateBestConnectionsFrom: optimalSet toClasses: touchedClasses [
 	"Find the single best connection point for each logical class to avoid multiple attachments"
 	
-	| classToEdges chosen |
+	| classToEdges chosen allTouchedClassNodes |
 	classToEdges := Dictionary new.
-	
+	allTouchedClassNodes := (touchedClasses flatCollect: [ :eachNode | eachNode footPrint borderNodes: self topology ]) asSet.
 	optimalSet do: [ :pNode |
 		pNode outgoingEdges do: [ :edge |
-			(edge target isClassNode and: [ touchedClasses includes: edge target ]) ifTrue: [
+			(edge target isClassNode and: [ allTouchedClassNodes includes: edge target ]) ifTrue: [
 				| wsClass |
 				wsClass := edge target tileInWhichCollapsed wsClass.
 				(classToEdges at: wsClass ifAbsentPut: [ OrderedCollection new ]) 

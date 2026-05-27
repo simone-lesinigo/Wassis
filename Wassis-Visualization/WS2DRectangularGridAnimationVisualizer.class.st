@@ -270,7 +270,7 @@ WS2DRectangularGridAnimationVisualizer >> onStepForward [
 	self canvas invalidate
 ]
 
-{ #category : 'visualization' }
+{ #category : 'calculating' }
 WS2DRectangularGridAnimationVisualizer >> setMinAndMaxIn: anEntropyColorMap [
 	"Find the min and the max entropy during the whole execution of the algorithm. Set them as attributes of the color map"
 	
