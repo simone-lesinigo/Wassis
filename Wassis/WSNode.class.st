@@ -419,11 +419,9 @@ WSNode >> keepTilesWithIDin: anArray [
 
 { #category : 'accessing' }
 WSNode >> neighbourAtDirection: aDirection [
-	"Returns the node in the specified direction"
-	
+	"Return the neighbour at the desired direction"
+
 	^ (self outgoingEdgeAtDirection: aDirection) target
-	
-	
 ]
 
 { #category : 'accessing' }
@@ -525,6 +523,19 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 
 ]
 
+{ #category : 'as yet unclassified' }
+WSNode >> rejectTilesWithIDin: anArray [
+	"Reject all the tiles in a WFCNode where the ID is in anArray, keep the others"
+
+	| filteredPossibleTiles |
+	
+	filteredPossibleTiles := 
+		self possibleTiles reject: [ :eachTile | anArray includes: eachTile id ].
+		
+	self possibleTiles: filteredPossibleTiles.
+	self updateShannonEntropyFromScratch
+]
+
 { #category : 'collapse' }
 WSNode >> resolvePathTile: aTile [
     "Build a specialized copy of aTile replacing firstPath/secondPath 
@@ -566,6 +577,7 @@ WSNode >> selectInWhichTileToCollapse [
         ifFound: [ :emptyTile | ^ emptyTile ].
 	
 	randomNumber := self sumOfWeights atRandom.
+	randomNumber <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
 
 	^ self possibleTiles detect: [ :tile |
 			  randomNumber := randomNumber - tile weight.
