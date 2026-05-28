@@ -56,6 +56,20 @@ WSAnimationPresenter >> initializeButtons [
 
 ]
 
+{ #category : 'initialization-buttons' }
+WSAnimationPresenter >> initializeKeyBindings [
+	"Keyboard bindings to control the animation" 
+	<toDo> "it doesn't work"
+	self 
+		bindKeyCombination: Character arrowRight asKeyCombination
+		toAction: [ model isPlaying ifFalse: [ model stepForward ] ].
+
+	self 
+		bindKeyCombination: Character arrowLeft asKeyCombination
+		toAction: [ model isPlaying ifFalse: [ model stepBack ] ].
+
+]
+
 { #category : 'initialization' }
 WSAnimationPresenter >> initializePresenter [
 
@@ -68,6 +82,7 @@ WSAnimationPresenter >> initializePresenter [
 	self initializeSlider.
 	self applyLayout.
 	self subscribeToEvents.
+	self initializeKeyBindings.
 
 
 		
