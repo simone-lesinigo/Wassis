@@ -23,13 +23,19 @@ BaselineOfWassis >> baseline: spec [
             		spec
                 	repository: (self classNamed: #BaselineOfPharo) roassalRepository;
                 	loads: #( 'Full' ) ].	
+	
+		 	spec 
+				baseline: 'RoassalExporters'
+				with: [ spec repository: 'github://pharo-graphics/RoassalExporters' ].
 
         spec 
             package: 'Wassis' 
             with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON') ];
+
             package: 'Wassis-Visualization'
-            with: [ spec requires: #('Wassis') ];
+            with: [ spec requires: #('Wassis' 'RoassalExporters') ];
+
             package: 'Wassis-Tests'
-            with: [ spec requires: #('Wassis' 'Wassis-Visualization') ].
+            with: [ spec requires: #('Wassis') ].
     ]
 ]
