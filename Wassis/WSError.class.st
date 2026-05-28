@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Error'
 }
+
+{ #category : 'logging' }
+WSError >> logMessage [ 
+	
+	^ self subclassResponsibility 
+]

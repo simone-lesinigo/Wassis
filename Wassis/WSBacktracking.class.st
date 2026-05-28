@@ -124,7 +124,7 @@ WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 	| newGraph |
 	newGraph := aSolver topology createGraph.
 	
-	self classesGraphCheckpoint: newGraph veryDeepCopy.
+	"self classesGraphCheckpoint: newGraph veryDeepCopy."
 	aSolver graph: newGraph.
 	
 	self addOneToContradictionPerGraph.

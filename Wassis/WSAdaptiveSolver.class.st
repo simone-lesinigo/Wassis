@@ -8,7 +8,8 @@ Class {
 		'topology',
 		'swSystem',
 		'solutionFound',
-		'solver'
+		'solver',
+		'historyOfFailedExecutions'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -33,11 +34,24 @@ WSAdaptiveSolver >> createVisualization [
 	self solver createVisualization 
 ]
 
+{ #category : 'accessing' }
+WSAdaptiveSolver >> historyOfFailedExecutions [
+
+	^ historyOfFailedExecutions
+]
+
+{ #category : 'accessing' }
+WSAdaptiveSolver >> historyOfFailedExecutions: anObject [
+
+	historyOfFailedExecutions := anObject
+]
+
 { #category : 'initialization' }
 WSAdaptiveSolver >> initialize [ 
 
 	super initialize. 
-	self solutionFound: false
+	self solutionFound: false.
+	self historyOfFailedExecutions: OrderedCollection new.
 ]
 
 { #category : 'running' }
@@ -46,10 +60,16 @@ WSAdaptiveSolver >> run [
 	^ self subclassResponsibility 
 ]
 
-{ #category : 'actions' }
+{ #category : 'saving' }
 WSAdaptiveSolver >> save [
 
 	self serializeToFileNamed: self class savePath
+]
+
+{ #category : 'saving' }
+WSAdaptiveSolver >> saveFailedExecutionHistory [
+	
+	self solver ifNotNil: [ self historyOfFailedExecutions addAll: self solver executionHistory historyOfFailedExecutions ]
 ]
 
 { #category : 'accessing' }

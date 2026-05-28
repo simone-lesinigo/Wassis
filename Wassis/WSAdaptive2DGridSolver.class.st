@@ -51,6 +51,21 @@ WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 	self solver createHistoryVisualizationWithMilliSecDelay: aDelay
 ]
 
+{ #category : 'running' }
+WSAdaptive2DGridSolver >> executeRun [
+
+    | totalTime |
+    metrics := WSMetrics new.
+    self resetEnvironment.
+    WSCurrentMetrics value: metrics during: [
+        totalTime := [ self solveWithIncreasingSize. Smalltalk garbageCollect ] timeToRun.
+        self updatePerformanceMetricsWithTime: totalTime.
+        WSConfig isHeadless ifTrue: [ self save ].
+        WSLogger log: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).
+        self inspect
+    ]
+]
+
 { #category : 'logging' }
 WSAdaptive2DGridSolver >> logGridSize: size [
 	
@@ -69,52 +84,27 @@ WSAdaptive2DGridSolver >> resetEnvironment [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
-	
-	| block |
-	block := [  
-		metrics := WSMetrics new.
-		self resetEnvironment.
-		WSCurrentMetrics value: metrics during: [
-			| totalTime |
-			totalTime := [ 
-				self solveWithIncreasingSize.
-				Smalltalk garbageCollect.
-			] timeToRun.
-		  self updatePerformanceMetricsWithTime: totalTime.
-		  WSConfig isHeadless ifTrue: [ self save ].
-		  WSLogger log: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).  
-		  self inspect
-		]
-	].
-	
-	WSConfig isHeadless 
-        ifTrue: [ block value ]
-        ifFalse: [ block forkNamed: 'WaveFunctionCollapse' ]
+
+    WSConfig isHeadless 
+        ifTrue: [ self executeRun ]
+        ifFalse: [ [ self executeRun ] forkNamed: 'WaveFunctionCollapse' ]
 ]
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> solveWithIncreasingSize [
 	"Create new solvers with increasing size"
 
-	| size solverID |
-	size:= self computeInitialSize.
-	solverID := 1.
-
-	[ self solutionFound ] whileFalse: [
-   		[[ 
-			Smalltalk garbageCollect.
-			self logGridSize: size.
-			self solveWithSize: size andID: solverID.
-       ] on: WSNoValidPlacementFound do: [
-			WSLogger log: 'No valid placement found for this grid, trying with new one', String cr. 
-        	size := size + 1.
-			solverID := solverID + 1.
-       ]] on: WSMaxTriesReached do: [
-			WSLogger log: 'Max n of tries reached for this grid', String cr. 
-			size := size + 1.
-			solverID := solverID + 1.
-		].
-	]
+    | size solverID |
+    size := self computeInitialSize.
+    solverID := 1.
+    [ self solutionFound ] whileFalse: [
+        [ self trySolveWithSize: size andID: solverID ]
+            on: WSNoValidPlacementFound, WSMaxTriesReached
+            do: [ :e | 
+                WSLogger log: e logMessage, String cr.
+                size := size + 1.
+                solverID := solverID + 1 ]
+    ]
 
 ]
 
@@ -131,10 +121,21 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	"self visualizeMDSClassesPositioningFor: currentSolver.
 	self visualizeMDSDistancesMatrixFor: currentSolver.
 	currentSolver createTemporaryVisualization."
+	self solver: currentSolver.
    WSCurrentMetrics getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
-	self solver: currentSolver.
+	self saveFailedExecutionHistory.
 	self solutionFound: true
+]
+
+{ #category : 'running' }
+WSAdaptive2DGridSolver >> trySolveWithSize: aSize andID: aID [
+
+    Smalltalk garbageCollect.
+    self saveFailedExecutionHistory.
+    self solver: nil.
+    self logGridSize: aSize.
+    self solveWithSize: aSize andID: aID
 ]
 
 { #category : 'metrics' }

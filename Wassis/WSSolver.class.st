@@ -225,6 +225,17 @@ WSSolver >> clearAllPathsOf: aClass [
 	^ touchedNodes
 ]
 
+{ #category : 'running' }
+WSSolver >> collapseNextNode [
+
+    | node |
+    node := self graph selectNextNodeToCollapse.
+    node := node collapseTo: node selectInWhichTileToCollapse.
+    self graph addOneToCollapsedNodes.
+    node collapseStep: self executionHistory historyOfCollapsedNodes size + 1.
+    ^ node
+]
+
 { #category : 'copying' }
 WSSolver >> copyOfNodesWithoutEdges: touchedNodes [
 	
@@ -266,6 +277,12 @@ WSSolver >> createTemporaryVisualization [
 WSSolver >> createVisualization [ 
 	
 	self topology createVisualizationFor: self
+]
+
+{ #category : 'running' }
+WSSolver >> ensureHeapIsNotEmpty [
+
+    self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ]
 ]
 
 { #category : 'accessing' }
@@ -368,7 +385,7 @@ WSSolver >> logTotalTries [
 	| totalNumberOfTries |
 	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
 	
-	(totalNumberOfTries \\ 10 = 0) ifTrue: [ 
+	(totalNumberOfTries \\ 1 = 0) ifTrue: [ 
 		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
 ]
 
@@ -392,11 +409,13 @@ WSSolver >> moveClass: aClass toNode: aNode [
 WSSolver >> onContradiction [
 	"Method executed when a contradiction has been found"
 
-	| bt |
-	self executionHistory reset.
+	| bt | 
+	self updateExecutionHistory.
+	
 	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
+	
 	"bt restartFromClassesGraphForSolver: self."
 	bt addOneToContradictionPerGraph.
 
@@ -406,6 +425,36 @@ WSSolver >> onContradiction [
 	
 	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
 		ifTrue: [ WSMaxTriesReached signal.  ]
+]
+
+{ #category : 'running' }
+WSSolver >> propagateFrom: collapsedNode andResolved: resolvedNodes [
+
+    | touchedNodes |
+
+    touchedNodes := self graph propagate: collapsedNode.
+    resolvedNodes do: [ :each |  touchedNodes addAll: (self graph propagate: each) ].
+
+    ^  touchedNodes
+]
+
+{ #category : 'running' }
+WSSolver >> recordHeapSnapshot [
+	"Save a snapshot of the heap"
+
+    self executionHistory historyOfMinEntropyHeap 
+        add: (self copyOfNodesWithoutEdges: self graph minEntropyHeap)
+]
+
+{ #category : 'running' }
+WSSolver >> recordStepHistory: collapsedNode resolved: resolvedNodes touched: touchedNodes [
+	"Update the history"
+
+    | eh |
+
+    eh := self executionHistory.
+    eh historyOfCollapsedNodes add: (self copyOfNodesWithoutEdges: ({ collapsedNode }, resolvedNodes)).
+    eh historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
 ]
 
 { #category : 'path reification' }
@@ -429,6 +478,15 @@ WSSolver >> reifyWFCPaths [
 	
 	
 
+]
+
+{ #category : 'running' }
+WSSolver >> resolvePathIfNeeded: aNode [
+	"If a node collapsed into a resolved path tile (no placeholder in edges) it propagates the information to the neighbours that are collapsed into placeholder path tiles, if present"
+
+    (aNode isPathNode and: [ aNode tileInWhichCollapsed isResolvedTile ])
+        ifFalse: [ ^ {} ].
+    ^ self graph propagatePathIDResolutionFrom: aNode
 ]
 
 { #category : 'running' }
@@ -460,8 +518,7 @@ WSSolver >> solveGraph [
 
 	[ self graph allNodesCollapsed ] whileFalse: [ 
 		[  
-			self step.
-			self graph addOneToCollapsedNodes.					
+			self step			
 		] on: WSContradiction 
 		  do: [ 
 			self onContradiction ]
@@ -472,28 +529,16 @@ WSSolver >> solveGraph [
 WSSolver >> step [
 	"Take a step of the algorithm (select a node to collapse, collapse it and propagate)"
 	
-	| collapsedNode touchedNodes copyOfHeap eh resolvedNodes |
-	eh := self executionHistory.
+	| collapsedNode touchedNodes resolvedNodes |
 	
-	self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ].
-	copyOfHeap := (self copyOfNodesWithoutEdges: self graph minEntropyHeap).
-
-	collapsedNode := (self graph selectNextNodeToCollapse).
-	collapsedNode := collapsedNode collapseTo: (collapsedNode selectInWhichTileToCollapse).
-	collapsedNode collapseStep: eh historyOfCollapsedNodes size + 1.	
+	self ensureHeapIsNotEmpty.
+	self recordHeapSnapshot.
 	
-	resolvedNodes := 
-		(collapsedNode isPathNode and: [ collapsedNode tileInWhichCollapsed isResolvedTile ]) 
-			ifTrue: [ self graph propagatePathIDResolutionFrom: collapsedNode ]
-			ifFalse: [ {} ].
+	collapsedNode := self collapseNextNode.
+	resolvedNodes := self resolvePathIfNeeded: collapsedNode.
+	touchedNodes := self propagateFrom: collapsedNode andResolved: resolvedNodes.
 		
-	touchedNodes := (self graph propagate: collapsedNode).
-	resolvedNodes do: [ :eachResolvedNode |
-        touchedNodes addAll: (self graph propagate: eachResolvedNode) ].
-
-	eh historyOfCollapsedNodes add: (self copyOfNodesWithoutEdges: ({ collapsedNode }, resolvedNodes)).
-	eh	historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
-	eh historyOfMinEntropyHeap add: copyOfHeap.
+	self recordStepHistory: collapsedNode resolved: resolvedNodes touched: touchedNodes.
 ]
 
 { #category : 'accessing' }
@@ -506,6 +551,20 @@ WSSolver >> topology [
 WSSolver >> topology: anObject [
 
 	topology := anObject
+]
+
+{ #category : 'error handling' }
+WSSolver >> updateExecutionHistory [
+
+	| eh |
+	eh := self executionHistory.
+	eh reset.
+	eh	historyOfFailedExecutions add: 
+		(WSFailedExecution 
+		timestamp: DateAndTime nowAsString
+		nOfTry: WSCurrentMetrics getPerformanceMetrics totalNumberOfTries
+		nOfCollapsedNodes: self graph numberOfCollapsedNodes
+		copyOfNodes: self graph nodes)
 ]
 
 { #category : 'metrics' }

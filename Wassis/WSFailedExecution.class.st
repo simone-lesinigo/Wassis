@@ -9,12 +9,25 @@ Class {
 		'numberOfTry',
 		'numberOfCollapsedNodes',
 		'totalNumberOfNodes',
+		'numberOfUncollapsedNodes',
 		'copyOfNodes'
 	],
 	#category : 'Wassis-History',
 	#package : 'Wassis',
 	#tag : 'History'
 }
+
+{ #category : 'instance creation' }
+WSFailedExecution class >> timestamp: aTimestamp nOfTry: numberOfTry nOfCollapsedNodes: nOfCollapsedNodes copyOfNodes: copyOfNodes [
+	
+	^ self new
+		timestamp: aTimestamp;
+		numberOfTry: numberOfTry;
+	   numberOfCollapsedNodes: nOfCollapsedNodes;
+	   totalNumberOfNodes: copyOfNodes size;
+		numberOfUncollapsedNodes: copyOfNodes size - nOfCollapsedNodes;
+	   copyOfNodes: copyOfNodes
+]
 
 { #category : 'accessing' }
 WSFailedExecution >> copyOfNodes [
@@ -50,6 +63,18 @@ WSFailedExecution >> numberOfTry [
 WSFailedExecution >> numberOfTry: anObject [
 
 	numberOfTry := anObject
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> numberOfUncollapsedNodes [
+
+	^ numberOfUncollapsedNodes
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> numberOfUncollapsedNodes: anObject [
+
+	numberOfUncollapsedNodes := anObject
 ]
 
 { #category : 'accessing' }

@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Error'
 }
+
+{ #category : 'logging' }
+WSNoValidPlacementFound >> logMessage [
+
+    ^ 'No valid placement found for this grid, trying with new one'
+]

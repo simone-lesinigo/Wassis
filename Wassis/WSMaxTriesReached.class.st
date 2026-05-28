@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Error'
 }
+
+{ #category : 'logging' }
+WSMaxTriesReached >> logMessage [
+
+    ^ 'Max n of tries reached for this grid'
+]
