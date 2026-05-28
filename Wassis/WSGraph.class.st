@@ -18,6 +18,26 @@ Class {
 	#tag : 'Core'
 }
 
+{ #category : 'as yet unclassified' }
+WSGraph class >> collapseClassPathExitsFor: classCollapsedNodes [
+	"Force the exits of the paths to be collapsed after the classes nodes"
+
+	classCollapsedNodes do: [ :eachClassNode |
+		| dir |
+		dir := eachClassNode tileInWhichCollapsed edges select: [ :eachEdge | eachEdge first ~= WSConfig emptyEdgeSymbol ].
+		
+		dir keysDo: [ :eachDir | 
+			| neighbourNode |
+			neighbourNode := eachClassNode neighbourAtDirection: eachDir.
+			neighbourNode 
+				keepTilesWithIDin: (( 1 to: 6 ) asArray);
+				entropy: -1;
+				sumOfWeights: 0;
+				sumOfWeightsLog: 0.			
+		]
+	]
+]
+
 { #category : 'creation' }
 WSGraph class >> createClassNodesFrom: collapsedNodes [
 
@@ -34,6 +54,7 @@ WSGraph class >> createClassNodesFrom: collapsedNodes [
 
 { #category : 'fuel support' }
 WSGraph class >> fuelIgnoredInstanceVariableNames [
+
     ^ #('topology')
 ]
 
@@ -42,6 +63,8 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 	
 	| allNodes |
 	allNodes := aStructure getFlattenedNodes.
+	
+	"self collapseClassPathExitsFor: collapsedNodes."
 
 	^ self new
 		structure: aStructure;

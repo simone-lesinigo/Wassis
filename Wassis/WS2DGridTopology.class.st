@@ -58,9 +58,10 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
             sideLength: sideLength;
             yourself.
         
-        footprintNodes do: [ :each | 
-            each isCollapsed: true.
-            each footPrint: footprint ].
+        footprintNodes do: [ :eachNode | 
+            eachNode
+					isCollapsed: true; 
+					footPrint: footprint ].
         
         self classFootprint at: eachClass put: footprint ]
 ]
@@ -90,7 +91,11 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
         nodesToTile := self createClassTiles: eachClass forFootprint: eachFootprint.
 		  
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
-            result add: (eachNode collapseTo: eachTile) ] ].
+            result add: (eachNode 
+					collapseTo: eachTile; 
+					entropy: -2;
+					sumOfWeights: 0;
+					sumOfWeightsLog: 0) ] ].
     
     ^ result
 ]

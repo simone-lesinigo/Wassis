@@ -36,16 +36,19 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 { #category : 'instance creation' }
 WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 
-	| graph |
+	| graph inst |
 	aTopology initializeWith: aSwSystem.
 	graph := aTopology createGraph.
 	
-	^ self new
+	inst :=  self new
 		id: aID;
 		graph: graph;
-		copyOfInitalNodes: aTopology initialNodes;
 		topology: aTopology;
-		backtracking: (WSBacktracking newWithGraph: graph)
+		backtracking: (WSBacktracking newWithGraph: graph).
+	
+	inst executionHistory copyOfInitalNodes: aTopology initialNodes.
+	
+	^ inst
 
 		
 		

@@ -134,10 +134,10 @@ WSExamples class >> exampleGetClasses2 [
 
 { #category : 'WSAdaptiveSolver' }
 WSExamples class >> exampleLoadSolutionFromFile [
-"solution-13-05-2026_13h34m13s"
+"solution-27-05-2026_14h09m18s.fuel"
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-27-05-2026_14h09m18s.fuel') fullName.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-28-05-2026_00h13m18s.fuel') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
 	adaptiveSolver inspect
@@ -190,7 +190,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: TaAbstractComposition
+		createForClass: File
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 
