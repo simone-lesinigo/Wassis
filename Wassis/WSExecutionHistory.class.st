@@ -8,11 +8,12 @@ Class {
 		'historyOfCollapsedNodes',
 		'historyOfTouchedNodes',
 		'historyOfMinEntropyHeap',
-		'copyOfInitalNodes'
+		'copyOfInitalNodes',
+		'historyOfFailedExectuions'
 	],
-	#category : 'Wassis-Core',
+	#category : 'Wassis-History',
 	#package : 'Wassis',
-	#tag : 'Core'
+	#tag : 'History'
 }
 
 { #category : 'accessing' }
@@ -37,6 +38,18 @@ WSExecutionHistory >> historyOfCollapsedNodes [
 WSExecutionHistory >> historyOfCollapsedNodes: anObject [
 
 	historyOfCollapsedNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSExecutionHistory >> historyOfFailedExectuions [
+
+	^ historyOfFailedExectuions
+]
+
+{ #category : 'accessing' }
+WSExecutionHistory >> historyOfFailedExectuions: anObject [
+
+	historyOfFailedExectuions := anObject
 ]
 
 { #category : 'accessing' }
@@ -69,6 +82,7 @@ WSExecutionHistory >> initialize [
 	self historyOfCollapsedNodes: OrderedCollection new.
 	self historyOfTouchedNodes: OrderedCollection new.
 	self historyOfMinEntropyHeap: OrderedCollection new.
+	self historyOfFailedExectuions: OrderedCollection new
 ]
 
 { #category : 'initialization' }
