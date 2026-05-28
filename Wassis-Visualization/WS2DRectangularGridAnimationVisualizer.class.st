@@ -32,7 +32,7 @@ WS2DRectangularGridAnimationVisualizer >> addInitialWaveShapesWithColorMap: anEn
 	activeShapes := Dictionary new.
 		
 	initialShapes := self
-	 	createWaveShapeFor: self solver copyOfInitalNodes
+	 	createWaveShapeFor: self solver executionHistory copyOfInitalNodes
 		withColorMap: anEntropyColorMap.
 
 		initialShapes do: [ :eachShape |
@@ -273,9 +273,10 @@ WS2DRectangularGridAnimationVisualizer >> onStepForward [
 WS2DRectangularGridAnimationVisualizer >> setMinAndMaxIn: anEntropyColorMap [
 	"Find the min and the max entropy during the whole execution of the algorithm. Set them as attributes of the color map"
 	
-	| temp1 temp2 |
-	temp1 := self solver copyOfInitalNodes collect: [ :eachNode | eachNode entropy ].
-	temp2 := self solver executionHistory historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
+	| temp1 temp2 eh |
+	eh := self solver executionHistory.
+	temp1 := eh copyOfInitalNodes collect: [ :eachNode | eachNode entropy ].
+	temp2 := eh historyOfTouchedNodes flattened collect: [ :eachNode | eachNode entropy ].
 	
 	anEntropyColorMap 
 		minEntropy: ((temp1 min) min: (temp2 min));

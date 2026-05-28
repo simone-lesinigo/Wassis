@@ -9,7 +9,6 @@ Class {
 		'graph',
 		'backtracking',
 		'topology',
-		'copyOfInitalNodes',
 		'executionHistory'
 	],
 	#category : 'Wassis-Core',
@@ -221,18 +220,6 @@ WSSolver >> clearAllPathsOf: aClass [
 		touchedNodes addAll: (self graph clearPathWithID: eachPathID) ].
 	
 	^ touchedNodes
-]
-
-{ #category : 'accessing' }
-WSSolver >> copyOfInitalNodes [
-
-	^ copyOfInitalNodes
-]
-
-{ #category : 'accessing' }
-WSSolver >> copyOfInitalNodes: anObject [
-
-	copyOfInitalNodes := anObject
 ]
 
 { #category : 'copying' }
@@ -451,7 +438,6 @@ WSSolver >> run [
 	performanceMetrics wfcTime: [ self solveGraph ] timeToRun .
 	WSLogger log: 'Solution found'.
 
-"	self graph resolveAllPlaceholders."
 	self classifyPathTiles.
 	self topology rebuildClassNodes: self graph.
 

@@ -7,12 +7,25 @@ Class {
 	#instVars : [
 		'historyOfCollapsedNodes',
 		'historyOfTouchedNodes',
-		'historyOfMinEntropyHeap'
+		'historyOfMinEntropyHeap',
+		'copyOfInitalNodes'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
 	#tag : 'Core'
 }
+
+{ #category : 'accessing' }
+WSExecutionHistory >> copyOfInitalNodes [
+
+	^ copyOfInitalNodes
+]
+
+{ #category : 'accessing' }
+WSExecutionHistory >> copyOfInitalNodes: anObject [
+
+	copyOfInitalNodes := anObject
+]
 
 { #category : 'accessing' }
 WSExecutionHistory >> historyOfCollapsedNodes [
