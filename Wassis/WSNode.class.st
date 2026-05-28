@@ -523,7 +523,7 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updating' }
 WSNode >> rejectTilesWithIDin: anArray [
 	"Reject all the tiles in a WFCNode where the ID is in anArray, keep the others"
 
