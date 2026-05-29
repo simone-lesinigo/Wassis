@@ -279,6 +279,12 @@ WSSolver >> createVisualization [
 	self topology createVisualizationFor: self
 ]
 
+{ #category : '2DGrid' }
+WSSolver >> dimension [
+	
+	^ self graph structure dimension
+]
+
 { #category : 'running' }
 WSSolver >> ensureHeapIsNotEmpty [
 
@@ -403,6 +409,18 @@ WSSolver >> moveClass: aClass toNode: aNode [
 			inGraph: self graph).
 
 	^ touchedNodes
+]
+
+{ #category : '2DGrid' }
+WSSolver >> nColumns [
+
+	^ self graph structure nColumns
+]
+
+{ #category : '2DGrid' }
+WSSolver >> nRows [ 
+
+	^ self graph structure nRows
 ]
 
 { #category : 'error handling' }
@@ -560,11 +578,10 @@ WSSolver >> updateExecutionHistory [
 	eh := self executionHistory.
 	eh reset.
 	eh	historyOfFailedExecutions add: 
-		(WSFailedExecution 
-		timestamp: DateAndTime nowAsString
+		(self topology asFailedExecution 
+		timestamp: DateAndTime now
 		nOfTry: WSCurrentMetrics getPerformanceMetrics totalNumberOfTries
-		nOfCollapsedNodes: self graph numberOfCollapsedNodes
-		copyOfNodes: self graph nodes)
+		solver: self)
 ]
 
 { #category : 'metrics' }

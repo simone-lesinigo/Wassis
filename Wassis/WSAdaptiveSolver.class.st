@@ -51,7 +51,7 @@ WSAdaptiveSolver >> initialize [
 
 	super initialize. 
 	self solutionFound: false.
-	self historyOfFailedExecutions: OrderedCollection new.
+	self historyOfFailedExecutions: Dictionary new.
 ]
 
 { #category : 'running' }
@@ -69,7 +69,9 @@ WSAdaptiveSolver >> save [
 { #category : 'saving' }
 WSAdaptiveSolver >> saveFailedExecutionHistory [
 	
-	self solver ifNotNil: [ self historyOfFailedExecutions addAll: self solver executionHistory historyOfFailedExecutions ]
+	self solver ifNotNil: [ 
+		(self historyOfFailedExecutions at: self solver dimension ifAbsentPut: [ OrderedCollection new ])
+			addAll: self solver executionHistory historyOfFailedExecutions ]
 ]
 
 { #category : 'accessing' }

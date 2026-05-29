@@ -59,67 +59,6 @@ WS2DRectangularGridVisualizer >> addClickTo: aShape [
 ]
 
 { #category : 'adding' }
-WS2DRectangularGridVisualizer >> addGridLabelsToCanvas2: aCanvas [
-	"Add the numbers of rows and columns"
-
-    | tileSize halfTileSize offset fontSize |
-    tileSize := self tileVisitor class tileSize.
-	 halfTileSize := tileSize / 2.
-    offset := tileSize * 0.5.
-	 fontSize := tileSize * 0.35.
-    
-    1 to: self solver graph structure nColumns do: [ :col |
-        | label x |
-         x := col * tileSize.
-        label := RSLabel new
-            text: col printString;
-            fontSize: fontSize;
-            position: (x - halfTileSize) @ (offset negated);
-            yourself.
-       aCanvas add: label ].
-    
-    1 to: self solver graph structure nRows do: [ :row |
-        | label y |
-        y := row * tileSize.
-        label := RSLabel new
-            text: row printString;
-            fontSize: fontSize;
-            position: offset negated @ (y - halfTileSize );
-            yourself.
-        aCanvas add: label ]
-]
-
-{ #category : 'adding' }
-WS2DRectangularGridVisualizer >> addGridLabelsToCanvas: aCanvas [
-    "Add the numbers of rows and columns wrapping around the content"
-
-    | rect tileSize fontSize |
-    rect := aCanvas nodes encompassingRectangle.
-    tileSize := self tileVisitor class tileSize.
-    fontSize := tileSize * 0.35.
-    
-    1 to: self solver graph structure nColumns do: [ :col |
-        | label |
-        label := RSLabel new
-            text: col printString;
-            fontSize: fontSize;
-            yourself.
-        aCanvas add: label.
-        label position: (rect left + (col * tileSize) - (tileSize / 2)) @ (rect top - (fontSize)).
-    ].
-    
-    1 to: self solver graph structure nRows do: [ :row |
-        | label |
-        label := RSLabel new
-            text: row printString;
-            fontSize: fontSize;
-            yourself.
-        aCanvas add: label.
-        label position: (rect left - fontSize ) @ (rect top + (row * tileSize) - (tileSize / 2) ).
-    ]
-]
-
-{ #category : 'adding' }
 WS2DRectangularGridVisualizer >> addGroupHoverTo: aCollectionOfShapes [
 	"To all the shapes in the collection add the highlights when one of the shape is hovered"
 
@@ -207,8 +146,12 @@ WS2DRectangularGridVisualizer >> createCanvasFor: aSolver [
 	
 	"self registerMouseHoverForPaths."
 	self canvas addBorderWithColor: Color black andWidth: 20.
-	self addGridLabelsToCanvas: self canvas.
+	self canvas 
+		addGridLabelsWithTileSize: self tileVisitor class tileSize 
+		withDimension: aSolver nRows @ aSolver nColumns.
+		
 	"self groupFootprintShapes."
+	
 	^ self canvas
 	
 ]
@@ -341,11 +284,6 @@ WS2DRectangularGridVisualizer >> positionOnCanvasForNode: aNode [
 	 "Returns the center position that a node should have on the canvas"
 	
 	 ^ self positionOnCanvasForPoint: (aNode row - 1) @ (aNode column - 1)
-"    tileSize := self tileVisitor class tileSize.
-    half := tileSize / 2.
-    col := aNode column - 1.
-    row := aNode row - 1.
-    ^ (col * tileSize + half) @ (row * tileSize + half)"
 ]
 
 { #category : 'calculating' }
@@ -488,6 +426,8 @@ WS2DRectangularGridVisualizer >> visualizeMDSPositionFor: aSolver [
     self addBackgroundTilesFor: aSolver notInGroups: groups.
     self addClassCompositesFromGroups: groups.
     self canvas addBorderWithColor: Color black andWidth: 20.
-    self addGridLabelsToCanvas: self canvas.
+    self canvas 
+		addGridLabelsWithTileSize: self tileVisitor class tileSize 
+		withDimension: aSolver nRows @ aSolver nColumns.
     self canvas openWithTitle: 'MDS Classes Positioning'
 ]

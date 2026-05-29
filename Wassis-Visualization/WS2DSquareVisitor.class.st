@@ -133,7 +133,7 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
     
     standardForm fillColor: aColor.
 
-	 aColor = Color white ifTrue: [ 
+	 aColor = Color transparent ifTrue: [ 
         standardForm border: standardForm boundingBox width: 1 fillColor: Color black 
     ].
     
@@ -175,7 +175,14 @@ WS2DSquareVisitor >> visitClassTile: classTile [
 WS2DSquareVisitor >> visitEmptyTile: emptyTile [
 
 	^  RSBitmap new 
-			form: (self class generateSolidFormWithColor: Color white)
+			form: (self class generateSolidFormWithColor: Color transparent)
+]
+
+{ #category : 'visiting' }
+WS2DSquareVisitor >> visitErrorTile: errorTile [
+
+	^  RSBitmap new 
+			form: (self class generateSolidFormWithColor: Color red)
 ]
 
 { #category : 'visualization' }
@@ -199,7 +206,7 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
 ]
 
 { #category : 'visiting' }
-WS2DSquareVisitor >> visitUncollapsedTile: emptyTile [
+WS2DSquareVisitor >> visitUncollapsedTile: uncollapsedTile [
 
 	^  RSBitmap new 
 			form: (self class generateSolidFormWithColor: Color lightGray)

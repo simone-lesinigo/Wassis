@@ -87,6 +87,12 @@ WS2DRectangularGridTopology class >> verticalSymbols [
 		with: self downSymbol
 ]
 
+{ #category : 'converting' }
+WS2DRectangularGridTopology >> asFailedExecution [
+	
+	^ WS2DRectangularGridFailedExecution
+]
+
 { #category : 'directions' }
 WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
     
@@ -383,6 +389,18 @@ WS2DRectangularGridTopology >> createEmptyTile [
 ]
 
 { #category : 'tileset' }
+WS2DRectangularGridTopology >> createErrorTile [
+	
+	^ WSErrorTile new
+		id: -1;
+		weight: 0;
+		edges: (self createTileEdgesFrom: (OrderedCollection new: 4 withAll: nil))
+		
+		
+	
+]
+
+{ #category : 'tileset' }
 WS2DRectangularGridTopology >> createPathTilesWithID: aSymbol [
     "Given a pathID (a symbol) create the path tiles to connect two classes"
 
@@ -419,8 +437,8 @@ WS2DRectangularGridTopology >> createTileEdgesFrom: anOrderedCollection [
 WS2DRectangularGridTopology >> createUncollapsedTile [
 	
 	^ WSUncollapsedTile new
-		id: 0;
-		weight: 1;
+		id: -1;
+		weight: 0;
 		edges: (self createTileEdgesFrom: (OrderedCollection new: 4 withAll: nil))
 		
 		

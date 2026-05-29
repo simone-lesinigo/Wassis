@@ -10,7 +10,10 @@ Class {
 		'numberOfCollapsedNodes',
 		'totalNumberOfNodes',
 		'numberOfUncollapsedNodes',
-		'copyOfNodes'
+		'copyOfNodes',
+		'tileVisitor',
+		'dimension',
+		'topology'
 	],
 	#category : 'Wassis-History',
 	#package : 'Wassis',
@@ -18,15 +21,21 @@ Class {
 }
 
 { #category : 'instance creation' }
-WSFailedExecution class >> timestamp: aTimestamp nOfTry: numberOfTry nOfCollapsedNodes: nOfCollapsedNodes copyOfNodes: copyOfNodes [
+WSFailedExecution class >> timestamp: aTimestamp nOfTry: numberOfTry solver: aSolver [
+
+	| nOfCollapsedNodes copyOfNodes |
+	nOfCollapsedNodes := aSolver graph numberOfCollapsedNodes.
+	copyOfNodes := aSolver graph nodes.
 	
 	^ self new
 		timestamp: aTimestamp;
 		numberOfTry: numberOfTry;
-	   numberOfCollapsedNodes: nOfCollapsedNodes;
+	   numberOfCollapsedNodes: nOfCollapsedNodes ;
 	   totalNumberOfNodes: copyOfNodes size;
 		numberOfUncollapsedNodes: copyOfNodes size - nOfCollapsedNodes;
-	   copyOfNodes: copyOfNodes
+	   copyOfNodes: copyOfNodes;
+	   dimension: aSolver graph structure dimension;
+		topology: aSolver topology
 ]
 
 { #category : 'accessing' }
@@ -39,6 +48,24 @@ WSFailedExecution >> copyOfNodes [
 WSFailedExecution >> copyOfNodes: anObject [
 
 	copyOfNodes := anObject
+]
+
+{ #category : 'visualization' }
+WSFailedExecution >> createVisualization [ 
+	
+	^ self subclassResponsibility 
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> dimension [
+
+	^ dimension
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> dimension: anObject [
+
+	dimension := anObject
 ]
 
 { #category : 'accessing' }
@@ -78,6 +105,18 @@ WSFailedExecution >> numberOfUncollapsedNodes: anObject [
 ]
 
 { #category : 'accessing' }
+WSFailedExecution >> tileVisitor [
+
+	^ tileVisitor
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> tileVisitor: anObject [
+
+	tileVisitor := anObject
+]
+
+{ #category : 'accessing' }
 WSFailedExecution >> timestamp [
 
 	^ timestamp
@@ -87,6 +126,18 @@ WSFailedExecution >> timestamp [
 WSFailedExecution >> timestamp: anObject [
 
 	timestamp := anObject
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> topology [
+
+	^ topology
+]
+
+{ #category : 'accessing' }
+WSFailedExecution >> topology: anObject [
+
+	topology := anObject
 ]
 
 { #category : 'accessing' }

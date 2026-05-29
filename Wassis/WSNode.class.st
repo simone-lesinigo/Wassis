@@ -198,6 +198,12 @@ WSNode >> hasCollapsedNeighbours [
 	^ self outgoingEdges anySatisfy: [ :eachEdge | eachEdge target isCollapsed ]
 ]
 
+{ #category : 'testing' }
+WSNode >> hasZeroPossibleTiles [
+
+    ^ self possibleTiles isEmpty
+]
+
 { #category : 'comparing' }
 WSNode >> hash [
     ^ self id hash bitXor: self position hash

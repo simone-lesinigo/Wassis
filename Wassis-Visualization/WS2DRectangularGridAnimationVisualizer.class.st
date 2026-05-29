@@ -88,7 +88,9 @@ WS2DRectangularGridAnimationVisualizer >> createAnimationWithColorMap: anEntropy
 	
 	initialActiveShapes := (self addInitialWaveShapesWithColorMap: anEntropyColorMap).
 	self canvas addBorderWithColor: Color black andWidth: 20.
-	self addGridLabelsToCanvas: self canvas.
+		self canvas 
+		addGridLabelsWithTileSize: self tileVisitor class tileSize 
+		withDimension: solver nRows @ solver nColumns.
 	self createDiffPerStepWith: initialActiveShapes andColorMap: anEntropyColorMap.
 
 ]
