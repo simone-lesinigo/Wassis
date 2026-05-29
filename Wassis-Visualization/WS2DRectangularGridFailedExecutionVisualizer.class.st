@@ -26,7 +26,6 @@ WS2DRectangularGridFailedExecutionVisualizer >> visualizeFailedExecution: aFaile
 		addBorderWithColor: Color black andWidth: 20;
 		addGridLabelsWithTileSize: self tileVisitor class tileSize 
 			withDimension: aFailedExecution dimension first @ aFailedExecution dimension last.
-			
-	canvas open
-	
+
+	^ canvas 
 ]

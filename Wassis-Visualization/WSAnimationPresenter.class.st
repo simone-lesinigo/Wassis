@@ -145,10 +145,7 @@ WSAnimationPresenter >> initializeVisualizationMenuBar [
         group addItem: [ :item |
             item name: 'Visualization';
             subMenu: (SpMenuPresenter new
-                addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
-                addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
                 addItem: [ :sub | sub name: 'Heap'; action: [ self openHeapPresenter ] ];
-					 addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
                 yourself) ] ]
 ]
 
@@ -174,42 +171,12 @@ WSAnimationPresenter >> onAnimationFinished [
 ]
 
 { #category : 'presenter opening' }
-WSAnimationPresenter >> openClassDistancesPresenter [
-	"Open the presenter that visualize the class distances matrix"
-	 | data classDistancePresenter |
-	  data := WSClassDistancesVisualizer new visualizeClassDistancesMatrixFor: model solver topology layoutStrategy.
-    classDistancePresenter := WSClassDistancesPresenter new.
-    classDistancePresenter
-        initialClassDistances: data initialClassDistances;
-        classDistances: data classDistances;
-        composites: data composites;
-        setCanvas: data initialCanvas;
-        open
-]
-
-{ #category : 'presenter opening' }
-WSAnimationPresenter >> openClassesGraphPresenter [
-	
-	| visualizer |
-	visualizer:= WSClassesGraphVisualizer withClasses: (model solver topology swSystem classes).
-	visualizer createVisualization.
-]
-
-{ #category : 'presenter opening' }
 WSAnimationPresenter >> openHeapPresenter [
 	
 	| heapVisualizer heapPresenter |
 	heapVisualizer := WSHeapVisualizer withModel: model.
 	heapPresenter := WSHeapPresenter withModel: model.
 	heapPresenter setCanvas: heapVisualizer canvas; open
-]
-
-{ #category : 'presenter opening' }
-WSAnimationPresenter >> openMDSPositionPresenter [
-	
-	| newVisualizer |
-	newVisualizer := model solver topology visualizer class new.
-	newVisualizer visualizeMDSPositionFor: model solver.
 ]
 
 { #category : 'accessing' }

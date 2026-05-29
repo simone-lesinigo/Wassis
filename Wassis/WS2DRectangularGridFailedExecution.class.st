@@ -34,8 +34,17 @@ WS2DRectangularGridFailedExecution >> collapseUncollapsedNodes [
 ]
 
 { #category : 'visualization' }
+WS2DRectangularGridFailedExecution >> createCanvas [
+
+	 self collapseUncollapsedNodes.
+    ^ WS2DRectangularGridFailedExecutionVisualizer new visualizeFailedExecution: self.
+
+	
+]
+
+{ #category : 'visualization' }
 WS2DRectangularGridFailedExecution >> createVisualization [
 
-    self collapseUncollapsedNodes.
-    WS2DRectangularGridFailedExecutionVisualizer new visualizeFailedExecution: self
+    self createCanvas openWithTitle: ('Execution Number {1}' format: { numberOfTry })
+	
 ]

@@ -523,7 +523,7 @@ WSSolver >> run [
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
 	self updateGraphMetrics.
 	
-	performanceMetrics visualizationTime: [ self createVisualization ] timeToRun
+	
 	
 	
 ]

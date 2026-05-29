@@ -61,8 +61,8 @@ WSAdaptive2DGridSolver >> executeRun [
         totalTime := [ self solveWithIncreasingSize. Smalltalk garbageCollect ] timeToRun.
         self updatePerformanceMetricsWithTime: totalTime.
         WSConfig isHeadless ifTrue: [ self save ].
+		  WSCurrentMetrics getPerformanceMetrics visualizationTime: [ self solver createVisualization ] timeToRun.
         WSLogger log: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).
-        self inspect
     ]
 ]
 
@@ -158,4 +158,21 @@ WSAdaptive2DGridSolver >> updatePerformanceMetricsWithTime: totalTime [
 	
 	
 	
+]
+
+{ #category : 'visualization' }
+WSAdaptive2DGridSolver >> visualizeFailedExectuions [
+	
+	historyOfFailedExecutions keysAndValuesDo: [ :eachDimension :eachCollection | 
+		| canvas |
+		canvas := RSCanvas new.
+		canvas addAll: (eachCollection collect: [ :eachFailedExecution | eachFailedExecution createCanvas asComposite ]).
+		
+		RSGridLayout new
+			gapSize: 500;
+			lineItemsCount: 5;
+			on: canvas shapes.
+		canvas @ RSCanvasController new.
+		canvas openWithTitle: ('Dimension {1}' format: { eachDimension }); zoomToFit.
+	]
 ]

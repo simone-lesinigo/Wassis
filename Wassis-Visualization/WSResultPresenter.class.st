@@ -6,7 +6,7 @@ Class {
 	#superclass : 'WSCanvasPresenter',
 	#instVars : [
 		'solver',
-		'showAnimationButton'
+		'visualizationMenuBar'
 	],
 	#category : 'Wassis-Visualization-Presenter',
 	#package : 'Wassis-Visualization',
@@ -18,8 +18,8 @@ WSResultPresenter >> applyLayout [
 	"Apply the layout on the presenter"	
 
 	layout := SpBoxLayout newVertical
+	 	  add: visualizationMenuBar expand: false;
         add: roassalPresenter;
-		  add: showAnimationButton expand: false;
         yourself
 ]
 
@@ -27,17 +27,23 @@ WSResultPresenter >> applyLayout [
 WSResultPresenter >> initializePresenter [ 
 	super initializePresenter.
 	self windowTitle: 'Wassis'.
-	self initializeShowAnimationButton.
+	self initializeVisualizationMenuBar.
 	self applyLayout 
 ]
 
 { #category : 'initialization' }
-WSResultPresenter >> initializeShowAnimationButton [
-	
-	showAnimationButton:= self newButton 
-		label: 'Show Animation';
-		action: [ self openAnimationPresenter ];
-		yourself.
+WSResultPresenter >> initializeVisualizationMenuBar [
+
+    visualizationMenuBar := self newMenuBar.
+    visualizationMenuBar addGroup: [ :group |
+        group addItem: [ :item |
+            item name: 'Visualization';
+            subMenu: (SpMenuPresenter new
+					 addItem: [ :sub | sub name: 'Animation'; action: [ self openAnimationPresenter ] ];
+					 addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
+                 addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
+                 addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
+                yourself) ] ]
 ]
 
 { #category : 'presenter opening' }
@@ -52,16 +58,34 @@ WSResultPresenter >> openAnimationPresenter [
 	 animPresenter setCanvas: animVisualizer canvas; open
 ]
 
-{ #category : 'accessing' }
-WSResultPresenter >> showAnimationButton [
-
-	^ showAnimationButton
+{ #category : 'presenter opening' }
+WSResultPresenter >> openClassDistancesPresenter [
+	"Open the presenter that visualize the class distances matrix"
+	 | data classDistancePresenter |
+	  data := WSClassDistancesVisualizer new visualizeClassDistancesMatrixFor: solver topology layoutStrategy.
+    classDistancePresenter := WSClassDistancesPresenter new.
+    classDistancePresenter
+        initialClassDistances: data initialClassDistances;
+        classDistances: data classDistances;
+        composites: data composites;
+        setCanvas: data initialCanvas;
+        open
 ]
 
-{ #category : 'accessing' }
-WSResultPresenter >> showAnimationButton: anObject [
+{ #category : 'presenter opening' }
+WSResultPresenter >> openClassesGraphPresenter [
+	
+	| visualizer |
+	visualizer:= WSClassesGraphVisualizer withClasses: (solver topology swSystem classes).
+	visualizer createVisualization.
+]
 
-	showAnimationButton := anObject
+{ #category : 'presenter opening' }
+WSResultPresenter >> openMDSPositionPresenter [
+	
+	| newVisualizer |
+	newVisualizer := solver topology visualizer class new.
+	newVisualizer visualizeMDSPositionFor: solver.
 ]
 
 { #category : 'accessing' }
