@@ -41,30 +41,28 @@ WSResultPresenter >> applyLayout [
         yourself
 ]
 
+{ #category : 'initialization-menuBar' }
+WSResultPresenter >> initializeMenuBar [
+
+    menuBar := self newMenuBar.
+    menuBar addGroup: [ :group |
+        group addItem: (self inspectItem).
+        group addItem: (self saveItem).
+        group addItem: (self visualizationItem) ]
+]
+
 { #category : 'initialization' }
 WSResultPresenter >> initializePresenter [ 
 	super initializePresenter.
 	self windowTitle: 'Wassis'.
-	self initializeVisualizationMenuBar.
+	self initializeMenuBar.
 	self applyLayout 
 ]
 
-{ #category : 'initialization' }
-WSResultPresenter >> initializeVisualizationMenuBar [
+{ #category : 'initialization-menuBar' }
+WSResultPresenter >> inspectItem [
 
-    menuBar := self newMenuBar.
-    menuBar addGroup: [ :group |
-		  group addItem: [ :item |
-            item name: 'Inspect'; action: [ adaptiveSolver inspect ] ] .
-	
-        group addItem: [ :item |
-            item name: 'Visualization';
-            subMenu: (SpMenuPresenter new
-					 addItem: [ :sub | sub name: 'Animation'; action: [ self openAnimationPresenter ] ];
-					 addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
-                 addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
-                 addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
-                yourself) ] ]
+    ^ [ :item | item name: 'Inspect'; iconName: #smallFind; action: [ adaptiveSolver inspect ] ]
 ]
 
 { #category : 'accessing' }
@@ -119,4 +117,29 @@ WSResultPresenter >> openMDSPositionPresenter [
 	| newVisualizer |
 	newVisualizer := adaptiveSolver solver topology visualizer class new.
 	newVisualizer visualizeMDSPositionFor: adaptiveSolver solver.
+]
+
+{ #category : 'initialization-menuBar' }
+WSResultPresenter >> saveItem [
+
+    ^ [ :item | item name: 'Save'; iconName: #smallSave; action: [ adaptiveSolver save ] ]
+]
+
+{ #category : 'initialization-menuBar' }
+WSResultPresenter >> visualizationItem [
+
+    ^ [ :item |
+        item name: 'Visualization'; iconName: #haloView;
+        subMenu: self visualizationSubMenu ]
+]
+
+{ #category : 'initialization-menuBar' }
+WSResultPresenter >> visualizationSubMenu [
+
+    ^ SpMenuPresenter new
+        addItem: [ :sub | sub name: 'Animation'; action: [ self openAnimationPresenter ] ];
+        addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
+        addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
+        addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];
+        yourself
 ]

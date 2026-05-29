@@ -123,7 +123,7 @@ WSExamples class >> exampleGetClasses2 [
 	        usingStrategy: WSHierarchyClassCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between: 25 and: 35) 
+	    ((sw classes size between: 40 and: 50) 
 	    	"and: [ (connections allSatisfy: [ :row | row value size < 5 ])  
 		 		and: [ (connections select: [ :row | row value size > 4 ]) size >= 2 ] 
 			]"

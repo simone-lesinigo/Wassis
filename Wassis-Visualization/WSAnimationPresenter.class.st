@@ -47,13 +47,7 @@ WSAnimationPresenter >> initializeButtons [
 	self initializeResetButton.
 	self initializeStepBackButton.
 	self initializeStepForwardButton.
-	self initializeplayAndPauseButton.
-
-	
-
-	
-
-
+	self initializeplayAndPauseButton
 ]
 
 { #category : 'initialization-buttons' }
@@ -93,6 +87,7 @@ WSAnimationPresenter >> initializeResetButton [
 	
 	resetButton := self newButton 
 		label: 'Reset';
+		iconName: #refresh;
 		action: [ model goToStart ];
 		yourself.
 		
@@ -122,7 +117,8 @@ WSAnimationPresenter >> initializeStepBackButton [
 	
 	stepBackButton := self newButton
       label: 'Step Back';
-      action: [ model stepBack ];
+		iconName: #back;      
+		action: [ model stepBack ];
     	yourself.
 
 	stepBackButton enabled: false.
@@ -133,6 +129,7 @@ WSAnimationPresenter >> initializeStepForwardButton [
 	
 	stepButton := self newButton 
 		label: 'Step Forward';
+		iconName: #forward;
 		action: [ model stepForward ];
 		yourself.
 ]
@@ -154,6 +151,7 @@ WSAnimationPresenter >> initializeplayAndPauseButton [
 	
 	playAndPauseButton := self newButton 
 		label: 'Play';
+		iconName: #play;
 		action: [ self togglePlayAndPauseButton ];
 		yourself.
 ]
@@ -283,12 +281,12 @@ WSAnimationPresenter >> togglePlayAndPauseButton [
 	model isPlaying 
 		ifTrue:  [
 			self setEnableTo: true forButtons: { resetButton . stepBackButton . stepButton }.
-			playAndPauseButton label: 'Play'.
+			playAndPauseButton label: 'Play'; iconName: #play.
 			model pause
 		]
 		ifFalse: [
 			self setEnableTo: false forButtons: { resetButton . stepBackButton . stepButton }.
-			playAndPauseButton label: 'Pause'.
+			playAndPauseButton label: 'Pause'; iconName: #pause.
 			model play.
 		].
 ]

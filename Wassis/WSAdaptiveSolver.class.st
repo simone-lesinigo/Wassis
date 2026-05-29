@@ -63,7 +63,13 @@ WSAdaptiveSolver >> run [
 { #category : 'saving' }
 WSAdaptiveSolver >> save [
 
-	self serializeToFileNamed: self class savePath
+	self serializeToFileNamed: self class savePath.
+	
+	GrowlMorph new
+		label: 'Information' contents: 'Solution saved succesfully ✓';
+		textColor: Color black;
+		backgroundColor: Color green;
+		openInWorld 
 ]
 
 { #category : 'saving' }

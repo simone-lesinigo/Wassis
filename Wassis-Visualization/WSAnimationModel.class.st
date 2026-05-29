@@ -74,7 +74,7 @@ WSAnimationModel >> initialize [
 	index := 0.
 	maxIndex := solver executionHistory historyOfCollapsedNodes size.
 	isPlaying := false.
-	msDelay := 50.
+	msDelay := maxIndex / 30.
 	announcer := Announcer new.
 ]
 
@@ -126,11 +126,11 @@ WSAnimationModel >> play [
 	"Play the animation forward"
 	
 	[ isPlaying := true.	
-	   [( index <  maxIndex) and:  isPlaying] whileTrue: [
+	   [( index < maxIndex) and: isPlaying] whileTrue: [
 	   		self stepForward.
-	      (Delay forMilliseconds:  msDelay) wait. 
+	      (Delay forMilliseconds: msDelay) wait. 
 	   ].
-		 index =  maxIndex ifTrue: [ 
+		 index = maxIndex ifTrue: [ 
 			 isPlaying := false.
 			 announcer announce: WSAnimationFinished .
 		]
