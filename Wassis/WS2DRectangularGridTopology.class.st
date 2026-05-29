@@ -446,12 +446,12 @@ WS2DRectangularGridTopology >> createUncollapsedTile [
 ]
 
 { #category : 'visualization' }
-WS2DRectangularGridTopology >> createVisualizationFor: aSolver [
+WS2DRectangularGridTopology >> createVisualizationFor: adaptiveSolver [
 
 	| presenter canvas |
-	presenter := WSResultPresenter new.
-	canvas := self visualizer createCanvasFor: aSolver.
-	presenter solver: aSolver; setCanvas: canvas; open. 
+	presenter := WSResultPresenter withAdaptiveSolver: adaptiveSolver.
+	canvas := self visualizer createCanvasFor: adaptiveSolver solver.
+	presenter setCanvas: canvas; open. 
 	
 ]
 

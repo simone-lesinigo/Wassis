@@ -273,10 +273,16 @@ WSSolver >> createTemporaryVisualization [
 	
 ]
 
-{ #category : 'visualization' }
+{ #category : 'deprecated' }
 WSSolver >> createVisualization [ 
 	
 	self topology createVisualizationFor: self
+]
+
+{ #category : 'visualization' }
+WSSolver >> createVisualizationWith: adaptiveSolver [
+	
+	self topology createVisualizationFor: adaptiveSolver 
 ]
 
 { #category : '2DGrid' }

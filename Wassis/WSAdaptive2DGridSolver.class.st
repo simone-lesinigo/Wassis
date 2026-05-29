@@ -61,7 +61,7 @@ WSAdaptive2DGridSolver >> executeRun [
         totalTime := [ self solveWithIncreasingSize. Smalltalk garbageCollect ] timeToRun.
         self updatePerformanceMetricsWithTime: totalTime.
         WSConfig isHeadless ifTrue: [ self save ].
-		  WSCurrentMetrics getPerformanceMetrics visualizationTime: [ self solver createVisualization ] timeToRun.
+		  WSCurrentMetrics getPerformanceMetrics visualizationTime: [ self createVisualization ] timeToRun.
         WSLogger log: ('Execution finished in {1}' format: { totalTime humanReadablePrintString }).
     ]
 ]

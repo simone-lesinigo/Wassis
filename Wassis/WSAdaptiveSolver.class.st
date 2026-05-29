@@ -31,7 +31,7 @@ WSAdaptiveSolver class >> savePath [
 { #category : 'visualization' }
 WSAdaptiveSolver >> createVisualization [ 
 	
-	self solver createVisualization 
+	self solver createVisualizationWith: self
 ]
 
 { #category : 'accessing' }

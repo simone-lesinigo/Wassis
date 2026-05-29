@@ -5,20 +5,38 @@ Class {
 	#name : 'WSResultPresenter',
 	#superclass : 'WSCanvasPresenter',
 	#instVars : [
-		'solver',
-		'visualizationMenuBar'
+		'adaptiveSolver',
+		'menuBar'
 	],
 	#category : 'Wassis-Visualization-Presenter',
 	#package : 'Wassis-Visualization',
 	#tag : 'Presenter'
 }
 
+{ #category : 'instance creation' }
+WSResultPresenter class >> withAdaptiveSolver: anAdaptiveSolver [
+	
+	^ self new adaptiveSolver: anAdaptiveSolver
+]
+
+{ #category : 'accessing' }
+WSResultPresenter >> adaptiveSolver [
+
+	^ adaptiveSolver
+]
+
+{ #category : 'accessing' }
+WSResultPresenter >> adaptiveSolver: anObject [
+
+	adaptiveSolver := anObject
+]
+
 { #category : 'initialization' }
 WSResultPresenter >> applyLayout [ 
 	"Apply the layout on the presenter"	
 
 	layout := SpBoxLayout newVertical
-	 	  add: visualizationMenuBar expand: false;
+	 	  add: menuBar expand: false;
         add: roassalPresenter;
         yourself
 ]
@@ -34,8 +52,11 @@ WSResultPresenter >> initializePresenter [
 { #category : 'initialization' }
 WSResultPresenter >> initializeVisualizationMenuBar [
 
-    visualizationMenuBar := self newMenuBar.
-    visualizationMenuBar addGroup: [ :group |
+    menuBar := self newMenuBar.
+    menuBar addGroup: [ :group |
+		  group addItem: [ :item |
+            item name: 'Inspect'; action: [ adaptiveSolver inspect ] ] .
+	
         group addItem: [ :item |
             item name: 'Visualization';
             subMenu: (SpMenuPresenter new
@@ -46,13 +67,25 @@ WSResultPresenter >> initializeVisualizationMenuBar [
                 yourself) ] ]
 ]
 
+{ #category : 'accessing' }
+WSResultPresenter >> menuBar [
+
+	^ menuBar
+]
+
+{ #category : 'accessing' }
+WSResultPresenter >> menuBar: anObject [
+
+	menuBar := anObject
+]
+
 { #category : 'presenter opening' }
 WSResultPresenter >> openAnimationPresenter [
 	 "Open the presenter with the animation"
 	
     | model colorMap animVisualizer animPresenter |
     colorMap := WSEntropyColorMap fromColor: Color red toColor: Color blue.
-    model := WSAnimationModel fromSolver: self solver.
+    model := WSAnimationModel fromSolver: adaptiveSolver solver.
     animVisualizer := WS2DRectangularGridAnimationVisualizer withModel: model andColorMap: colorMap.
     animPresenter := WSAnimationPresenter withModel: model.
 	 animPresenter setCanvas: animVisualizer canvas; open
@@ -62,7 +95,7 @@ WSResultPresenter >> openAnimationPresenter [
 WSResultPresenter >> openClassDistancesPresenter [
 	"Open the presenter that visualize the class distances matrix"
 	 | data classDistancePresenter |
-	  data := WSClassDistancesVisualizer new visualizeClassDistancesMatrixFor: solver topology layoutStrategy.
+	  data := WSClassDistancesVisualizer new visualizeClassDistancesMatrixFor: adaptiveSolver solver topology layoutStrategy.
     classDistancePresenter := WSClassDistancesPresenter new.
     classDistancePresenter
         initialClassDistances: data initialClassDistances;
@@ -76,7 +109,7 @@ WSResultPresenter >> openClassDistancesPresenter [
 WSResultPresenter >> openClassesGraphPresenter [
 	
 	| visualizer |
-	visualizer:= WSClassesGraphVisualizer withClasses: (solver topology swSystem classes).
+	visualizer:= WSClassesGraphVisualizer withClasses: (adaptiveSolver solver topology swSystem classes).
 	visualizer createVisualization.
 ]
 
@@ -84,18 +117,6 @@ WSResultPresenter >> openClassesGraphPresenter [
 WSResultPresenter >> openMDSPositionPresenter [
 	
 	| newVisualizer |
-	newVisualizer := solver topology visualizer class new.
-	newVisualizer visualizeMDSPositionFor: solver.
-]
-
-{ #category : 'accessing' }
-WSResultPresenter >> solver [
-
-	^ solver
-]
-
-{ #category : 'accessing' }
-WSResultPresenter >> solver: anObject [
-
-	solver := anObject
+	newVisualizer := adaptiveSolver solver topology visualizer class new.
+	newVisualizer visualizeMDSPositionFor: adaptiveSolver solver.
 ]
