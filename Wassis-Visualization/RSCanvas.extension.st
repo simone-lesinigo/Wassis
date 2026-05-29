@@ -18,6 +18,35 @@ RSCanvas >> addBorderWithColor: aColor andWidth: aWidth [
 ]
 
 { #category : '*Wassis-Visualization' }
+RSCanvas >> addGridLabelsWithTileSize: aTileSize withDimension: aPoint [
+    "Add the numbers of rows and columns wrapping around the content"
+
+    | rect fontSize |
+    rect := self nodes encompassingRectangle.
+    fontSize := aTileSize * 0.35.
+    
+    1 to: aPoint y do: [ :col |
+        | label |
+        label := RSLabel new
+            text: col printString;
+            fontSize: fontSize;
+            yourself.
+        self add: label.
+        label position: (rect left + (col * aTileSize) - (aTileSize / 2)) @ (rect top - (fontSize)).
+    ].
+    
+    1 to: aPoint x do: [ :row |
+        | label |
+        label := RSLabel new
+            text: row printString;
+            fontSize: fontSize;
+            yourself.
+        self add: label.
+        label position: (rect left - fontSize ) @ (rect top + (row * aTileSize) - (aTileSize / 2) ).
+    ]
+]
+
+{ #category : '*Wassis-Visualization' }
 RSCanvas >> clearShapes [
 
 	self shapes do: #remove.
