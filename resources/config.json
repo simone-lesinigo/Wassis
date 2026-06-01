@@ -1,5 +1,6 @@
 {
     "isHeadless": true,
+    "saveFailedExecution": false,
     "placementStrategy": "metricMDS",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
