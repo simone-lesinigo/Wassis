@@ -102,11 +102,13 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 		  
         nodesToTile keysAndValuesDo: [ :eachNode :eachTile |
             result add: (eachNode 
-					collapseTo: eachTile; 
-					entropy: -2;
-					sumOfWeights: 0;
-					sumOfWeightsLog: 0) ] ].
-			
+					collapseTo: eachTile; entropy: -2; sumOfWeights: 0; sumOfWeightsLog: 0) ].
+	 ].
+
+	 self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint | 
+		   self seedPathTargetsFor: eachClass footprint: eachFootprint
+	 ].
+
     ^ result
 ]
 
@@ -214,7 +216,7 @@ WS2DGridTopology >> createGraph [
 
 	workingGrid := self emptyMatrixCheckpoint veryDeepCopy.
 	collapsedNodes := (self collapseNodesToClassesIn: workingGrid).
-	
+
 	^ WSGraph 
 		newWithStructure: workingGrid
 		andCollapsedNodes: collapsedNodes 
@@ -286,6 +288,12 @@ WS2DGridTopology >> createTileset [
 
 ]
 
+{ #category : 'metrics' }
+WS2DGridTopology >> distanceBetweenNode: aNode1 toNode: aNode2 [
+	
+	^ self subclassResponsibility 
+]
+
 { #category : 'accessing' }
 WS2DGridTopology >> emptyMatrixCheckpoint [
 
@@ -296,6 +304,36 @@ WS2DGridTopology >> emptyMatrixCheckpoint [
 WS2DGridTopology >> emptyMatrixCheckpoint: anObject [
 
 	emptyMatrixCheckpoint := anObject
+]
+
+{ #category : 'calculating' }
+WS2DGridTopology >> findClosestTargetNodeFor: aClass pathID: aPathID fromNode: aNode [
+    "Return the closest border node among all footprints sharing aPathID, excluding aClass"
+
+    | connectedClasses bestNode bestDistance |
+    connectedClasses := self swSystem allClassesConnectedByPathID: aPathID.
+    bestNode := nil.
+    bestDistance := SmallInteger maxVal.
+    
+    connectedClasses do: [ :eachConnectedClass |
+        (eachConnectedClass = aClass) ifFalse: [
+				| targetFootprint |
+				targetFootprint := (classFootprint at: eachConnectedClass ifAbsent: [ nil ]).
+				targetFootprint ifNotNil: [ 
+					| targetNode |
+					targetNode := targetFootprint nodeThatIncludes: aPathID.
+					targetNode ifNotNil: [ 
+						| currentDistance |
+						currentDistance := self distanceBetweenNode: aNode toNode: targetNode.
+						currentDistance < bestDistance ifTrue: [ 
+                        bestDistance := currentDistance.
+                        bestNode := targetNode ]
+					]
+				]
+			] 
+		].
+
+    ^ bestNode
 ]
 
 { #category : 'collapse' }
@@ -540,6 +578,24 @@ WS2DGridTopology >> scaleNormalizedValue: aValue toInnerRange: n [
     "Scale a normalized value [0,1] to [2, n-1], excluding border positions"
 
     ^ ((aValue * (n - 3)) rounded) + 2
+]
+
+{ #category : 'calculating' }
+WS2DGridTopology >> seedPathTargetsFor: aClass footprint: aFootprint [
+    "For each node of aFootprint, seed pathTargets for each pathID on its tile edges"
+
+    aFootprint nodes do: [ :eachNode |
+        (eachNode tileInWhichCollapsed edges) do: [ :edgeSymbols |
+				| symbol |
+				symbol := edgeSymbols first.
+            (WSConfig isPathID: symbol) ifTrue: [
+                | targetNode |
+                targetNode := self 
+                    findClosestTargetNodeFor: aClass 
+                    pathID: symbol
+                    fromNode: eachNode.
+                targetNode ifNotNil: [
+                    eachNode pathTargets at: symbol put: targetNode ] ] ] ]
 ]
 
 { #category : 'collapse' }

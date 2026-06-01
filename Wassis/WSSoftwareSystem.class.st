@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'classes',
 		'classesPathIDs',
-		'allConnectionsPerClass'
+		'allConnectionsPerClass',
+		'pathIDToClasses'
 	],
 	#category : 'Wassis-SoftwareSystem',
 	#package : 'Wassis',
@@ -28,8 +29,10 @@ WSSoftwareSystem class >> createForClass: aClass usingStrategy: aStrategy [
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
 	
 	"instance createPathIDsFromClasses."
-	instance createPathIDsFromClassesAllowinMerge. 
-	instance createAllConnectionsPerClass.
+	instance 
+		createPathIDsFromClassesAllowinMerge; 
+		createAllConnectionsPerClass;
+		createClassesPerPathID.
 	
 	^ instance
 	
@@ -46,6 +49,13 @@ WSSoftwareSystem >> addClass: aClass [
 WSSoftwareSystem >> addClasses: aClassArray [
 
 	self classes addAll: aClassArray 
+]
+
+{ #category : 'accessing' }
+WSSoftwareSystem >> allClassesConnectedByPathID: aPathID [
+	"Return a set with all the classes that share the same pathID"
+	
+	^ pathIDToClasses at: aPathID 
 ]
 
 { #category : 'accessing' }
@@ -114,6 +124,19 @@ WSSoftwareSystem >> createAllConnectionsPerClass [
 ]
 
 { #category : 'creation' }
+WSSoftwareSystem >> createClassesPerPathID [
+	"For each pathID, provides the classes that share that ID"
+	
+	classesPathIDs keysAndValuesDo: [ :classPair :pathID |
+    	| classSet |
+    	classSet := pathIDToClasses at: pathID ifAbsentPut: [ Set new ].
+    
+    	classSet add: classPair key; add: classPair value ].
+	
+	
+]
+
+{ #category : 'creation' }
 WSSoftwareSystem >> createPathIDsFromClasses [
 	"Create all the necessary pathIDs to connect the classes and them to the PathIDs collection"
 	
@@ -157,6 +180,7 @@ WSSoftwareSystem >> initialize [
 	super initialize.
 	self classes: OrderedCollection new.
 	self classesPathIDs: ClassesPathIDDictionary new.
+	self pathIDToClasses: Dictionary new.
 ]
 
 { #category : 'creation' }
@@ -172,6 +196,18 @@ WSSoftwareSystem >> pathIDOf: class1 and: class2 [
 	"Returns the pathID between two classes"
 	
 	^ self classesPathIDs at: (class1 -> class2)
+]
+
+{ #category : 'accessing' }
+WSSoftwareSystem >> pathIDToClasses [
+
+	^ pathIDToClasses
+]
+
+{ #category : 'accessing' }
+WSSoftwareSystem >> pathIDToClasses: anObject [
+
+	pathIDToClasses := anObject
 ]
 
 { #category : 'initialization' }

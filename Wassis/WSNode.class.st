@@ -14,6 +14,7 @@ Class {
 		'entropy',
 		'tileInWhichCollapsed',
 		'footPrint',
+		'pathTargets',
 		'sumOfWeights',
 		'sumOfWeightsLog'
 	],
@@ -95,6 +96,22 @@ WSNode >> areEdgesCompatible: edgeA with: edgeB [
 	^ false
 ]
 
+{ #category : 'collapse' }
+WSNode >> boostFactorFor: aTile givenBiases: pathBiases [
+    | totalBoost |
+    totalBoost := 1.0.
+    pathBiases keysAndValuesDo: [ :pathID :biases |
+        | bestDirectionBoost |
+        bestDirectionBoost := 1.0.
+        biases keysAndValuesDo: [ :dir :boost |
+            | edgeSymbol |
+            edgeSymbol := aTile edges at: dir ifAbsent: [ nil ].
+            (WSConfig isPlaceholder: edgeSymbol) ifTrue: [
+                bestDirectionBoost := bestDirectionBoost max: boost ] ].
+        totalBoost := totalBoost * bestDirectionBoost ].
+    ^ totalBoost
+]
+
 { #category : 'propagating' }
 WSNode >> buildCollapsedConstraints [
     "Return an OrderedCollection of (direction -> neighbourEdgeSymbol) for each collapsed neighbour. Computed once per propagation step and reused for all tile candidates"
@@ -111,6 +128,40 @@ WSNode >> buildCollapsedConstraints [
             constraints add: eachEdge direction -> neighbourEdge ] ].
 
     ^ constraints
+]
+
+{ #category : 'collapse' }
+WSNode >> calculatePathBiases [
+
+	| pathBiases myRow myCol |
+	pathBiases := Dictionary new.
+	myRow := self position first.
+	myCol := self position last.
+
+	self pathTargets keysAndValuesDo: [ :pathID :targetNode |
+		| targetRow targetCol deltaRow deltaCol totalDelta biases maxBoost rowWeight colWeight |
+		targetRow := targetNode position first.
+		targetCol := targetNode position last.
+		
+		deltaRow := (targetRow - myRow) abs.
+		deltaCol := (targetCol - myCol) abs.
+		totalDelta := deltaRow + deltaCol.
+		
+		biases := Dictionary new.
+		totalDelta > 0 ifTrue: [
+			rowWeight := deltaRow / totalDelta.
+			colWeight := deltaCol / totalDelta.
+			
+			maxBoost := 10.0. 
+			
+			targetRow > myRow ifTrue: [ biases at: #down put: (1.0 + (maxBoost * rowWeight)) ].
+			targetRow < myRow ifTrue: [ biases at: #up put: (1.0 + (maxBoost * rowWeight)) ].
+			targetCol > myCol ifTrue: [ biases at: #right put: (1.0 + (maxBoost * colWeight)) ].
+			targetCol < myCol ifTrue: [ biases at: #left put: (1.0 + (maxBoost * colWeight)) ].
+		].
+		pathBiases at: pathID put: biases.
+	].
+	^ pathBiases
 ]
 
 { #category : 'accessing' }
@@ -140,6 +191,7 @@ WSNode >> collapseTo: aTile [
         tileInWhichCollapsed: resolvedTile.
 
     self updateShannonEntropyFromScratch.
+
     ^ self
 ]
 
@@ -225,7 +277,8 @@ WSNode >> id: anObject [
 WSNode >> initialize [
 	super initialize.
 	self 
-		outgoingEdges: OrderedCollection new
+		outgoingEdges: OrderedCollection new;
+		pathTargets: Dictionary new
 	
 ]
 
@@ -452,6 +505,18 @@ WSNode >> outgoingEdges: anObject [
 ]
 
 { #category : 'accessing' }
+WSNode >> pathTargets [
+
+	^ pathTargets
+]
+
+{ #category : 'accessing' }
+WSNode >> pathTargets: anObject [
+
+	pathTargets := anObject
+]
+
+{ #category : 'accessing' }
 WSNode >> position [
 
 	^ position
@@ -511,6 +576,11 @@ WSNode >> reducePossibilitiesBasedOn: aNode withConnectionEdge: anEdge [
 	
 	aNodeEdges := aNode possibleTiles flatCollectAsSet: [ :eachTile | eachTile edges at: direction ].
 	collapsedConstraints := self buildCollapsedConstraints.
+
+	aNode pathTargets ifNotNil: [
+		aNode pathTargets keysAndValuesDo: [ :pathID :targetNode |
+			(collapsedConstraints anySatisfy: [ :each | each value = pathID ]) ifTrue: [
+				self pathTargets at: pathID put: targetNode ] ] ].
 
     newTiles := OrderedCollection new: self possibleTiles size.
     removedTiles := OrderedCollection new.
@@ -575,6 +645,40 @@ WSNode >> row [
 
 { #category : 'collapse' }
 WSNode >> selectInWhichTileToCollapse [
+	"Return the tile in which the node should collapse (weighted choice)"
+
+	| dynamicWeights totalWeight randomNumber randomEngine pathBiases |
+	self possibleTiles 
+		detect: [ :tile | tile isEmptyTile ] 
+		ifFound: [ :emptyTile | ^ emptyTile ].
+
+	self pathTargets isEmpty ifTrue: [
+		randomNumber := self sumOfWeights atRandom.
+		randomNumber <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
+		^ self possibleTiles detect: [ :tile |
+			randomNumber := randomNumber - tile weight.
+			randomNumber <= 0 ] ].
+	pathBiases := self calculatePathBiases.
+
+	dynamicWeights := self possibleTiles collect: [ :tile | 
+		tile -> (tile weight * (self boostFactorFor: tile givenBiases: pathBiases)) ].
+
+	totalWeight := dynamicWeights inject: 0 into: [ :sum :assoc | sum + assoc value ].
+	totalWeight <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
+
+	randomEngine := Random new.
+	randomNumber := randomEngine next * totalWeight.
+
+	^ dynamicWeights 
+		detect: [ :assoc | 
+			randomNumber := randomNumber - assoc value.
+			randomNumber <= 0 ]
+		ifFound: [ :assoc | assoc key ]
+		ifNone: [ self possibleTiles atRandom ]
+]
+
+{ #category : 'collapse' }
+WSNode >> selectInWhichTileToCollapse2 [
 	"Return the tile in which the node should collapse (weighted choice)"
 
 	| randomNumber |

@@ -455,6 +455,22 @@ WS2DRectangularGridTopology >> createVisualizationFor: adaptiveSolver [
 	
 ]
 
+{ #category : 'visualization' }
+WS2DRectangularGridTopology >> createVisualizationForSolver: solver [
+
+	| presenter canvas |
+	presenter := WSResultPresenter new.
+	canvas := self visualizer createCanvasFor: solver.
+	presenter setCanvas: canvas; open. 
+	
+]
+
+{ #category : 'metrics' }
+WS2DRectangularGridTopology >> distanceBetweenNode: aNode1 toNode: aNode2 [
+	
+	^ self manhattanDistanceBetweenNode: aNode1 andNode: aNode2
+]
+
 { #category : 'accessing' }
 WS2DRectangularGridTopology >> emptyTile [
 

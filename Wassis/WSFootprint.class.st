@@ -51,6 +51,19 @@ WSFootprint >> innerNodes: aTopology [
         (aTopology exposedDirectionsOf: aNode inFootprint: self) isEmpty ]
 ]
 
+{ #category : 'testing' }
+WSFootprint >> nodeThatIncludes: aPathID [
+
+    ^ self nodes 
+        detect: [ :eachNode | 
+				| tile | 
+            tile := eachNode tileInWhichCollapsed.
+            tile ifNil: [ false ] ifNotNil: [ 
+                tile edges anySatisfy: [ :eachEdge | eachEdge includes: aPathID ] 
+            ] ]
+        ifNone: [ nil ]
+]
+
 { #category : 'accessing' }
 WSFootprint >> nodes [
 

@@ -276,7 +276,7 @@ WSSolver >> createTemporaryVisualization [
 { #category : 'deprecated' }
 WSSolver >> createVisualization [ 
 	
-	self topology createVisualizationFor: self
+	self topology createVisualizationForSolver: self
 ]
 
 { #category : 'visualization' }

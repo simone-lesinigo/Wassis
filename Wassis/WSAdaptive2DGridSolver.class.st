@@ -119,8 +119,8 @@ WSAdaptive2DGridSolver >> solveWithSize: aSize andID: aID [
 	currentSolver addInitialMetrics.
 
 	"self visualizeMDSClassesPositioningFor: currentSolver.
-	self visualizeMDSDistancesMatrixFor: currentSolver.
-	currentSolver createTemporaryVisualization."
+	self visualizeMDSDistancesMatrixFor: currentSolver."
+	"currentSolver createTemporaryVisualization. self halt."
 	self solver: currentSolver.
    WSCurrentMetrics getPerformanceMetrics solverTotalTime: [currentSolver run] timeToRun.
 
