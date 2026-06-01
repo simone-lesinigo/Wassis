@@ -583,11 +583,14 @@ WSSolver >> updateExecutionHistory [
 	| eh |
 	eh := self executionHistory.
 	eh reset.
-	eh	historyOfFailedExecutions add: 
-		(self topology asFailedExecution 
-		timestamp: DateAndTime now
-		nOfTry: WSCurrentMetrics getPerformanceMetrics totalNumberOfTries
-		solver: self)
+	
+	WSConfig saveFailedExecution ifTrue: [  
+		eh	historyOfFailedExecutions add: 
+			(self topology asFailedExecution 
+			timestamp: DateAndTime now
+			nOfTry: WSCurrentMetrics getPerformanceMetrics totalNumberOfTries
+			solver: self)
+	]
 ]
 
 { #category : 'metrics' }

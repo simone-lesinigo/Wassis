@@ -11,7 +11,8 @@ Class {
 		'IsHeadless',
 		'MaxNumberOfRegeneratedGraph',
 		'MaxNumberOfTriesPerGraph',
-		'PlacementStrategy'
+		'PlacementStrategy',
+		'SaveFailedExecution'
 	],
 	#category : 'Wassis-Config',
 	#package : 'Wassis',
@@ -204,8 +205,26 @@ WSConfig class >> reset [
 	self classTileWeight: nil.
 	self isHeadless: nil.
 	self placementStrategy: nil.
+	self saveFailedExecution: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
+]
+
+{ #category : 'accessing' }
+WSConfig class >> saveFailedExecution [
+
+	SaveFailedExecution ifNil: [ 
+		self saveFailedExecution: 
+			(self configFile atPath:  { 'saveFailedExecution' } default: false).
+	].
+
+	^ SaveFailedExecution
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> saveFailedExecution: anObject [
+	
+	SaveFailedExecution := anObject
 ]
 
 { #category : 'accessing-symbols' }
