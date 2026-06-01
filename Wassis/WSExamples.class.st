@@ -103,7 +103,7 @@ WSExamples class >> exampleGetClasses [
 	        usingStrategy: WSHierarchyClassCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between:200 and: 300) 
+	    ((sw classes size between:40 and: 45) 
 	    	"and: [ (connections allSatisfy: [ :row | row value size < 7 ])  
 		 		and: [ (connections select: [ :row | row value size > 2 ]) size >= 4 ] 
 			]"
@@ -190,7 +190,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: InstructionClient
+		createForClass: InstructionClient 
 		usingStrategy: WSHierarchyClassCollector new.
 
 	adaptiveSolver := 

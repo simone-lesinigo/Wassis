@@ -41,29 +41,29 @@ WS2DGridTopology class >> withGrid: aPoint [
 { #category : 'collapse' }
 WS2DGridTopology >> assignNodesToClassesIn: aGrid [
     "For each class select the node in which it will be placed"
-	
-    (self createClassesPlacingOrder) do: [ :eachClass | 
-        | sideLength originNode footprintNodes footprint |
-        sideLength := self footprintSizeFor: eachClass.
-        originNode := self pickNodeForClass: eachClass footprintSize: sideLength in: aGrid.
 
-        footprintNodes := aGrid 
-			collectFootprintFrom: originNode 
-			size: sideLength.
-        
-        footprint := WSFootprint new
-            wsClass: eachClass;
-            nodes: footprintNodes;
-            originNode: originNode;
-            sideLength: sideLength;
-            yourself.
-        
-        footprintNodes do: [ :eachNode | 
-            eachNode
-					isCollapsed: true; 
-					footPrint: footprint ].
-        
+    self createClassesPlacingOrder do: [ :eachClass |
+        | footprint |
+        footprint := self buildFootprintFor: eachClass in: aGrid.
+        self collapseFootprintNodes: footprint.
         self classFootprint at: eachClass put: footprint ]
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> buildFootprintFor: aClass in: aGrid [
+	"Build the footprint for a class, return the footprint"
+
+    | sideLength originNode footprintNodes |
+    sideLength := self footprintSizeFor: aClass.
+    originNode := self pickNodeForClass: aClass footprintSize: sideLength in: aGrid.
+    footprintNodes := aGrid collectFootprintFrom: originNode size: sideLength.
+
+    ^ WSFootprint new
+        wsClass: aClass;
+        nodes: footprintNodes;
+        originNode: originNode;
+        sideLength: sideLength;
+        yourself
 ]
 
 { #category : 'accessing' }
@@ -76,6 +76,16 @@ WS2DGridTopology >> classFootprint [
 WS2DGridTopology >> classFootprint: anObject [
 
 	classFootprint := anObject
+]
+
+{ #category : 'collapse' }
+WS2DGridTopology >> collapseFootprintNodes: aFootprint [
+	"Collapse all nodes in the footprint"
+
+    aFootprint nodes do: [ :eachNode |
+        eachNode
+            isCollapsed: true;
+            footPrint: aFootprint ]
 ]
 
 { #category : 'collapse' }
@@ -96,7 +106,7 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 					entropy: -2;
 					sumOfWeights: 0;
 					sumOfWeightsLog: 0) ] ].
-    
+			
     ^ result
 ]
 

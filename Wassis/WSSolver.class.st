@@ -448,7 +448,7 @@ WSSolver >> onContradiction [
 	bt restartFromEmptyGraphForSolver: self.
 	
 	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
-		ifTrue: [ WSMaxTriesReached signal.  ]
+		ifTrue: [ WSMaxTriesReached signal. ]
 ]
 
 { #category : 'running' }
