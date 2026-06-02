@@ -30,7 +30,7 @@ BaselineOfWassis >> baseline: spec [
 			
 			spec
     			baseline: 'ZION'
-   				with: [ spec repository: 'ssh://git@gitlab.reveal.si.usi.ch:60022/research/zion.git' ].
+   				with: [ spec repository: 'gitlab://gitlab.reveal.si.usi.ch:research/zion:main' ].
 
         spec 
             package: 'Wassis' 
