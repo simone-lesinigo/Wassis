@@ -64,7 +64,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 	| allNodes |
 	allNodes := aStructure getFlattenedNodes.
 	
-	self collapseClassPathExitsFor: collapsedNodes.
+	"self collapseClassPathExitsFor: collapsedNodes."
 
 	^ self new
 		structure: aStructure;

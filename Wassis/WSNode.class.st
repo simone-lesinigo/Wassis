@@ -96,19 +96,48 @@ WSNode >> areEdgesCompatible: edgeA with: edgeB [
 	^ false
 ]
 
+{ #category : 'as yet unclassified' }
+WSNode >> biasesForTarget: targetNode from: myPosition [
+
+	| targetPosition deltaRow deltaCol totalDelta biases maxBoost rowWeight colWeight |
+	targetPosition := targetNode position.
+	deltaRow := (targetPosition first - myPosition first) abs.
+	deltaCol := (targetPosition last - myPosition last) abs.
+	totalDelta := deltaRow + deltaCol.
+	
+	biases := Dictionary new.
+	totalDelta > 0 ifFalse: [ ^ biases ].
+	
+	rowWeight := deltaRow / totalDelta.
+	colWeight := deltaCol / totalDelta.
+	maxBoost := 100.0.
+	
+	targetPosition first > myPosition first 
+		ifTrue: [ biases at: #down put: (1.0 + (maxBoost * rowWeight)) ]
+		ifFalse: [ biases at: #up put: (1.0 + (maxBoost * rowWeight)) ].
+		
+	targetPosition last > myPosition last 
+		ifTrue: [ biases at: #right put: (1.0 + (maxBoost * colWeight)) ]
+		ifFalse: [ biases at: #left put: (1.0 + (maxBoost * colWeight)) ].
+	
+	^ biases
+]
+
 { #category : 'collapse' }
 WSNode >> boostFactorFor: aTile givenBiases: pathBiases [
     | totalBoost |
     totalBoost := 1.0.
+
     pathBiases keysAndValuesDo: [ :pathID :biases |
         | bestDirectionBoost |
         bestDirectionBoost := 1.0.
         biases keysAndValuesDo: [ :dir :boost |
             | edgeSymbol |
-            edgeSymbol := aTile edges at: dir ifAbsent: [ nil ].
-            (WSConfig isPlaceholder: edgeSymbol) ifTrue: [
+            edgeSymbol := (aTile edges at: dir) first.
+            ((WSConfig isPlaceholder: edgeSymbol) or: [ WSConfig isPathID: edgeSymbol ]) ifTrue: [
                 bestDirectionBoost := bestDirectionBoost max: boost ] ].
         totalBoost := totalBoost * bestDirectionBoost ].
+
     ^ totalBoost
 ]
 
@@ -133,35 +162,27 @@ WSNode >> buildCollapsedConstraints [
 { #category : 'collapse' }
 WSNode >> calculatePathBiases [
 
-	| pathBiases myRow myCol |
+	| pathBiases myPosition |
 	pathBiases := Dictionary new.
-	myRow := self position first.
-	myCol := self position last.
-
-	self pathTargets keysAndValuesDo: [ :pathID :targetNode |
-		| targetRow targetCol deltaRow deltaCol totalDelta biases maxBoost rowWeight colWeight |
-		targetRow := targetNode position first.
-		targetCol := targetNode position last.
+	myPosition := self position.
+	
+	self pathTargets keysAndValuesDo: [ :pathID :targetNode | 
+		pathBiases at: pathID put: (self biasesForTarget: targetNode from: myPosition) ].
 		
-		deltaRow := (targetRow - myRow) abs.
-		deltaCol := (targetCol - myCol) abs.
-		totalDelta := deltaRow + deltaCol.
-		
-		biases := Dictionary new.
-		totalDelta > 0 ifTrue: [
-			rowWeight := deltaRow / totalDelta.
-			colWeight := deltaCol / totalDelta.
-			
-			maxBoost := 10.0. 
-			
-			targetRow > myRow ifTrue: [ biases at: #down put: (1.0 + (maxBoost * rowWeight)) ].
-			targetRow < myRow ifTrue: [ biases at: #up put: (1.0 + (maxBoost * rowWeight)) ].
-			targetCol > myCol ifTrue: [ biases at: #right put: (1.0 + (maxBoost * colWeight)) ].
-			targetCol < myCol ifTrue: [ biases at: #left put: (1.0 + (maxBoost * colWeight)) ].
-		].
-		pathBiases at: pathID put: biases.
-	].
 	^ pathBiases
+]
+
+{ #category : 'collapse' }
+WSNode >> calculateWeightedTiles [
+	"Calulcate the weight for each tile for the choice"
+	
+	| pathBiases |
+	self pathTargets isEmpty ifTrue: [ 
+		^ self possibleTiles collect: [ :tile | tile -> tile weight ] ].
+		
+	pathBiases := self calculatePathBiases.
+	^ self possibleTiles collect: [ :tile | 
+		tile -> (tile weight * (self boostFactorFor: tile givenBiases: pathBiases)) ]
 ]
 
 { #category : 'accessing' }
@@ -215,6 +236,7 @@ WSNode >> copyWithoutEdges [
 		possibleTiles: self possibleTiles copy;
 		isCollapsed: self isCollapsed;
 		position: self position;
+		pathTargets: self pathTargets;
 		entropy: self entropy.
 
 ]
@@ -646,30 +668,18 @@ WSNode >> row [
 { #category : 'collapse' }
 WSNode >> selectInWhichTileToCollapse [
 	"Return the tile in which the node should collapse (weighted choice)"
-
-	| dynamicWeights totalWeight randomNumber randomEngine pathBiases |
-	self possibleTiles 
-		detect: [ :tile | tile isEmptyTile ] 
-		ifFound: [ :emptyTile | ^ emptyTile ].
-
-	self pathTargets isEmpty ifTrue: [
-		randomNumber := self sumOfWeights atRandom.
-		randomNumber <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
-		^ self possibleTiles detect: [ :tile |
-			randomNumber := randomNumber - tile weight.
-			randomNumber <= 0 ] ].
-	pathBiases := self calculatePathBiases.
-
-	dynamicWeights := self possibleTiles collect: [ :tile | 
-		tile -> (tile weight * (self boostFactorFor: tile givenBiases: pathBiases)) ].
-
-	totalWeight := dynamicWeights inject: 0 into: [ :sum :assoc | sum + assoc value ].
+	| weightedTiles totalWeight randomNumber |
+	
+	self possibleTiles detect: [ :tile | tile isEmptyTile ] ifFound: [ :emptyTile | ^ emptyTile ].
+	
+	weightedTiles := self calculateWeightedTiles.
+	totalWeight := weightedTiles sum: [ :assoc | assoc value ].
+	
 	totalWeight <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
-
-	randomEngine := Random new.
-	randomNumber := randomEngine next * totalWeight.
-
-	^ dynamicWeights 
+	
+	randomNumber := Random new next * totalWeight.
+	
+	^ weightedTiles 
 		detect: [ :assoc | 
 			randomNumber := randomNumber - assoc value.
 			randomNumber <= 0 ]
