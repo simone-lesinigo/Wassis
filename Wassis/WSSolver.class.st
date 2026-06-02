@@ -16,7 +16,7 @@ Class {
 	#tag : 'Core'
 }
 
-{ #category : 'instance creation' }
+{ #category : 'deprecated' }
 WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 
 	| graph |

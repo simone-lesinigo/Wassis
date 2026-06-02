@@ -18,7 +18,7 @@ Class {
 	#tag : 'Core'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'deprecated' }
 WSGraph class >> collapseClassPathExitsFor: classCollapsedNodes [
 	"Force the exits of the paths to be collapsed after the classes nodes"
 
