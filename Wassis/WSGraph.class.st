@@ -52,6 +52,28 @@ WSGraph class >> createClassNodesFrom: collapsedNodes [
 
 ]
 
+{ #category : 'creation' }
+WSGraph class >> createInitialHeapFrom: collapsedClassNodes [
+	"Create the initial heap for the execution. A min heap or a max heap can be chosen"
+	
+	 | initialHeap initValue |
+	
+	WSConfig isMinHeap 
+		ifTrue: [ 
+			initValue := SmallInteger minVal.
+			initialHeap := Heap new.
+		]
+		ifFalse: [ 
+			initValue := SmallInteger maxVal.
+			initialHeap := Heap sortBlock: [ :a :b | a >= b ].
+		].
+	
+	collapsedClassNodes do: [ :eachNode | eachNode entropy: initValue; sumOfWeights: initValue; sumOfWeightsLog: initValue ].
+	initialHeap addAll: collapsedClassNodes.
+	
+	^ initialHeap 
+]
+
 { #category : 'fuel support' }
 WSGraph class >> fuelIgnoredInstanceVariableNames [
 
@@ -71,7 +93,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 		nodes: allNodes;
 		topology: aTopology;
 		numberOfNodes: allNodes size;
-		minEntropyHeap: (Heap new addAll: collapsedNodes shuffled; yourself) 
+		minEntropyHeap: (self createInitialHeapFrom: collapsedNodes).
 
 ]
 

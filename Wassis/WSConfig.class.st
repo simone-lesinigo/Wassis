@@ -8,6 +8,7 @@ Class {
 		'ClassTileWeight',
 		'ConfigFile',
 		'EmptyTileWeight',
+		'HeapType',
 		'IsHeadless',
 		'MaxNumberOfRegeneratedGraph',
 		'MaxNumberOfTriesPerGraph',
@@ -87,6 +88,23 @@ WSConfig class >> firstPathSymbol [
 	^ 'firstPath'
 ]
 
+{ #category : 'accessing-heap' }
+WSConfig class >> heapType [
+	
+	HeapType ifNil: [ 
+		self heapType: 
+			(self configFile atPath:  {'heapType'} default: 'minHeap').
+	].
+
+	^ HeapType 
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> heapType: anObject [
+
+	HeapType := anObject
+]
+
 { #category : 'accessing' }
 WSConfig class >> isHeadless [ 
 
@@ -102,6 +120,18 @@ WSConfig class >> isHeadless [
 WSConfig class >> isHeadless: anObject [
 
 	IsHeadless := anObject
+]
+
+{ #category : 'accessing-heap' }
+WSConfig class >> isMaxHeap [
+	
+	^ self heapType = 'maxHeap'
+]
+
+{ #category : 'accessing-heap' }
+WSConfig class >> isMinHeap [
+
+	^ self heapType = 'minHeap'
 ]
 
 { #category : 'accessing' }
@@ -206,6 +236,7 @@ WSConfig class >> reset [
 	self isHeadless: nil.
 	self placementStrategy: nil.
 	self saveFailedExecution: nil.
+	self heapType: nil.
 	
 	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
 ]
