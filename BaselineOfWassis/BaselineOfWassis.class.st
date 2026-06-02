@@ -27,14 +27,10 @@ BaselineOfWassis >> baseline: spec [
 		 	spec 
 				baseline: 'RoassalExporters'
 				with: [ spec repository: 'github://pharo-graphics/RoassalExporters' ].
-			
-			spec
-    			baseline: 'ZION'
-   				with: [ spec repository: 'gitlab://gitlab.reveal.si.usi.ch:research/zion:main' ].
 
         spec 
             package: 'Wassis' 
-            with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON' 'ZION') ];
+            with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON') ];
 
             package: 'Wassis-Visualization'
             with: [ spec requires: #('Wassis' 'RoassalExporters') ];
