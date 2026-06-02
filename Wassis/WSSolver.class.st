@@ -294,7 +294,7 @@ WSSolver >> dimension [
 { #category : 'running' }
 WSSolver >> ensureHeapIsNotEmpty [
 
-    self graph entropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ]
+    self graph entropyHeap ifEmpty: [ self graph restoreEntropyHeap ]
 ]
 
 { #category : 'accessing' }
