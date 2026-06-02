@@ -1,6 +1,7 @@
 {
     "isHeadless": true,
     "saveFailedExecution": false,
+    "heapType": "maxHeap",
     "placementStrategy": "metricMDS",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
