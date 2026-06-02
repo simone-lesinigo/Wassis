@@ -6,7 +6,7 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'nodes',
-		'minEntropyHeap',
+		'entropyHeap',
 		'paths',
 		'numberOfNodes',
 		'numberOfCollapsedNodes',
@@ -77,7 +77,7 @@ WSGraph class >> createInitialHeapFrom: collapsedClassNodes [
 { #category : 'fuel support' }
 WSGraph class >> fuelIgnoredInstanceVariableNames [
 
-    ^ #('topology')
+    ^ #('topology' 'entropyHeap')
 ]
 
 { #category : 'instance creation' }
@@ -93,7 +93,7 @@ WSGraph class >> newWithStructure: aStructure andCollapsedNodes: collapsedNodes 
 		nodes: allNodes;
 		topology: aTopology;
 		numberOfNodes: allNodes size;
-		minEntropyHeap: (self createInitialHeapFrom: collapsedNodes).
+		entropyHeap: (self createInitialHeapFrom: collapsedNodes).
 
 ]
 
@@ -565,6 +565,18 @@ WSGraph >> destroyRandomLoops [
                 eachNode collapseTo: emptyTile ] ] ]
 ]
 
+{ #category : 'accessing' }
+WSGraph >> entropyHeap [
+
+	^ entropyHeap
+]
+
+{ #category : 'accessing' }
+WSGraph >> entropyHeap: anObject [
+
+	entropyHeap := anObject
+]
+
 { #category : 'deprecated' }
 WSGraph >> findOptimalPathWithID2: pathID andClasses: classes [
 	"Find optimal path between two classes. May change the exit for each class"
@@ -722,6 +734,15 @@ WSGraph >> followPath: aPath from: anEdge visited: visited pathID: aPathID [
         ^ self ].
 ]
 
+{ #category : 'serialization' }
+WSGraph >> fuelAfterMaterialization [
+	"Reinstall the sort block after Fuel deserialization"
+
+	entropyHeap := WSConfig isMinHeap
+		ifTrue: [ Heap new ]
+		ifFalse: [ Heap sortBlock: [ :a :b | a >= b ] ]
+]
+
 { #category : 'path optimization' }
 WSGraph >> getAdjacentClassForNode: aNode [
 	
@@ -857,18 +878,6 @@ WSGraph >> mergePathsWithSameID [
                 mergedPath := self mergePath: pathA withPath: pathB usingConnection: bestShortestPath pathID: pathID.
                 collectionOfPaths remove: pathA; remove: pathB; add: mergedPath.
 					  ] ] ]
-]
-
-{ #category : 'accessing' }
-WSGraph >> minEntropyHeap [
-
-	^ minEntropyHeap
-]
-
-{ #category : 'accessing' }
-WSGraph >> minEntropyHeap: anObject [
-
-	minEntropyHeap := anObject
 ]
 
 { #category : 'accessing' }
@@ -1112,7 +1121,7 @@ WSGraph >> restoreMinEntropyHeap [
 		nodeToAdd := nodesArray at: (nodesArray size atRandom). 
 		isCollapsed := nodeToAdd isCollapsed ].
 	
-	self minEntropyHeap add: nodeToAdd
+	self entropyHeap add: nodeToAdd
 ]
 
 { #category : 'deprecated' }
@@ -1299,7 +1308,7 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
 WSGraph >> selectNextNodeToCollapse [
 	"Returns the cell to collapse"
 
-	^ self minEntropyHeap removeFirst .
+	^ self entropyHeap removeFirst .
 
 ]
 
@@ -1586,10 +1595,10 @@ WSGraph >> updateExitTilesFor: generatedPath [
 WSGraph >> updateMinEntropyHeap: aNodesArray [
 	"Update the min heap by updating the position of each node that has been changed during a propagation wave"
 
-	self minEntropyHeap addAll: 
+	self entropyHeap addAll: 
 		(aNodesArray collect: [ 
 			:eachNode |
-				self minEntropyHeap remove: eachNode ifAbsent: [ ].
+				self entropyHeap remove: eachNode ifAbsent: [ ].
 				eachNode 
 			]
 		)

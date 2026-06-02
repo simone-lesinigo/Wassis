@@ -294,7 +294,7 @@ WSSolver >> dimension [
 { #category : 'running' }
 WSSolver >> ensureHeapIsNotEmpty [
 
-    self graph minEntropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ]
+    self graph entropyHeap ifEmpty: [ self graph restoreMinEntropyHeap ]
 ]
 
 { #category : 'accessing' }
@@ -467,7 +467,7 @@ WSSolver >> recordHeapSnapshot [
 	"Save a snapshot of the heap"
 
     self executionHistory historyOfMinEntropyHeap 
-        add: (self copyOfNodesWithoutEdges: self graph minEntropyHeap)
+        add: (self copyOfNodesWithoutEdges: self graph entropyHeap)
 ]
 
 { #category : 'running' }
