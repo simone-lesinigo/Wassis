@@ -397,7 +397,7 @@ WSSolver >> logTotalTries [
 	| totalNumberOfTries |
 	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
 	
-	(totalNumberOfTries \\ 1 = 0) ifTrue: [ 
+	(totalNumberOfTries \\ 10 = 0) ifTrue: [ 
 		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
 ]
 

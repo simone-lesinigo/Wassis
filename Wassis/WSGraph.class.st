@@ -316,7 +316,9 @@ WSGraph >> calculatePathMetrics [
 				efficiency: 1; 
 				shortestPath: eachPath nodes 
 			].
-	]
+	].
+
+	WSLogger log: 'Calculated Metrics'.
 ]
 
 { #category : 'path optimization' }
@@ -487,7 +489,9 @@ WSGraph >> createPaths [
                     
                     self assignSourceAndDestinationFor: newPath.
 						  self assignFirstAndLastNodesFor: newPath.
-                    (self paths at: pathID) add: newPath ] ] ] ]
+                    (self paths at: pathID) add: newPath ] ] ] ].
+
+WSLogger log: 'Paths created'.
 ]
 
 { #category : 'deprecated' }
@@ -877,7 +881,9 @@ WSGraph >> mergePathsWithSameID [
                 pathB := bestPair value.
                 mergedPath := self mergePath: pathA withPath: pathB usingConnection: bestShortestPath pathID: pathID.
                 collectionOfPaths remove: pathA; remove: pathB; add: mergedPath.
-					  ] ] ]
+					  ] ] ].
+		
+	WSLogger log: 'Merged Path'.
 ]
 
 { #category : 'accessing' }
