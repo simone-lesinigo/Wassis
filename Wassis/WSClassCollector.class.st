@@ -11,12 +11,12 @@ Class {
 
 { #category : 'creation' }
 WSClassCollector >> createConnectionsOn: aDictionary [
-
-	^ self subclassResponsibility 
+	
+	^ self subclassResponsibility
 ]
 
 { #category : 'creation' }
-WSClassCollector >> createNodesFor: aClass [
+WSClassCollector >> createNodes [ 
 	
-	^ self subclassResponsibility 
+	^ self subclassResponsibility
 ]

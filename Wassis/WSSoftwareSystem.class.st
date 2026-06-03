@@ -16,18 +16,18 @@ Class {
 }
 
 { #category : 'instance creation' }
-WSSoftwareSystem class >> createForClass: aClass usingStrategy: aStrategy [
+WSSoftwareSystem class >> usingStrategy: aStrategy [
 	"Create the necessary WSClass objects using the selected strategy"
 	
 	| instance dict |
 	instance := self new.
 	
-	dict := aStrategy createNodesFor: aClass.
+	dict := aStrategy createNodes.
 
 	aStrategy createConnectionsOn: dict.
 	
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
-	
+
 	"instance createPathIDsFromClasses."
 	instance 
 		createPathIDsFromClassesAllowinMerge; 

@@ -434,6 +434,7 @@ WSSolver >> onContradiction [
 	"Method executed when a contradiction has been found"
 
 	| bt | 
+	"self createTemporaryVisualization. self halt."
 	self updateExecutionHistory.
 	
 	bt := self backtracking.

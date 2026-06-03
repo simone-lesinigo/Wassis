@@ -122,8 +122,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
-		createForClass: RSEvent
-		usingStrategy: WSHierarchyClassCollector new.
+		usingStrategy: (WSFullHierarchyCollector withOriginClass: InstructionClient).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
@@ -174,7 +173,7 @@ WSExamples class >> exampleRunRectangularGrid2 [
 	adaptiveSolver run
 ]
 
-{ #category : 'garbageCollect' }
+{ #category : 'finding' }
 WSExamples class >> exploreZion [
 
 	| graph diagram getterSetterCalls |
@@ -203,7 +202,7 @@ WSExamples class >> findClasses [
 	    | sw connections |
 	    sw := WSSoftwareSystem 
 	        createForClass: eachClass 
-	        usingStrategy: WSHierarchyClassCollector new.
+	        usingStrategy: WSFullHierarchyCollector new.
 	    connections := sw allConnectionsPerClass.
 	    
 	    ((sw classes size between:45 and: 50) 

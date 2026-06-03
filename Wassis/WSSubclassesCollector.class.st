@@ -3,21 +3,11 @@ Strategy to collect a class with all of its subclasses
 "
 Class {
 	#name : 'WSSubclassesCollector',
-	#superclass : 'WSClassCollector',
+	#superclass : 'WSHierarchyCollector',
 	#category : 'Wassis-Scraping',
 	#package : 'Wassis',
 	#tag : 'Scraping'
 }
-
-{ #category : 'creation' }
-WSSubclassesCollector >> createConnectionsOn: aDictionary [
-	
-	aDictionary keysAndValuesDo: [ :aKey : aValue | 
-		aDictionary at: (aKey superclass) ifPresent: [ :superNode |
-			aValue addRelation: (WSRelationType inheritance) withClass: superNode.
-		]
-	]
-]
 
 { #category : 'creation' }
 WSSubclassesCollector >> createNodesFor: aClass [
