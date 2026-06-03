@@ -1,7 +1,7 @@
 | swSystem adaptiveSolver |
 
 swSystem := WSSoftwareSystem 
-	createForClass: AlignmentMorph
+	createForClass: RSEvent
 	usingStrategy: WSHierarchyClassCollector new.
 
 adaptiveSolver := 

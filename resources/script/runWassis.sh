@@ -6,7 +6,7 @@ PHARO_VM="$SCRIPT_DIR/../../../../../../pharo"
 IMAGE="$SCRIPT_DIR/../../../../../../Pharo.image"
 
 ST_FILE="solver.st"
-INSTANCES=22
+INSTANCES=8
 
 pids=()
 
