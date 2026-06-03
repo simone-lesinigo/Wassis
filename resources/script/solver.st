@@ -1,8 +1,8 @@
 | swSystem adaptiveSolver |
 
 swSystem := WSSoftwareSystem 
-	createForClass: RSEvent
-	usingStrategy: WSHierarchyClassCollector new.
+	usingStrategy: 
+		(WSFullHierarchyCollector withOriginClass: InstructionClient).
 
 adaptiveSolver := 
 	WSAdaptive2DGridSolver 
