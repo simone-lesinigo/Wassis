@@ -18,7 +18,7 @@ WSClassConnection class >> withTarget: aTarget andRelation: aRelation [
 	
 	| newInstance |
 	newInstance := self new target: aTarget.
-	newInstance relations add: aRelation.
+	newInstance addRelation: aRelation.
 
 	^ newInstance.
 ]
@@ -33,17 +33,23 @@ WSClassConnection class >> withTarget: aTarget andRelations: aRelationsArray [
 	^ newInstance.
 ]
 
-{ #category : 'initialization' }
+{ #category : 'adding' }
 WSClassConnection >> addRelation: aRelation [
-
-	self relations add: aRelation 
+	
+	self relations 
+		detect: [ :eachRelation | aRelation name = eachRelation name ]
+		ifFound: [ :foundRelation | 
+			foundRelation count: foundRelation count + 1.
+			foundRelation weight: foundRelation weight + aRelation weight ]
+		ifNone: [ self relations add: aRelation copy ].
+	
 ]
 
 { #category : 'initialization' }
 WSClassConnection >> initialize [ 
 	
 	super initialize.
-	self relations: OrderedCollection new
+	self relations: OrderedCollection new.
 ]
 
 { #category : 'accessing' }

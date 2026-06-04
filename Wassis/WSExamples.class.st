@@ -117,13 +117,33 @@ WSExamples class >> exampleRunHexagonalGrid [
 ]
 
 { #category : 'WSSolver' }
+WSExamples class >> exampleRunJetUml [
+"InstructionClient" "MCReader" "TaAbstractComposition"
+	| swSystem adaptiveSolver |
+
+	swSystem := WSSoftwareSystem 
+		usingStrategy: 
+			(WSJetUmlCollector jsonFile: 'jetuml.json' forPackage: 'org.jetuml.diagram').
+self halt.
+	adaptiveSolver := 
+		WSAdaptive2DGridSolver 
+			withTopology: WS2DRectangularGridTopology 
+			andSwSystem: swSystem.
+
+	adaptiveSolver run.
+	
+		
+
+]
+
+{ #category : 'WSSolver' }
 WSExamples class >> exampleRunRectangularGrid [
 "InstructionClient" "MCReader" "TaAbstractComposition"
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSFullHierarchyCollector withOriginClass: InstructionClient).
+			(WSFullHierarchyCollector withOriginClass: File).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 

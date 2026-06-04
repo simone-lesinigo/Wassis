@@ -6,7 +6,8 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'name',
-		'weight'
+		'weight',
+		'count'
 	],
 	#classInstVars : [
 		'inheritance',
@@ -34,27 +35,54 @@ WSRelationType class >> association [
 { #category : 'accessing' }
 WSRelationType class >> inheritance [
 
-	inheritance ifNil: [
+	^ self new
+		name: #inheritance;
+		weight: 1 
+		
+"	inheritance ifNil: [
 		inheritance := 
 			self new
 				name: #inheritance;
 				weight: 1 
 			].
 
-	^ inheritance
+	^ inheritance"
 ]
 
 { #category : 'accessing' }
 WSRelationType class >> usage [
 
-	usage ifNil: [
+	^ self new
+		name: #usage;
+		weight: 0.5
+
+"	usage ifNil: [
 		usage := 
 			self new
 				name: #usage;
 				weight: 0.5
 			].
 
-	^ usage 
+	^ usage "
+]
+
+{ #category : 'accessing' }
+WSRelationType >> count [
+
+	^ count
+]
+
+{ #category : 'accessing' }
+WSRelationType >> count: anObject [
+
+	count := anObject
+]
+
+{ #category : 'initialization' }
+WSRelationType >> initialize [ 
+	
+	super initialize.
+	self count: 1
 ]
 
 { #category : 'accessing' }

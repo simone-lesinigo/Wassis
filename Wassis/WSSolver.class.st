@@ -268,7 +268,11 @@ WSSolver >> createTemporaryVisualization [
 	| copyOfSelf uncollapsedTile |
 	uncollapsedTile := self topology createUncollapsedTile.
 	copyOfSelf := self veryDeepCopy.
-	copyOfSelf graph nodes do: [ :eachNode | eachNode isCollapsed ifFalse: [ eachNode collapseTo: uncollapsedTile] ].
+	copyOfSelf graph nodes do: [ :eachNode | 
+		eachNode isNotCollapsed ifTrue: [
+       	(eachNode hasZeroPossibleTiles)
+                ifTrue: [ eachNode collapseTo: self topology createErrorTile ]
+                ifFalse: [  eachNode collapseTo: uncollapsedTile ] ] ].
 	copyOfSelf createVisualization
 	
 ]
@@ -496,7 +500,7 @@ WSSolver >> reifyWFCPaths [
 		self graph paths at: key put: value first.
 	].
 	self graph setPathLengths.
-	self graph calculatePathMetrics.
+	"self graph calculatePathMetrics."
 
 	
 	

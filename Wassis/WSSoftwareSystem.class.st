@@ -27,13 +27,12 @@ WSSoftwareSystem class >> usingStrategy: aStrategy [
 	aStrategy createConnectionsOn: dict.
 	
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
-
 	"instance createPathIDsFromClasses."
 	instance 
 		createPathIDsFromClassesAllowinMerge; 
 		createAllConnectionsPerClass;
 		createClassesPerPathID.
-	
+
 	^ instance
 	
 	
