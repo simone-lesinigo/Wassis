@@ -123,8 +123,12 @@ WSExamples class >> exampleRunJetUml [
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSJetUmlCollector jsonFile: 'jetuml.json' forPackage: 'org.jetuml.diagram').
-self halt.
+			(WSJavaCollector 
+				jsonFile: 'jetuml.json' 
+				forPackage: 'org.jetuml.diagram'     
+				using: { 
+					[ :cls | cls superclass] }).
+
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
 			withTopology: WS2DRectangularGridTopology 
@@ -197,18 +201,18 @@ WSExamples class >> exampleRunRectangularGrid2 [
 { #category : 'finding' }
 WSExamples class >> exploreZion [
 
-	| graph diagram getterSetterCalls |
+	| graph diagram  |
 	graph := ZNJavaGraph fromJsonAt: FileLocator desktop / 'jetuml.json'.
 
 	diagram := graph modelPackages detect: [ :eachPkg | eachPkg id = 'org.jetuml.diagram' ].
-	getterSetterCalls :=
-	    diagram outgoingRelationships select: [ :edge |
-	        edge isJavaCallableInvocationEdge and: [
-	            edge target isJavaGetterMethod or: [ edge target isJavaSetterMethod ]
-	        ]
-	 ].
+	diagram outgoingRelationships select: #isJavaCallableInvocationEdge.
+
+	diagram outgoingRelationships select: [ :edge |
+	   		edge target isJavaGetterMethod or: [ edge target isJavaSetterMethod ]
+	].
+
+	diagram outgoingRelationships select: #isJavaFieldReadEdge.
 	diagram outgoingRelationships select: #isJavaFieldWriteEdge.
-	diagram outgoingRelationships select: #isJavaCallableInvocationEdge
 
 
 ]
@@ -247,7 +251,7 @@ WSExamples class >> loadSolutionFromFile [
 	<script>
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-02-06-2026_14h10m41s.fuel') fullName.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / '') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
 ]
