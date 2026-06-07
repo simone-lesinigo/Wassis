@@ -5,7 +5,8 @@ Class {
 	#name : 'WSPathTile',
 	#superclass : 'WSTile',
 	#instVars : [
-		'pathIDs'
+		'pathIDs',
+		'arrowInDirection'
 	],
 	#category : 'Wassis-Core',
 	#package : 'Wassis',
@@ -54,6 +55,18 @@ WSPathTile >> addItemToMenu: aMenu onNode: aNode usingSolver: aSolver [
 		add: 'Optimize Path'
    		target: [ self optimizePath: currentPathID withSolver: aSolver ]
       selector: #value.
+]
+
+{ #category : 'accessing' }
+WSPathTile >> arrowInDirection [
+
+	^ arrowInDirection
+]
+
+{ #category : 'accessing' }
+WSPathTile >> arrowInDirection: anObject [
+
+	arrowInDirection := anObject
 ]
 
 { #category : 'visualization' }

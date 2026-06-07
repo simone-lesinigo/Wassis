@@ -6,7 +6,8 @@ Class {
 	#superclass : 'WSTileVisitor',
 	#classInstVars : [
 		'formCache',
-		'originalPathFormCache'
+		'originalPathFormCache',
+		'originalPathArrowFormCache'
 	],
 	#category : 'Wassis-Visualization-Visualization',
 	#package : 'Wassis-Visualization',
@@ -18,6 +19,7 @@ WS2DSquareVisitor class >> clearCache [
 	
 	self formCache: nil.
 	self originalPathFormCache: nil.
+	self originalPathArrowFormCache: nil
 ]
 
 { #category : 'drawing' }
@@ -62,15 +64,52 @@ WS2DSquareVisitor class >> generateSolidFormWithColor: aColor [
 		form  ]
 ]
 
-{ #category : 'drawing' }
+{ #category : 'loading' }
+WS2DSquareVisitor class >> loadOriginalPathArrowForms [
+
+    | directions |
+    directions := WS2DRectangularGridTopology allSymbols.
+    1 to: 14 do: [ :id |
+        directions do: [ :dir |
+            | path |
+            path := self tilesPath / 'withArrows' 
+                / id printString 
+                / (id printString, '-arrow-' , dir , '.png').
+            path exists ifTrue: [
+                | form |
+                form := ImageReadWriter formFromFileNamed: path.
+                form := form scaledToSize: (self tileSize @ self tileSize).
+                self originalPathArrowFormCache at: id -> dir put: form
+            ]
+        ]
+    ]
+]
+
+{ #category : 'loading' }
 WS2DSquareVisitor class >> loadOriginalPathForms [
     
     1 to: 14 do: [ :id |
         | path form |
-        path := WSObject resourcesRootPath / 'tiles' / 'rectangularGrid' / 'png' / (id printString , '.png').
+        path := self tilesPath / (id printString , '.png').
         form := ImageReadWriter formFromFileNamed: path.
 		  form := form scaledToSize: (self tileSize @ self tileSize).
         self originalPathFormCache at: id put: form ]
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> originalPathArrowFormCache [
+
+    originalPathArrowFormCache ifNil: [
+        originalPathArrowFormCache := Dictionary new.
+        self loadOriginalPathArrowForms
+    ].
+    ^ originalPathArrowFormCache
+]
+
+{ #category : 'accessing' }
+WS2DSquareVisitor class >> originalPathArrowFormCache: anObject [
+
+	originalPathArrowFormCache := anObject
 ]
 
 { #category : 'accessing' }
@@ -90,7 +129,7 @@ WS2DSquareVisitor class >> originalPathFormCache: anObject [
 	originalPathFormCache := anObject
 ]
 
-{ #category : 'drawing' }
+{ #category : 'deprecated' }
 WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 	"Create the form for a path tile"
 	
@@ -104,7 +143,7 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColor: aColor [
 		form  ]
 ]
 
-{ #category : 'drawing' }
+{ #category : 'deprecated' }
 WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr [
 	"Create the form for a path tile"
 
@@ -121,6 +160,31 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr [
 				          replacingColors: colorsToReplace
 				          withColors: aColorsArr.
 			  form ]
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr arrowDirection: aDirectionOrNil [
+	 "Create the form for a path tile"
+    | cacheKey |
+    cacheKey := aPathTileID -> aColorsArr -> aDirectionOrNil.
+    ^ self formCache at: cacheKey ifAbsentPut: [
+        | originalForm form colorsToReplace |
+        (aPathTileID between: 1 and: 11) ifTrue: [ colorsToReplace := { Color black } ].
+        aPathTileID = 12 ifTrue: [ colorsToReplace := { Color blue. Color red } ].
+        (#( 13 14 ) includes: aPathTileID) ifTrue: [ colorsToReplace := { Color black. Color red } ].
+        
+        originalForm := aDirectionOrNil
+            ifNil: [ self originalPathFormCache at: aPathTileID ]
+            ifNotNil: [ 
+                self originalPathArrowFormCache 
+                    at: aPathTileID -> aDirectionOrNil 
+                    ifAbsent: [ self originalPathFormCache at: aPathTileID ] "fallback"
+            ].
+        form := self colorizePathForm: originalForm
+                    replacingColors: colorsToReplace
+                    withColors: aColorsArr.
+        form
+    ]
 ]
 
 { #category : 'drawing' }
@@ -144,6 +208,12 @@ WS2DSquareVisitor class >> renderSolidFormWithColor: aColor [
 WS2DSquareVisitor class >> tileSize [
 
 	^ WS2DRectangularGridConfig squareVisitorTileSize
+]
+
+{ #category : 'path' }
+WS2DSquareVisitor class >> tilesPath [
+
+	^ WSObject resourcesRootPath / 'tiles' / 'rectangularGrid' / 'png'
 ]
 
 { #category : 'adding' }
@@ -186,7 +256,7 @@ WS2DSquareVisitor >> visitErrorTile: errorTile [
 ]
 
 { #category : 'visualization' }
-WS2DSquareVisitor >> visitPathTile: pathTile [
+WS2DSquareVisitor >> visitPathTile2: pathTile [
 
 	| shape normalForm highlightedForm colors |
 	shape := RSBitmap new.
@@ -203,6 +273,27 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
 
 	self addHoverTo: shape.
 	^ shape
+]
+
+{ #category : 'visualization' }
+WS2DSquareVisitor >> visitPathTile: pathTile [
+
+    | shape normalForm highlightedForm colors arrowDir |
+    shape := RSBitmap new.
+    arrowDir := pathTile arrowInDirection.
+    colors := OrderedCollection new.
+    colors addAll: (pathTile pathIDs collect: [ :eachPathID | 
+        self pathIDColorDictionary at: (eachPathID substrings: '-') last ]).
+    
+    normalForm := self class renderFormForID: pathTile id withColors: colors arrowDirection: arrowDir.
+    highlightedForm := self class renderFormForID: pathTile id 
+                           withColors: (Array new: colors size withAll: Color black) 
+                           arrowDirection: arrowDir.
+    shape form: normalForm.
+    shape propertyAt: #normalForm put: normalForm.
+    shape propertyAt: #highlightForm put: highlightedForm.
+    self addHoverTo: shape.
+    ^ shape
 ]
 
 { #category : 'visiting' }

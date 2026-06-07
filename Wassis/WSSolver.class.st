@@ -152,6 +152,19 @@ WSSolver >> allPathIDs [
 	^ self topology allPathIDs 
 ]
 
+{ #category : 'as yet unclassified' }
+WSSolver >> assignArrowDirections [
+	"Assign the direction in which the arrow should be"
+
+	self graph paths do: [ :eachPath |
+		eachPath lastNodes do: [ :eachLastNode |
+			| edge |
+			edge := eachLastNode outgoingEdges detect: [ :eachEdge | eachEdge target isClassNode ] ifNone: [ nil ].
+			eachLastNode tileInWhichCollapsed arrowInDirection: edge direction.
+		]
+	]
+]
+
 { #category : 'accessing' }
 WSSolver >> backtracking [
 
@@ -501,6 +514,7 @@ WSSolver >> reifyWFCPaths [
 	].
 	self graph setPathLengths.
 	"self graph calculatePathMetrics."
+	 self assignArrowDirections.
 
 	
 	
