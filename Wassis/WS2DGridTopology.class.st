@@ -137,7 +137,7 @@ WS2DGridTopology >> createClassesPlacingOrder [
 	
     | startClass visited queue result |
 		^ self swSystem classes shuffled.
-    startClass := self swSystem classes detectMax: [ :each | (self swSystem allConnectionsOf: each) size ].
+   " startClass := self swSystem classes detectMax: [ :each | (self swSystem allConnectionsOf: each) size ].
     
     result := OrderedCollection new. 
     visited := Set new.             
@@ -164,7 +164,7 @@ WS2DGridTopology >> createClassesPlacingOrder [
             result add: each.
             visited add: each ] ].
 
-    ^ result
+    ^ result"
 ]
 
 { #category : 'matrix' }

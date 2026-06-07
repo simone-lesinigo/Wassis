@@ -127,7 +127,9 @@ WSExamples class >> exampleRunJetUml [
 				jsonFile: 'jetuml.json' 
 				forPackage: 'org.jetuml.diagram'     
 				using: { 
-					[ :cls | cls superclass] }).
+				    [ :cls | cls superclass ] -> WSRelationType inheritance.
+				    [ :cls | cls outgoingRelationships select: #isJavaFieldReadEdge thenCollect: [ :e | e target parent ] ] -> WSRelationType usage
+				}).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 

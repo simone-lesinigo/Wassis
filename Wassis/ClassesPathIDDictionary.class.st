@@ -10,38 +10,30 @@ Class {
 }
 
 { #category : 'accessing' }
-ClassesPathIDDictionary >> at: anAssociation [
-	
-	^ super at: (self createKey: anAssociation)
-	
+ClassesPathIDDictionary >> at: source and: destination and: relationType [
+
+    ^ super at: (self keyFor: source and: destination and: relationType)
 ]
 
 { #category : 'accessing' }
-ClassesPathIDDictionary >> at: anAssociation ifAbsent: aBlock [
+ClassesPathIDDictionary >> at: source and: destination and: relationType ifAbsent: aBlock [
 
-   ^ super at: (self createKey: anAssociation) ifAbsent: aBlock
+    ^ super at: (self keyFor: source and: destination and: relationType) ifAbsent: aBlock
 ]
 
 { #category : 'accessing' }
-ClassesPathIDDictionary >> at: anAssociation ifAbsentPut: aBlock [
-   
-   ^ super at: (self createKey: anAssociation) ifAbsentPut: aBlock
+ClassesPathIDDictionary >> at: source and: destination and: relationType put: anObject [
+
+    ^ super at: (self keyFor: source and: destination and: relationType) put: anObject
 ]
 
-{ #category : 'accessing' }
-ClassesPathIDDictionary >> at: anAssociation put: anObject [
-	
-   ^ super at: (self createKey:anAssociation) put: anObject
-	
-]
-
-{ #category : 'creation' }
+{ #category : 'deprecated' }
 ClassesPathIDDictionary >> createKey: anAssociation [
 	
 	^ self keyFor: anAssociation key and: anAssociation value
 ]
 
-{ #category : 'accessing' }
+{ #category : 'deprecated' }
 ClassesPathIDDictionary >> keyFor: classA and: classB [
 	
 	classA id < classB id
@@ -49,7 +41,13 @@ ClassesPathIDDictionary >> keyFor: classA and: classB [
 		ifFalse: [  ^ classB -> classA ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'creating' }
+ClassesPathIDDictionary >> keyFor: source and: destination and: relationType [
+
+    ^ { source . destination . relationType name }
+]
+
+{ #category : 'deprecated' }
 ClassesPathIDDictionary >> pathIDsFor: aClass withConnections: aClassesCollection [
 	"Given a class and an OrderedCollection of classes connected to that class, returns all the pathIDs of aClass"
 

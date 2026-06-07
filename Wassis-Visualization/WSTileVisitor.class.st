@@ -60,7 +60,7 @@ WSTileVisitor class >> resetPathIDColorDictionary [
 ]
 
 { #category : 'instance creation' }
-WSTileVisitor class >> withPathIDs: aPathIDsArray [
+WSTileVisitor class >> withPathIDs2: aPathIDsArray [
 	
 	self clearCache.
 	((aPathIDsArray ~= PathIDCache) or: [ PathIDColorDictionary isNil ]) ifTrue: [
@@ -82,6 +82,26 @@ WSTileVisitor class >> withPathIDs: aPathIDsArray [
 		pathIDColorDictionary: PathIDColorDictionary 
 	
 	
+]
+
+{ #category : 'instance creation' }
+WSTileVisitor class >> withPathIDs: aPathIDsArray [
+    self clearCache.
+    ((aPathIDsArray ~= PathIDCache) or: [ PathIDColorDictionary isNil ]) ifTrue: [
+        | pcd |
+        pcd := Dictionary new.
+		  pcd at: 'inheritance' put: Color blue.
+		  pcd at: 'usage' put: Color red. 
+        
+        pcd at: WSConfig firstPathSymbol put: Color black.
+        pcd at: WSConfig secondPathSymbol put: Color black.
+        
+        PathIDColorDictionary := pcd.
+        PathIDCache := aPathIDsArray 
+    ].
+
+    ^ self new
+        pathIDColorDictionary: PathIDColorDictionary
 ]
 
 { #category : '2Disometric' }

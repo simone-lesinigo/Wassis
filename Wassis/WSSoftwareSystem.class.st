@@ -27,9 +27,9 @@ WSSoftwareSystem class >> usingStrategy: aStrategy [
 	aStrategy createConnectionsOn: dict.
 	
 	dict valuesDo: [ :eachClass | instance addClass: eachClass ].
-	"instance createPathIDsFromClasses."
+
 	instance 
-		createPathIDsFromClassesAllowinMerge; 
+		createPathIDsFromClassesAllowinMerge;
 		createAllConnectionsPerClass;
 		createClassesPerPathID.
 
@@ -110,32 +110,30 @@ WSSoftwareSystem >> createAllConnectionsPerClass [
 	"Create a dictionary. The key is a class, the value is a Set with all the classes thata are connected to that class (undirected)"
 
 	self allConnectionsPerClass: Dictionary new.
-	
-	self classes do: [ :eachClass | 
-   		self allConnectionsPerClass at: eachClass ifAbsentPut: [ Set new ] ].
 	 	
 	self classes do: [ :eachClass |
    		eachClass connectedWith do: [ :eachConnection |
       		| target |
          target := eachConnection target.
-         (self allConnectionsPerClass at: eachClass) add: target.
+         (self allConnectionsPerClass at: eachClass ifAbsentPut: [ Set new ]) add: target.
          (self allConnectionsPerClass at: target ifAbsentPut: [ Set new ]) add: eachClass ] ]
 ]
 
 { #category : 'creation' }
 WSSoftwareSystem >> createClassesPerPathID [
-	"For each pathID, provides the classes that share that ID"
-	
-	classesPathIDs keysAndValuesDo: [ :classPair :pathID |
-    	| classSet |
-    	classSet := pathIDToClasses at: pathID ifAbsentPut: [ Set new ].
+    "For each pathID, provides the classes that share that ID"
     
-    	classSet add: classPair key; add: classPair value ].
-	
-	
+    self classesPathIDs keysAndValuesDo: [ :compositeKey :pathID |
+        | classSet source destination |
+     
+        source := compositeKey first.
+        destination := compositeKey second.
+        
+        classSet := self pathIDToClasses at: pathID ifAbsentPut: [ Set new ].
+        classSet add: source; add: destination ].
 ]
 
-{ #category : 'creation' }
+{ #category : 'deprecated' }
 WSSoftwareSystem >> createPathIDsFromClasses [
 	"Create all the necessary pathIDs to connect the classes and them to the PathIDs collection"
 	
@@ -152,6 +150,33 @@ WSSoftwareSystem >> createPathIDsFromClasses [
 
 { #category : 'creation' }
 WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge [
+    "Classes that are connected to the same class share the same pathID"
+    
+    | destinationTypeToSources |
+    destinationTypeToSources := Dictionary new.
+    
+    self classes do: [ :eachClass |
+        eachClass connectedWith do: [ :eachConnection |
+            eachConnection relations do: [ :eachRelation |
+                | key |
+                key := eachConnection target -> eachRelation.
+                (destinationTypeToSources at: key ifAbsentPut: [ OrderedCollection new ]) add: eachClass ] ] ].
+
+    destinationTypeToSources keysAndValuesDo: [ :destAndType :sources |
+        | destination relationType allIDs pathID |
+        destination := destAndType key.
+        relationType := destAndType value.
+        allIDs := ((sources collect: [ :s | s id ]) copyWith: destination id) asSortedCollection.
+        pathID := (allIDs inject: '' into: [ :acc :id | acc , id printString ]) , '-' , relationType name.
+        
+        sources do: [ :source |
+            self classesPathIDs 
+                at: source and: destination and: relationType 
+                put: pathID ] ]
+]
+
+{ #category : 'creation' }
+WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge2 [
     "Classes that are connected to the same class share the same pathID"
     
         | destinationToSources |
@@ -214,4 +239,14 @@ WSSoftwareSystem >> pathIDsOf: aClass [
 	"Returns an OrderedCollection of PathIDs linked to a class"
 	
 	^ self classesPathIDs pathIDsFor: aClass withConnections: (self allConnectionsOf: aClass)
+]
+
+{ #category : 'as yet unclassified' }
+WSSoftwareSystem >> pathIDsOf: class1 and: class2 [
+    "Returns all pathIDs between two classes, one per relation type"
+
+    ^ self classesPathIDs keys
+        select: [ :key | (key first = class1 and: [ key second = class2 ])
+                      or: [ key first = class2 and: [ key second = class1  ] ] ]
+        thenCollect: [ :key | self classesPathIDs at: key ]
 ]

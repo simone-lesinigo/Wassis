@@ -66,6 +66,12 @@ WSRelationType class >> usage [
 	^ usage "
 ]
 
+{ #category : 'comparing' }
+WSRelationType >> = aRelation [
+	
+	^ self name = aRelation name
+]
+
 { #category : 'accessing' }
 WSRelationType >> count [
 
@@ -76,6 +82,12 @@ WSRelationType >> count [
 WSRelationType >> count: anObject [
 
 	count := anObject
+]
+
+{ #category : 'comparing' }
+WSRelationType >> hash [ 
+
+	^ self name hash
 ]
 
 { #category : 'initialization' }

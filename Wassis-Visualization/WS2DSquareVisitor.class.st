@@ -191,7 +191,7 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
 	| shape normalForm highlightedForm colors |
 	shape := RSBitmap new.
 	colors := OrderedCollection new.
-	colors addAll: (pathTile pathIDs collect: [ :eachPathID | self pathIDColorDictionary at: eachPathID ]).
+	colors addAll: (pathTile pathIDs collect: [ :eachPathID | self pathIDColorDictionary at: (eachPathID substrings: '-') last ]).
     
 	normalForm := self class renderFormForID: pathTile id withColors: colors.
 

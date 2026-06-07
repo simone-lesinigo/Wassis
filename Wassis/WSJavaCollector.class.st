@@ -26,11 +26,13 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: some
     | validClasses |
     validClasses := aCollectionOfClasses reject: [ :each | each isLikelyTest or: [ each isException ] ].
 
+	validClasses := validClasses first: (2 min: validClasses size).
+
     ^ (validClasses flatCollect: [ :eachClass |
         | related |
-        related := someFilters flatCollect: [ :filter | 
+        related := someFilters flatCollect: [ :assoc | 
             | result |
-            result := filter value: eachClass.
+            result := assoc key value: eachClass.
             result ifNil: [ { } ] ifNotNil: [ result isCollection ifTrue: [ result ] ifFalse: { result } ] ].
         related isEmpty
             ifTrue: [ { } ]
@@ -158,19 +160,23 @@ WSJavaCollector >> classes: anObject [
 WSJavaCollector >> createConnectionsOn: aDictionary [
 
     aDictionary keysAndValuesDo: [ :aKey :aValue |
-        | matchingEdges |
-        matchingEdges := aKey outgoingRelationships select: [ :edge | filters anySatisfy: [ :filter | filter value: edge ] ].
-        matchingEdges do: [ :eachEdge |
-            | targetJavaClass targetWSClass |
-            targetJavaClass := eachEdge target parent.
-            targetWSClass := aDictionary at: targetJavaClass ifAbsent: [ nil ].
-            targetWSClass ifNotNil: [
-                targetJavaClass = aKey ifFalse: [
-                    aValue addRelation: WSRelationType usage withClass: targetWSClass
-                ]
-            ]
-        ]
-    ]
+        filters do: [ :assoc |
+            | result |
+            result := assoc key value: aKey.
+
+            result ifNotNil: [  
+	            (result isCollection ifTrue: [ result ] ifFalse: { result }) do: [ :targetJavaClass |
+	                | targetWSClass |
+	                targetWSClass := aDictionary at: targetJavaClass ifAbsent: [ nil ].
+	                targetWSClass ifNotNil: [
+	                    targetJavaClass = aKey ifFalse: [
+	                        aValue addRelation: assoc value withClass: targetWSClass
+                    		]
+               		 ]
+            		] 
+        		]
+    		]
+		]
 ]
 
 { #category : 'creation' }

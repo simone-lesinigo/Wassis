@@ -259,8 +259,8 @@ WS2DRectangularGridTopology >> calculateDistancesBetweenClasses [
 	^ dict
 ]
 
-{ #category : 'directions' }
-WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
+{ #category : 'deprecated-directions' }
+WS2DRectangularGridTopology >> computeConnectionDirectionsFor2: aClass withFootprint: aFootprint [
     "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
 
 	 | pathIDToClasses connectionDirections sourceCenter |
@@ -283,6 +283,33 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
 		    inject: 0 into: [ :sum :row | sum + row ]) / classes size.
         "Crea un nodo virtuale per il centroide"
         centroidNode := WSNode new position: {centroidRow rounded . centroidColumn rounded}.
+        directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
+        connectionDirections at: pathID put: directions ].
+    
+    ^ connectionDirections
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
+    "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
+
+	 | pathIDToClasses connectionDirections sourceCenter |
+    connectionDirections := Dictionary new.
+    sourceCenter := aFootprint centerNode.
+    pathIDToClasses := Dictionary new.
+    
+    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
+        (self swSystem pathIDsOf: aClass and: eachConnectedClass) do: [ :pathID |
+            (pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) 
+                add: eachConnectedClass ] ].
+
+    pathIDToClasses keysAndValuesDo: [ :pathID :classes |
+        | centroidColumn centroidRow centroidNode directions |
+        centroidColumn := ((classes collect: [ :c | (self classFootprint at: c) centerNode column ]) 
+            inject: 0 into: [ :sum :col | sum + col ]) / classes size.
+        centroidRow := ((classes collect: [ :c | (self classFootprint at: c) centerNode row ])
+            inject: 0 into: [ :sum :row | sum + row ]) / classes size.
+        centroidNode := WSNode new position: { centroidRow rounded . centroidColumn rounded }.
         directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
         connectionDirections at: pathID put: directions ].
     
