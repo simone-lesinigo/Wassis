@@ -253,7 +253,7 @@ WSExamples class >> loadSolutionFromFile [
 	<script>
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-08-06-2026_10h26m15s.fuel') fullName.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'nice_sol.fuel') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
 ]

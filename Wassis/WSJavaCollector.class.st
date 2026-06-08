@@ -25,7 +25,7 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: some
 
     | validClasses |
     validClasses := aCollectionOfClasses reject: [ :each | each isLikelyTest or: [ each isException ] ].
-	validClasses := validClasses first: (2 min: validClasses size).
+	validClasses := validClasses first: (6 min: validClasses size).
 
     ^ (validClasses flatCollect: [ :eachClass |
         | related |
