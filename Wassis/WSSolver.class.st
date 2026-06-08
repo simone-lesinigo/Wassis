@@ -153,7 +153,7 @@ WSSolver >> allPathIDs [
 ]
 
 { #category : 'as yet unclassified' }
-WSSolver >> assignArrowDirections [
+WSSolver >> assignArrowDirectionsToAllPaths [
 	"Assign the direction in which the arrow should be for all paths"
 
 	self graph paths do: [ :eachPath |
@@ -505,12 +505,9 @@ WSSolver >> reifyWFCPaths [
 	self graph deleteUselessCrossingFromAllPaths."
 	self graph mergePathsWithSameID.
 	"self graph correctPaths."
-	self graph paths keysAndValuesDo: [ :key :value |
-		self graph paths at: key put: value first.
-	].
 	self graph setPathLengths.
 	"self graph calculatePathMetrics."
-	 self assignArrowDirections.
+	 self assignArrowDirectionsToAllPaths.
 
 	
 	

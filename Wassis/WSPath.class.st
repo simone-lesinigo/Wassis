@@ -71,13 +71,75 @@ WSPath >> asOrderedCollection [
 
 { #category : 'as yet unclassified' }
 WSPath >> assignArrowDirections [
-	"Assign the direction in which the arrow should be"
+    "Assign the direction in which the arrow should be"
+    self lastNodes do: [ :eachLastNode |
+        | edge tile |
+        edge := eachLastNode outgoingEdges 
+            detect: [ :eachEdge | eachEdge target isClassNode ] 
+            ifNone: [ nil ].
+        edge ifNil: [ ^ self ].
+        
+        tile := eachLastNode tileInWhichCollapsed copy.
+        tile arrowInDirection: edge direction.
+        eachLastNode collapseTo: tile.
+    ]
+]
 
-		self lastNodes do: [ :eachLastNode |
-			| edge |
-			edge := eachLastNode outgoingEdges detect: [ :eachEdge | eachEdge target isClassNode ] ifNone: [ nil ].
-			eachLastNode tileInWhichCollapsed arrowInDirection: edge direction.
-		]
+{ #category : 'as yet unclassified' }
+WSPath >> assignFirstAndLastNodes [
+	"Assign or reassign firstNodes and lastNodes to a path based on its source and destination classes"
+	
+	| pathNodes sourceNodes destinationNodes |
+	pathNodes := self nodes asSet.
+	
+	sourceNodes := 
+		(self sourceClasses flatCollect: 
+			[ :eachClassNode | 
+				eachClassNode outgoingEdges collect: 
+					[ :edge | edge target ] ]) asSet.
+			
+	destinationNodes := 
+		(self destinationClasses flatCollect: 
+			[ :eachClassNode | 
+				eachClassNode outgoingEdges collect: 
+					[ :edge | edge target ] ]) asSet.
+
+	self firstNodes: OrderedCollection new.
+	self lastNodes: OrderedCollection new.
+	
+	pathNodes do: [ :eachPathNode | 
+		(sourceNodes includes: eachPathNode) ifTrue: [ self addFirstNode: eachPathNode ].	
+		(destinationNodes includes: eachPathNode) ifTrue: [ self addLastNode: eachPathNode ].	
+	]
+	
+
+
+]
+
+{ #category : 'as yet unclassified' }
+WSPath >> assignSourceAndDestination [
+	"Assign correct sources and destinations"
+	
+	| allClassNodes allWSClasses |
+	allClassNodes := self touchedClasses asSet.
+	
+	allWSClasses := (allClassNodes collect: [ :node | node tileInWhichCollapsed wsClass ]) asSet.
+	
+	self sourceClasses: OrderedCollection new.
+	self destinationClasses: OrderedCollection new.
+	
+	allClassNodes do: [ :aClassNode |
+		| wsClass isSource |
+		wsClass := aClassNode tileInWhichCollapsed wsClass.
+		
+		isSource := wsClass connectedWith anySatisfy: [ :conn |
+			(allWSClasses includes: conn target) and: [ conn target ~= wsClass ] 
+		].
+	
+		isSource
+			ifTrue: [ self addSourceClass: aClassNode ]
+			ifFalse: [ self addDestinationClass: aClassNode ] 
+	].
 ]
 
 { #category : 'private' }

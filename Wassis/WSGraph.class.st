@@ -123,7 +123,7 @@ WSGraph >> allNodesCollapsed [
 	^ self numberOfNodes = self numberOfCollapsedNodes
 ]
 
-{ #category : 'path reification' }
+{ #category : 'deprecated' }
 WSGraph >> assignFirstAndLastNodesFor: aPath [
 	"Assign or reassign firstNodes and lastNodes to a path based on its source and destination classes"
 	
@@ -172,7 +172,7 @@ WSGraph >> assignSourceAndDestination: aPath [
             ifFalse: [ aPath addDestinationClass: aClassNode ] ]
 ]
 
-{ #category : 'path reification' }
+{ #category : 'deprecated' }
 WSGraph >> assignSourceAndDestinationFor: aPath [
 	"Assign correct sources and destinations to a path"
 	
@@ -490,8 +490,8 @@ WSGraph >> createPaths [
                    
                     (visitedNodesPerPath at: pathID) addAll: newPath nodes.
                     
-                    self assignSourceAndDestinationFor: newPath.
-						  self assignFirstAndLastNodesFor: newPath.
+                    newPath assignSourceAndDestination.
+						  newPath assignFirstAndLastNodes.
                     (self paths at: pathID) add: newPath ] ] ] ].
 
 WSLogger log: 'Paths created'.
@@ -838,11 +838,6 @@ WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pat
 	
 	mergedPath touchedClasses: (pathA touchedClasses , pathB touchedClasses) asSet asOrderedCollection.
 	
-	self assignSourceAndDestinationFor: mergedPath.
-	self assignFirstAndLastNodesFor: mergedPath.
-	mergedPath nodes do: [ :eachNode | eachNode tileInWhichCollapsed arrowInDirection:nil ].
-	mergedPath assignArrowDirections.
-	
 	^ mergedPath
 ]
 
@@ -888,6 +883,15 @@ WSGraph >> mergePathsWithSameID [
                 collectionOfPaths remove: pathA; remove: pathB; add: mergedPath.
 					  ] ] ].
 		
+	self paths keysAndValuesDo: [ :key :value |
+		| path |
+		path := value first.
+		self paths at: key put: path.
+		path nodes do: [ :eachNode | eachNode tileInWhichCollapsed arrowInDirection: nil ].
+		path assignSourceAndDestination.
+	   path assignFirstAndLastNodes.
+		path assignArrowDirections 
+	].
 	WSLogger log: 'Merged Path'.
 ]
 
@@ -1452,8 +1456,8 @@ WSGraph >> substituteIfShorter: optimalPath with: generatedPath [
 			ifTrue: [ self substitute: generatedPath with: optimalPath. ]
 			ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ].
 	
-	self assignSourceAndDestinationFor: generatedPath.
-	self assignFirstAndLastNodesFor: generatedPath.
+	generatedPath assignSourceAndDestination.
+	generatedPath assignFirstAndLastNodes.
 	self updateExitTilesFor: generatedPath.
 	generatedPath efficiency: 1.
 	generatedPath assignArrowDirections.
