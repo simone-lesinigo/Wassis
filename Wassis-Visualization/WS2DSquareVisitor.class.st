@@ -23,7 +23,7 @@ WS2DSquareVisitor class >> clearCache [
 ]
 
 { #category : 'drawing' }
-WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
+WS2DSquareVisitor class >> colorizePathForm2: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
     "Replace each color in sourceColors with the corresponding color in targetColors"
     
     | copy colorMap |
@@ -37,6 +37,26 @@ WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: 
             | pixel replacement |
             pixel := copy colorAt: x @ y.
             replacement := colorMap at: pixel ifAbsent: [ nil ].
+            replacement ifNotNil: [ copy colorAt: x @ y put: replacement ] ] ].
+    ^ copy
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
+    | copy pixelMap |
+    copy := aOriginalPathForm deepCopy asFormOfDepth: 32.
+    
+    pixelMap := Dictionary new.
+    sourceColors doWithIndex: [ :srcColor :i |
+        | pixelVal |
+        pixelVal := copy pixelValueFor: srcColor.
+        pixelMap at: pixelVal put: (targetColors at: i) ].
+    
+    0 to: copy height - 1 do: [ :y |
+        0 to: copy width - 1 do: [ :x |
+            | pv replacement |
+            pv := copy pixelValueAt: x @ y.
+            replacement := pixelMap at: pv ifAbsent: [ nil ].
             replacement ifNotNil: [ copy colorAt: x @ y put: replacement ] ] ].
     ^ copy
 ]
@@ -267,7 +287,7 @@ WS2DSquareVisitor >> visitErrorTile: errorTile [
 			form: (self class generateSolidFormWithColor: Color red)
 ]
 
-{ #category : 'visualization' }
+{ #category : 'deprecated' }
 WS2DSquareVisitor >> visitPathTile2: pathTile [
 
 	| shape normalForm highlightedForm colors |
@@ -296,6 +316,13 @@ WS2DSquareVisitor >> visitPathTile: pathTile [
     colors := OrderedCollection new.
     colors addAll: (pathTile pathIDs collect: [ :eachPathID | 
         self pathIDColorDictionary at: (eachPathID substrings: '-') last ]).
+
+	pathTile id = 12 ifTrue: [ 
+		| horizontal vertical |
+		horizontal := self pathIDColorDictionary at: ((((pathTile edges at: WS2DRectangularGridTopology leftSymbol) first) substrings: '-') last).
+		vertical := self pathIDColorDictionary at: ((((pathTile edges at: WS2DRectangularGridTopology upSymbol) first) substrings: '-') last).
+		colors := { horizontal . vertical }
+	].
     
     normalForm := self class renderFormForID: pathTile id withColors: colors arrowDirection: arrowDir.
     highlightedForm := self class renderFormForID: pathTile id 
