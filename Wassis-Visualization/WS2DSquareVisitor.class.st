@@ -23,7 +23,7 @@ WS2DSquareVisitor class >> clearCache [
 ]
 
 { #category : 'drawing' }
-WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
+WS2DSquareVisitor class >> colorizePathForm2: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
     "Replace each color in sourceColors with the corresponding color in targetColors"
     
     | copy colorMap |
@@ -38,6 +38,41 @@ WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: 
             pixel := copy colorAt: x @ y.
             replacement := colorMap at: pixel ifAbsent: [ nil ].
             replacement ifNotNil: [ copy colorAt: x @ y put: replacement ] ] ].
+    ^ copy
+]
+
+{ #category : 'drawing' }
+WS2DSquareVisitor class >> colorizePathForm: aOriginalPathForm replacingColors: sourceColors withColors: targetColors [
+    "Sostituisce i colori in sourceColors (e le loro leggere varianti di bordo) con i targetColors"
+
+    | copy tolerance |
+    copy := aOriginalPathForm deepCopy.
+    
+    tolerance := 0.2. 
+
+    0 to: copy height - 1 do: [ :y |
+        0 to: copy width - 1 do: [ :x |
+            | pixel bestMatch minDistance |
+            pixel := copy colorAt: x @ y.
+            
+            pixel isTransparent ifFalse: [
+                bestMatch := nil.
+                minDistance := tolerance.
+
+                sourceColors doWithIndex: [ :srcColor :i |
+                    | dist |
+                    dist := (pixel red - srcColor red) abs + 
+                            (pixel green - srcColor green) abs + 
+                            (pixel blue - srcColor blue) abs.
+                    
+                    (dist < minDistance) ifTrue: [
+                        minDistance := dist.
+                        bestMatch := targetColors at: i ] ].
+
+                bestMatch ifNotNil: [
+                    | finalColor |
+                    finalColor := bestMatch alpha: pixel alpha.
+                    copy colorAt: x @ y put: finalColor ] ] ] ].
     ^ copy
 ]
 
@@ -168,9 +203,21 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr a
     | cacheKey |
     cacheKey := aPathTileID -> aColorsArr -> aDirectionOrNil.
     ^ self formCache at: cacheKey ifAbsentPut: [
-        | originalForm form colorsToReplace |
+        | originalForm form colorsToReplace effectiveColors |
+		  effectiveColors := aColorsArr.
         (aPathTileID between: 1 and: 11) ifTrue: [ colorsToReplace := { Color black } ].
-        aPathTileID = 12 ifTrue: [ colorsToReplace := { Color blue. Color red } ].
+        aPathTileID = 12 ifTrue: [ 
+			colorsToReplace := { Color blue. Color red }. 
+			(aColorsArr size >= 2 and: [ aColorsArr first = aColorsArr second ]) ifTrue: [
+			    | baseColor |
+			    baseColor := aColorsArr first.
+			    effectiveColors := { 
+			        baseColor. 
+			        baseColor luminance > 0.5 
+			            ifTrue: [ baseColor mixed: 0.4 with: Color black ] 
+			            ifFalse: [ baseColor mixed: 0.5 with: Color white ]
+			    }
+				]].
         (#( 13 14 ) includes: aPathTileID) ifTrue: [ colorsToReplace := { Color black. Color red } ].
         
         originalForm := aDirectionOrNil
@@ -182,7 +229,7 @@ WS2DSquareVisitor class >> renderFormForID: aPathTileID withColors: aColorsArr a
             ].
         form := self colorizePathForm: originalForm
                     replacingColors: colorsToReplace
-                    withColors: aColorsArr.
+                    withColors: effectiveColors.
         form
     ]
 ]

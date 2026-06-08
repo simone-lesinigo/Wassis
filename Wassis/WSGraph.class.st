@@ -1065,6 +1065,20 @@ WSGraph >> propagatePathIDResolutionFrom: aCollapsedNode [
 		  ] 
 	 ].
 
+	resolvedNodes do: [ :eachNode | 
+		eachNode outgoingEdges do:[ :eachEdge |
+			| tile |
+			tile := eachEdge target tileInWhichCollapsed.
+			(tile isNotNil and: [ tile isPathTile and: [ tile isResolvedTile ]]) ifTrue: [  
+				| dir oppositeDir |
+				dir := eachEdge direction.
+				oppositeDir := eachEdge oppositeDirection.
+				((eachNode tileInWhichCollapsed edges at: dir) includes: ((tile edges at: oppositeDir) first))
+					ifFalse: [ WSContradiction signal ]	
+			]
+		]  
+	].
+
 	^ resolvedNodes 
 	
 
