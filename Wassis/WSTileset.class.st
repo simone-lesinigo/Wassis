@@ -28,7 +28,7 @@ WSTileset >> addTiles: aTilesArray [
 ]
 
 { #category : 'finding' }
-WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
+WSTileset >> createTileForDirections2: dirToPathID pathIDs: pathIDsSet [
 	 "Create the requested tiles with the passed directions"
 	 <toDO> "Need refactoring (for directions and topology)"
 	
@@ -59,6 +59,62 @@ WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
 
     pathIDsSet do: [ :pid | (self pathTiles at: pid ifAbsentPut: [ Set new ]) add: tile ].
         
+    ^ tile
+]
+
+{ #category : 'finding' }
+WSTileset >> createTileForDirections: dirToPathID pathIDs: pathIDsSet [
+
+    | edges tile matchingSpec abstractPattern pathIDsList translationMap firstID secondID specs |
+    edges := Dictionary new.
+    dirToPathID keysAndValuesDo: [ :dir :sym |
+        edges at: dir put: (OrderedCollection with: sym) ].
+    pathIDsList := pathIDsSet asArray.
+
+    firstID := nil. secondID := nil.
+    #( #up #left #right #down ) do: [ :dir |
+        | sym |
+        sym := dirToPathID at: dir ifAbsent: [ WSConfig emptyEdgeSymbol ].
+        sym = WSConfig emptyEdgeSymbol ifFalse: [
+            firstID isNil
+                ifTrue: [ firstID := sym ]
+                ifFalse: [ (sym ~= firstID and: [ secondID isNil ]) ifTrue: [ secondID := sym ] ]
+        ]
+    ].
+
+    translationMap := Dictionary new.
+    translationMap at: WSConfig emptyEdgeSymbol put: WSConfig emptyEdgeSymbol.
+    firstID ifNotNil: [ translationMap at: firstID put: WSConfig firstPathSymbol ].
+    secondID ifNotNil: [ translationMap at: secondID put: WSConfig secondPathSymbol ].
+
+    abstractPattern := #( #up #left #right #down ) collect: [ :dir |
+        | realSym |
+        realSym := dirToPathID at: dir ifAbsent: [ WSConfig emptyEdgeSymbol ].
+        translationMap at: realSym ].
+
+    specs := WS2DRectangularGridTopology new buildTileSpecs.
+    matchingSpec := specs detect: [ :spec | spec third = abstractPattern ] ifNone: [ nil ].
+    
+    "If no match, try swapping firstPath <-> secondPath"
+    matchingSpec isNil ifTrue: [
+        | swappedPattern |
+        swappedPattern := abstractPattern collect: [ :sym |
+            sym = WSConfig firstPathSymbol
+                ifTrue: [ WSConfig secondPathSymbol ]
+                ifFalse: [
+                    sym = WSConfig secondPathSymbol
+                        ifTrue: [ WSConfig firstPathSymbol ]
+                        ifFalse: [ sym ] ] ].
+        matchingSpec := specs detect: [ :spec | spec third = swappedPattern ]
+            ifNone: [ self error: 'Tile does not exist for pattern: ' , abstractPattern printString ]
+    ].
+
+    tile := WSPathTile
+        withID: matchingSpec first
+        withWeight: matchingSpec second
+        withEdges: edges
+        withPathIDs: pathIDsSet asOrderedCollection.
+    pathIDsSet do: [ :pid | (self pathTiles at: pid ifAbsentPut: [ Set new ]) add: tile ].
     ^ tile
 ]
 

@@ -69,6 +69,17 @@ WSPath >> asOrderedCollection [
 	self nodes: self nodes asOrderedCollection 
 ]
 
+{ #category : 'as yet unclassified' }
+WSPath >> assignArrowDirections [
+	"Assign the direction in which the arrow should be"
+
+		self lastNodes do: [ :eachLastNode |
+			| edge |
+			edge := eachLastNode outgoingEdges detect: [ :eachEdge | eachEdge target isClassNode ] ifNone: [ nil ].
+			eachLastNode tileInWhichCollapsed arrowInDirection: edge direction.
+		]
+]
+
 { #category : 'private' }
 WSPath >> computeLength [
 

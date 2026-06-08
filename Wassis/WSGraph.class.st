@@ -330,17 +330,20 @@ WSGraph >> clearPath: aPath [
 	emptyTile := self topology createEmptyTile.
 
 	aPath nodes do: [ :eachNode |
+		| tile |
+		tile := eachNode tileInWhichCollapsed.
 		touchedNodes add: eachNode.
-		eachNode tileInWhichCollapsed isCrossingTile 
+		tile isCrossingTile 
 			ifTrue: [ 
 				| newDirToPathID |
-                newDirToPathID := eachNode tileInWhichCollapsed edges
+                newDirToPathID := tile edges
                     reject: [ :edge | edge includes: aPath pathID ].
 					newDirToPathID keysAndValuesDo: [ :key :value | newDirToPathID at: key put: value first ].
 				eachNode collapseTo: (self topology tileset tileForDirections: newDirToPathID)
 			]
 			ifFalse: [ 
-				eachNode collapseTo: emptyTile. ]	
+				eachNode collapseTo: emptyTile. ].
+			tile isPathTile ifTrue: [ tile arrowInDirection: nil. ]
 	].
 
 	aPath 
@@ -837,6 +840,8 @@ WSGraph >> mergePath: pathA withPath: pathB usingConnection: connectionNodes pat
 	
 	self assignSourceAndDestinationFor: mergedPath.
 	self assignFirstAndLastNodesFor: mergedPath.
+	mergedPath nodes do: [ :eachNode | eachNode tileInWhichCollapsed arrowInDirection:nil ].
+	mergedPath assignArrowDirections.
 	
 	^ mergedPath
 ]
@@ -1413,7 +1418,7 @@ WSGraph >> substitute: oldPath with: optimalPath [
 						toPathTile: pathID
 						between: (optimalPath at: optimalPath size - 1)
 						and: destClass.
-	oldPath lastNodes: {newLastNode} asOrderedCollection.
+	oldPath lastNodes: { newLastNode } asOrderedCollection.
 	oldPath addNode: newLastNode.
 	
 	oldPath length: oldPath nodes size.
@@ -1447,8 +1452,12 @@ WSGraph >> substituteIfShorter: optimalPath with: generatedPath [
 			ifTrue: [ self substitute: generatedPath with: optimalPath. ]
 			ifFalse: [ self substituteMergedPath: generatedPath with: optimalPath ].
 	
+	self assignSourceAndDestinationFor: generatedPath.
+	self assignFirstAndLastNodesFor: generatedPath.
 	self updateExitTilesFor: generatedPath.
 	generatedPath efficiency: 1.
+	generatedPath assignArrowDirections.
+	
 	^ touchedNodes 
 ]
 
@@ -1525,9 +1534,6 @@ WSGraph >> substituteMergedPath: oldPath with: optimalPath [
 
 	oldPath nodes: optimalPath asOrderedCollection.
 	oldPath length: optimalPath size.
-
-	self assignSourceAndDestinationFor: oldPath.
-	self assignFirstAndLastNodesFor: oldPath.
 
 	^ touchedNodes
 ]

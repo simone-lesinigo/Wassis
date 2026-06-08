@@ -154,14 +154,10 @@ WSSolver >> allPathIDs [
 
 { #category : 'as yet unclassified' }
 WSSolver >> assignArrowDirections [
-	"Assign the direction in which the arrow should be"
+	"Assign the direction in which the arrow should be for all paths"
 
 	self graph paths do: [ :eachPath |
-		eachPath lastNodes do: [ :eachLastNode |
-			| edge |
-			edge := eachLastNode outgoingEdges detect: [ :eachEdge | eachEdge target isClassNode ] ifNone: [ nil ].
-			eachLastNode tileInWhichCollapsed arrowInDirection: edge direction.
-		]
+		eachPath assignArrowDirections 
 	]
 ]
 
