@@ -5,7 +5,7 @@
     "placementStrategy": "metricMDS",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
-        "maxNumberOfRegeneratedGraph": 1000
+        "maxNumberOfRegeneratedGraph": 5000
     },
     "WSTile": {
         "emptyTileWeight": 4000,
