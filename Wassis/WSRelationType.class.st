@@ -37,16 +37,7 @@ WSRelationType class >> inheritance [
 
 	^ self new
 		name: #inheritance;
-		weight: 1 
-		
-"	inheritance ifNil: [
-		inheritance := 
-			self new
-				name: #inheritance;
-				weight: 1 
-			].
-
-	^ inheritance"
+		weight: 1
 ]
 
 { #category : 'accessing' }
@@ -54,16 +45,7 @@ WSRelationType class >> usage [
 
 	^ self new
 		name: #usage;
-		weight: 0.5
-
-"	usage ifNil: [
-		usage := 
-			self new
-				name: #usage;
-				weight: 0.5
-			].
-
-	^ usage "
+		weight: 1
 ]
 
 { #category : 'comparing' }

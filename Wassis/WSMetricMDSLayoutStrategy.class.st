@@ -23,8 +23,8 @@ WSMetricMDSLayoutStrategy >> applyPowerTransformation [
     1 to: n do: [ :i |
         1 to: n do: [ :j |
             | v |
-            v := self matrix at: i at: j.
-            self matrix at: i at: j put: (v raisedTo: power) ] ].
+            v := self classDistances at: i at: j.
+            self classDistances at: i at: j put: (v raisedTo: power) ] ].
 ]
 
 { #category : 'calculating' }
@@ -71,7 +71,7 @@ WSMetricMDSLayoutStrategy >> calculateStressFor: positions [
 	1 to: n - 1 do: [ :i |
 		(i + 1) to: n do: [ :j |
 			| targetDist currentDist diff |
-			targetDist := self matrix at: i at: j.
+			targetDist := self classDistances at: i at: j.
 			currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
 			diff := targetDist - currentDist.
 			stress := stress + (diff * diff).
@@ -96,10 +96,10 @@ WSMetricMDSLayoutStrategy >> computeBMatrixFor: positions [
 				ifTrue: [ 0 ]
 				ifFalse: [ 
 					| targetDist currentDist bValue |
-					targetDist := self matrix at: i at: j.
+					targetDist := self classDistances at: i at: j.
 					currentDist := self euclideanDistanceBetween: (positions at: i) and: (positions at: j).
 					
-					bValue := currentDist > 1.0e-6
+					bValue := currentDist > 1.0e-10
 						ifTrue: [ (targetDist / currentDist) negated ]
 						ifFalse: [ 0 ].
 						
@@ -127,8 +127,8 @@ WSMetricMDSLayoutStrategy >> euclideanDistanceBetween: pos1 and: pos2 [
 WSMetricMDSLayoutStrategy >> initialize [ 
 
 	 super initialize.
-    maxIterations := 500.
-    tolerance := 1.0e-6.
+    maxIterations := 5000.
+    tolerance := 1.0e-12.
     power := 0.8.  
 
 ]
@@ -139,10 +139,12 @@ WSMetricMDSLayoutStrategy >> makeShapeForClass: cls withSize: aSize [
     | box label composite |
 
     box := RSBox new size: aSize; color: Color black; yourself.
-	 box @ (RSPopup new text: cls name).
+"	 box @ (RSPopup new text: cls name)."
     label := RSLabel new text: cls id printString; fontSize: aSize / 4; color: Color white; yourself.
     composite := RSComposite new.
     composite add: box; add: label; model: cls; adjustToChildren.
+    composite @ (RSPopup new text: [ :model | model name ]).
+	 composite draggable.
 
     ^ composite
 ]
@@ -195,16 +197,48 @@ WSMetricMDSLayoutStrategy >> openForceBasedCanvas [
 ]
 
 { #category : 'paper' }
+WSMetricMDSLayoutStrategy >> openMDSPositionCanvas [
+
+	| canvas classShapes |
+	classShapes := Dictionary new.
+	canvas := RSCanvas new.
+   self classes doWithIndex: [ :cls :i |  
+   		| shape pos |
+            shape := self makeShapeForClass: cls withSize: 10.
+            pos := self matrix atRow: i.
+            shape position: (pos first @ pos second) * 300.
+				classShapes at: cls put: shape.
+            canvas add: shape ].
+	
+		self classes do: [ :eachClass |
+		eachClass outgoingConnections do: [ :conn |
+			canvas addAll: (conn relations collect: [ :rel |
+				| color |
+				color := rel name = #inheritance
+					ifTrue: [ Color blue ]
+					ifFalse: [ Color red ].
+				RSLine new
+					 from: (classShapes at: eachClass);
+					 to: (classShapes at: conn target);
+					 attachPoint: RSBorderAttachPoint new;
+					 markerEnd: (RSMarker new shape: RSShapeFactory arrow; yourself);
+					 color: color;
+					 yourself ]) ] ].
+
+	
+	
+	canvas @ RSCanvasController.
+	canvas openWithTitle: 'Metric MDS'
+]
+
+{ #category : 'paper' }
 WSMetricMDSLayoutStrategy >> openRectanglePackingCanvas [
 
     | canvas |
     canvas := RSCanvas new.
 
 	canvas addAll: (self classes collect: [ :cls | 
-		| count |
-		count := 0.
-		cls outgoingConnections do: [ :eachConn | eachConn relations do: [ :eachRel | count := count + 1 ] ].
-		self makeShapeForClass: cls withSize: count ] ).
+		self makeShapeForClass: cls withSize: (cls allConnections size) * 10 ] ).
 
     RSRectanglePackLayout new applyOn: canvas nodes.
 
@@ -232,16 +266,19 @@ WSMetricMDSLayoutStrategy >> run [
     self fillDirectConnections.
     self executeFloydWarshall.
     self replaceInfiniteValues.
-    self classDistances: self matrix deepCopy.
+    self classDistances: self matrix deepCopy.  self halt.
+
 	 self openRectanglePackingCanvas.
 	 self openForceBasedCanvas.
-	 self halt.
+
     self applyPowerTransformation.
 
     positions := self buildInitialPositions.
     positions := self runSMACOF: positions.
     self buildMatrixFromPositions: positions.
-	 self normalizeMatrix.
+
+	 self normalizeMatrix. 
+	 self openMDSPositionCanvas. self halt.
 ]
 
 { #category : 'calculating' }
@@ -285,7 +322,7 @@ WSMetricMDSLayoutStrategy >> runSMACOF: initialPositions [
 			{ newX / n . newY / n }
 		].
 	].
-	
+
 	^ currentPositions
 ]
 

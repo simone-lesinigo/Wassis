@@ -30,8 +30,9 @@ WSMDSLayoutStrategy class >> computeForSystem: swSystem withDimension: aDimensio
 				self cachedDimension: aDimension.
 				
 				instance := self new.
-				dict := Dictionary new.
-				swSystem classes do: [ :eachClass | dict at: eachClass id put: eachClass ].
+             dict := OrderedDictionary new.
+					(swSystem classes asSortedCollection: [ :a :b | a id < b id ])
+					    do: [ :eachClass | dict at: eachClass id put: eachClass ].
 				
 				self computationTime: [ instance classes: dict; dimension: aDimension; run ] timeToRun.
 				self cachedInstance: instance 
