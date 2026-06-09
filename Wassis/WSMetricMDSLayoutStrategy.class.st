@@ -28,7 +28,17 @@ WSMetricMDSLayoutStrategy >> applyPowerTransformation [
 ]
 
 { #category : 'calculating' }
-WSMetricMDSLayoutStrategy >> buildInitialPositions [ 
+WSMetricMDSLayoutStrategy >> buildInitialPositions [
+
+    | n random |
+    n := self classes size.
+    random := Random new.
+    ^ (1 to: n) collect: [ :i |
+        { (random next * 2) - 1 . (random next * 2) - 1 } ]
+]
+
+{ #category : 'calculating' }
+WSMetricMDSLayoutStrategy >> buildInitialPositions2 [
 	"Initialize random positions in a 2D space based on the graph diameter"
 	
 	| n diameter random |
@@ -128,7 +138,7 @@ WSMetricMDSLayoutStrategy >> initialize [
 
 	 super initialize.
     maxIterations := 5000.
-    tolerance := 1.0e-12.
+    tolerance := 1.0e-5.
     power := 0.8.  
 
 ]
@@ -204,11 +214,11 @@ WSMetricMDSLayoutStrategy >> openMDSPositionCanvas [
 	canvas := RSCanvas new.
    self classes doWithIndex: [ :cls :i |  
    		| shape pos |
-            shape := self makeShapeForClass: cls withSize: 10.
-            pos := self matrix atRow: i.
-            shape position: (pos first @ pos second) * 300.
-				classShapes at: cls put: shape.
-            canvas add: shape ].
+      shape := self makeShapeForClass: cls withSize: 5.
+      pos := self matrix atRow: i.
+      shape position: (pos first @ pos second) * 150.
+		classShapes at: cls put: shape.
+      canvas add: shape ].
 	
 		self classes do: [ :eachClass |
 		eachClass outgoingConnections do: [ :conn |
@@ -225,7 +235,6 @@ WSMetricMDSLayoutStrategy >> openMDSPositionCanvas [
 					 color: color;
 					 yourself ]) ] ].
 
-	
 	
 	canvas @ RSCanvasController.
 	canvas openWithTitle: 'Metric MDS'
@@ -266,7 +275,7 @@ WSMetricMDSLayoutStrategy >> run [
     self fillDirectConnections.
     self executeFloydWarshall.
     self replaceInfiniteValues.
-    self classDistances: self matrix deepCopy.  self halt.
+    self classDistances: self matrix deepCopy.
 
 	 self openRectanglePackingCanvas.
 	 self openForceBasedCanvas.
@@ -276,9 +285,9 @@ WSMetricMDSLayoutStrategy >> run [
     positions := self buildInitialPositions.
     positions := self runSMACOF: positions.
     self buildMatrixFromPositions: positions.
-
 	 self normalizeMatrix. 
 	 self openMDSPositionCanvas. self halt.
+
 ]
 
 { #category : 'calculating' }
@@ -292,14 +301,13 @@ WSMetricMDSLayoutStrategy >> runSMACOF: initialPositions [
 	iteration := 0.
 	
 	[ iteration < self maxIterations ] whileTrue: [
-		| bMatrix |
+		| bMatrix relativeChange |
 		iteration := iteration + 1.
-		
+		WSLogger log: iteration .
 		currentStress := self calculateStressFor: currentPositions.
 		
-		(previousStress - currentStress) abs < self tolerance ifTrue: [
-			^ currentPositions
-		].
+		relativeChange := (previousStress - currentStress) abs / (previousStress max: 1.0e-10).
+      relativeChange < self tolerance ifTrue: [ ^ currentPositions ].
 		previousStress := currentStress.
 		
 		bMatrix := self computeBMatrixFor: currentPositions.
