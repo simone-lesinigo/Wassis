@@ -62,7 +62,7 @@ WSClassConnection >> addRelation: aRelation [
 		ifFound: [ :foundRelation | 
 			foundRelation count: foundRelation count + 1.
 			foundRelation weight: foundRelation weight + aRelation weight ]
-		ifNone: [ self relations add: aRelation  ].
+		ifNone: [ self relations add: aRelation copy ].
 	
 ]
 

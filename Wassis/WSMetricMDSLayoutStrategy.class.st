@@ -139,7 +139,7 @@ WSMetricMDSLayoutStrategy >> initialize [
 	 super initialize.
     maxIterations := 5000.
     tolerance := 1.0e-5.
-    power := 0.8.  
+    power := 1.  
 
 ]
 

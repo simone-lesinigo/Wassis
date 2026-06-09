@@ -44,7 +44,7 @@ WSClass >> addRelation: aRelation withClass: targetClass [
 	connection := self outgoingConnections
 		              detect: [ :each | each target = targetClass ]
 		              ifNone: [ nil ].
-
+		
 	connection
 		ifNil: [
 				| newConnection |

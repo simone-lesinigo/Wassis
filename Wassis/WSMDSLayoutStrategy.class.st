@@ -125,7 +125,7 @@ WSMDSLayoutStrategy >> fillDirectConnections [
 			 | sourceID targetID newWeight |
             sourceID := eachClass id.
             targetID := eachConnection target id.
-				newWeight := eachConnection weight.
+				newWeight := 1.0 / (eachConnection weight max: 0.01).
 				self matrix at: sourceID at: targetID put: newWeight.
 				self matrix at: targetID at: sourceID put: newWeight
 		]
