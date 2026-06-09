@@ -277,8 +277,8 @@ WSMetricMDSLayoutStrategy >> run [
     self replaceInfiniteValues.
     self classDistances: self matrix deepCopy.
 
-	self openRectanglePackingCanvas.
-	 self openForceBasedCanvas.
+	"self openRectanglePackingCanvas.
+	 self openForceBasedCanvas."
 
     self applyPowerTransformation.
 
@@ -286,7 +286,7 @@ WSMetricMDSLayoutStrategy >> run [
     positions := self runSMACOF: positions.
     self buildMatrixFromPositions: positions.
 	 self normalizeMatrix. 
-	 self openMDSPositionCanvas. self halt.
+	 "self openMDSPositionCanvas. self halt."
 
 ]
 
