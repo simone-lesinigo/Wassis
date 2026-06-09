@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'id',
 		'name',
-		'connectedWith'
+		'outgoingConnections',
+		'incomingConnections'
 	],
 	#category : 'Wassis-SoftwareSystem',
 	#package : 'Wassis',
@@ -22,46 +23,48 @@ WSClass >> = anObject [
 		 
 ]
 
+{ #category : 'adding' }
+WSClass >> addIncomingConnection: aWSlassConnection [
+	
+	self incomingConnections add: aWSlassConnection 
+]
+
 { #category : 'private' }
-WSClass >> addConnection: aWFCClassConnection [
+WSClass >> addOutgoingConnection: aWSClassConnection [
 	"Do not use this, use addRelation:withClass: instead. This is done so that you surely don't duplicate a connection with the same class"
 	
-	self connectedWith add: aWFCClassConnection
+	self outgoingConnections add: aWSClassConnection
 ]
 
 { #category : 'adding' }
-WSClass >> addRelation: aRelation withClass: aClass [
+WSClass >> addRelation: aRelation withClass: targetClass [
 	"Add the specified relation to the connection. If the connection doesn't exist, it creates it"
 
 	| connection |
-	connection := self connectedWith
-		              detect: [ :each | each target = aClass ]
+	connection := self outgoingConnections
+		              detect: [ :each | each target = targetClass ]
 		              ifNone: [ nil ].
 
 	connection
 		ifNil: [
-				self addConnection:
-					(WSClassConnection withTarget: aClass andRelation: aRelation) ]
+				| newConnection |
+				newConnection := (WSClassConnection withSource: self withTarget: targetClass andRelation: aRelation).
+				self addOutgoingConnection: newConnection.
+				targetClass addIncomingConnection: newConnection ]
 		ifNotNil: [ connection addRelation: aRelation ]
 ]
 
 { #category : 'accessing' }
-WSClass >> connectedWith [
-
-	^ connectedWith
-]
-
-{ #category : 'accessing' }
-WSClass >> connectedWith: anObject [
-
-	connectedWith := anObject
+WSClass >> allConnections [
+	
+	^ (OrderedCollection with: self incomingConnections with: self outgoingConnections) flattened 
 ]
 
 { #category : 'accessing' }
 WSClass >> getConnectedWithClasses [
 	"Get the classes that are in connectedWith"
 
-	^ self connectedWith collect: [ :eachConnection |eachConnection target ]
+	^ self outgoingConnections collect: [ :eachConnection |eachConnection target ]
 ]
 
 { #category : 'comparing' }
@@ -81,11 +84,24 @@ WSClass >> id: anObject [
 	id := anObject
 ]
 
+{ #category : 'accessing' }
+WSClass >> incomingConnections [
+
+	^ incomingConnections
+]
+
+{ #category : 'accessing' }
+WSClass >> incomingConnections: anObject [
+
+	incomingConnections := anObject
+]
+
 { #category : 'initialization' }
 WSClass >> initialize [
 
 	super initialize.
-	self connectedWith: OrderedCollection new
+	self incomingConnections: OrderedCollection new.
+	self outgoingConnections: OrderedCollection new.
 ]
 
 { #category : 'accessing' }
@@ -98,4 +114,16 @@ WSClass >> name [
 WSClass >> name: anObject [
 
 	name := anObject
+]
+
+{ #category : 'accessing' }
+WSClass >> outgoingConnections [
+
+	^ outgoingConnections 
+]
+
+{ #category : 'accessing' }
+WSClass >> outgoingConnections: anObject [
+
+	outgoingConnections := anObject
 ]

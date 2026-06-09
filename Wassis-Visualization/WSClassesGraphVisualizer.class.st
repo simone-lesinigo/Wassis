@@ -51,7 +51,7 @@ WSClassesGraphVisualizer >> createLines [
     | targets |
     
     self classesArray do: [ :eachClass |
-		targets := eachClass connectedWith 
+		targets := eachClass outgoingConnections 
 			collect: [ :eachConnection | eachConnection target ].
 		
         targets isNotEmpty ifTrue: [

@@ -133,6 +133,20 @@ WSMetricMDSLayoutStrategy >> initialize [
 
 ]
 
+{ #category : 'paper' }
+WSMetricMDSLayoutStrategy >> makeShapeForClass: cls withSize: aSize [
+ 
+    | box label composite |
+
+    box := RSBox new size: aSize; color: Color black; yourself.
+	 box @ (RSPopup new text: cls name).
+    label := RSLabel new text: cls id printString; fontSize: aSize / 4; color: Color white; yourself.
+    composite := RSComposite new.
+    composite add: box; add: label; model: cls; adjustToChildren.
+
+    ^ composite
+]
+
 { #category : 'accessing' }
 WSMetricMDSLayoutStrategy >> maxIterations [
 
@@ -143,6 +157,59 @@ WSMetricMDSLayoutStrategy >> maxIterations [
 WSMetricMDSLayoutStrategy >> maxIterations: anObject [
 
 	maxIterations := anObject
+]
+
+{ #category : 'paper' }
+WSMetricMDSLayoutStrategy >> openForceBasedCanvas [
+
+	| canvas classShapes |
+	canvas := RSCanvas new.
+	classShapes := Dictionary new.
+	canvas addAll: (self classes collect: [ :cls |
+				 | shape |
+				 shape := self makeShapeForClass: cls withSize: 20.
+				 classShapes at: cls put: shape.
+				 shape ]).
+
+	self classes do: [ :eachClass |
+		eachClass outgoingConnections do: [ :conn |
+			canvas addAll: (conn relations collect: [ :rel |
+				| color |
+				color := rel name = #inheritance
+					ifTrue: [ Color blue ]
+					ifFalse: [ Color red ].
+				RSLine new
+					 from: (classShapes at: eachClass);
+					 to: (classShapes at: conn target);
+					 attachPoint: RSBorderAttachPoint new;
+					 markerEnd: (RSMarker new shape: RSShapeFactory arrow; yourself);
+					 color: color;
+					 yourself ]) ] ].
+
+	RSForceBasedLayout new
+		charge: -500;
+		on: canvas nodes.
+		
+	canvas @ RSCanvasController.
+	canvas openWithTitle: 'Force-Based Layout'
+]
+
+{ #category : 'paper' }
+WSMetricMDSLayoutStrategy >> openRectanglePackingCanvas [
+
+    | canvas |
+    canvas := RSCanvas new.
+
+	canvas addAll: (self classes collect: [ :cls | 
+		| count |
+		count := 0.
+		cls outgoingConnections do: [ :eachConn | eachConn relations do: [ :eachRel | count := count + 1 ] ].
+		self makeShapeForClass: cls withSize: count ] ).
+
+    RSRectanglePackLayout new applyOn: canvas nodes.
+
+    canvas @ RSCanvasController.
+    canvas openWithTitle: 'Rectangle Packing Layout'.
 ]
 
 { #category : 'accessing' }
@@ -166,6 +233,9 @@ WSMetricMDSLayoutStrategy >> run [
     self executeFloydWarshall.
     self replaceInfiniteValues.
     self classDistances: self matrix deepCopy.
+	 self openRectanglePackingCanvas.
+	 self openForceBasedCanvas.
+	 self halt.
     self applyPowerTransformation.
 
     positions := self buildInitialPositions.

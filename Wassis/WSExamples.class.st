@@ -80,27 +80,27 @@ WSExamples class >> exampleRunHexagonalGrid [
 | class1 class2 class3 class4 class5 class6 entities solver graphVisualizer |
 	class1 := WSClass new
 		          id: 1;
-		          connectedWith: { 2. "5" }.
+		          outgoingConnections: { 2. "5" }.
 
 	class2 := WSClass new
 		          id: 2;
-		          connectedWith: { 1. 4. }.
+		          outgoingConnections: { 1. 4. }.
 
 	class3 := WSClass new
 		          id: 3;
-		          connectedWith: { 4 . "6" }.
+		          outgoingConnections: { 4 . "6" }.
 
 	class4 := WSClass new
 		          id: 4;
-		          connectedWith: { 2. 3 }.
+		          outgoingConnections: { 2. 3 }.
 
 	class5 := WSClass new
 		          id: 5;
-		          connectedWith: { 1 }.
+		          outgoingConnections: { 1 }.
 
 	class6 := WSClass new
 		          id: 6;
-		          connectedWith: { 3 }.
+		          outgoingConnections: { 3 }.
 	
 	entities := WSSoftwareSystem new 
 		addClasses: { class1. class2. class3. class4 . "class5. class6" }.
@@ -150,7 +150,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
 			(WSFullHierarchyCollector withOriginClass: InstructionClient ).
-
+			
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
 			withTopology: WS2DRectangularGridTopology 
@@ -167,27 +167,27 @@ WSExamples class >> exampleRunRectangularGrid2 [
 | class1 class2 class3 class4 class5 class6 adaptiveSolver swSystem |
 	class1 := WSClass new
 		          id: 1;
-		          connectedWith: { 2. "5" }.
+		          outgoingConnections: { 2. "5" }.
 
 	class2 := WSClass new
 		          id: 2;
-		          connectedWith: { 1. 4. }.
+		          outgoingConnections: { 1. 4. }.
 
 	class3 := WSClass new
 		          id: 3;
-		          connectedWith: { 4 . "6" }.
+		          outgoingConnections: { 4 . "6" }.
 
 	class4 := WSClass new
 		          id: 4;
-		          connectedWith: { 2. 3 }.
+		          outgoingConnections: { 2. 3 }.
 
 	class5 := WSClass new
 		          id: 5;
-		          connectedWith: { 1 }.
+		          outgoingConnections: { 1 }.
 
 	class6 := WSClass new
 		          id: 6;
-		          connectedWith: { 3 }.
+		          outgoingConnections: { 3 }.
 	
 	swSystem := WSSoftwareSystem new 
 		addClasses: { class1. class2. class3. class4 . "class5. class6" }.

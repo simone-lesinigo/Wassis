@@ -112,7 +112,7 @@ WSSoftwareSystem >> createAllConnectionsPerClass [
 	self allConnectionsPerClass: Dictionary new.
 	 	
 	self classes do: [ :eachClass |
-   		eachClass connectedWith do: [ :eachConnection |
+   		eachClass outgoingConnections do: [ :eachConnection |
       		| target |
          target := eachConnection target.
          (self allConnectionsPerClass at: eachClass ifAbsentPut: [ Set new ]) add: target.
@@ -138,7 +138,7 @@ WSSoftwareSystem >> createPathIDsFromClasses [
 	"Create all the necessary pathIDs to connect the classes and them to the PathIDs collection"
 	
 	self classes do: [ :eachClass | 
-		eachClass connectedWith do: [ :eachConnection |
+		eachClass outgoingConnections do: [ :eachConnection |
 			| target pathID |
 			target := eachConnection target.	
 			pathID := self pathIDFrom: (eachClass id) to: (target id).
@@ -156,7 +156,7 @@ WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge [
     destinationTypeToSources := Dictionary new.
     
     self classes do: [ :eachClass |
-        eachClass connectedWith do: [ :eachConnection |
+        eachClass outgoingConnections do: [ :eachConnection |
             eachConnection relations do: [ :eachRelation |
                 | key |
                 key := eachConnection target -> eachRelation.
@@ -183,7 +183,7 @@ WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge2 [
     destinationToSources := Dictionary new.
     
     self classes do: [ :eachClass |
-        eachClass connectedWith do: [ :eachConnection |
+        eachClass outgoingConnections do: [ :eachConnection |
             | target |
             target := eachConnection target.
             (destinationToSources at: target ifAbsentPut: [ OrderedCollection new ])

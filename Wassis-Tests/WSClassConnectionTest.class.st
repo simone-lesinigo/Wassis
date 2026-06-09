@@ -12,7 +12,7 @@ WSClassConnectionTest >> testAddRelation [
 	class1 := WSClass new.
 	class2 := WSClass new.
 	
-	class1 addConnection: 
+	class1 addOutgoingConnection: 
 		(WSClassConnection 
 			withTarget: class2 
 			andRelation: WSRelationType inheritance).
@@ -43,12 +43,12 @@ WSClassConnectionTest >> testRelationsWeight [
 	class1 := WSClass new.
 	class2 := WSClass new.
 	
-	class1 addConnection: 
+	class1 addOutgoingConnection: 
 		(WSClassConnection 
 			withTarget: class2 
 			andRelations: {WSRelationType inheritance . WSRelationType association }).
 			
-	weight := class1 connectedWith first weight.
+	weight := class1 outgoingConnections first weight.
 	self assert: weight equals: 1.5
 	
 	

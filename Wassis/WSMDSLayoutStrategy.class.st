@@ -120,7 +120,7 @@ WSMDSLayoutStrategy >> fillDirectConnections [
 	"Fill the distance matrix with direct connection weights"
 
 	self classes do: [ :eachClass |
-		eachClass connectedWith do: [ :eachConnection |
+		eachClass outgoingConnections do: [ :eachConnection |
 			 | sourceID targetID newWeight |
             sourceID := eachClass id.
             targetID := eachConnection target id.

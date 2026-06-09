@@ -165,7 +165,7 @@ WSGraph >> assignSourceAndDestination: aPath [
     touchedClasses do: [ :aClassNode |
         | wsClass isSource |
         wsClass := aClassNode tileInWhichCollapsed wsClass.
-        isSource := wsClass connectedWith anySatisfy: [ :conn |
+        isSource := wsClass outgoingConnections anySatisfy: [ :conn |
             touchedWSClasses includes: conn target ].
         isSource
             ifTrue: [ aPath addSourceClass: aClassNode ]
@@ -188,7 +188,7 @@ WSGraph >> assignSourceAndDestinationFor: aPath [
 		| wsClass isSource |
 		wsClass := aClassNode tileInWhichCollapsed wsClass.
 		
-		isSource := wsClass connectedWith anySatisfy: [ :conn |
+		isSource := wsClass outgoingConnections anySatisfy: [ :conn |
 			(allWSClasses includes: conn target) and: [ conn target ~= wsClass ] 
 		].
 	
@@ -1094,7 +1094,7 @@ WSGraph >> reassignSourceDestination: aPath [
     allTouched do: [ :aClassNode |
         | wsClass isSource |
         wsClass := aClassNode tileInWhichCollapsed wsClass.
-        isSource := wsClass connectedWith anySatisfy: [ :conn |
+        isSource := wsClass outgoingConnections anySatisfy: [ :conn |
             allTouched anySatisfy: [ :other | 
                 other ~= aClassNode and: [ conn target = other tileInWhichCollapsed wsClass ] ] ].
         isSource

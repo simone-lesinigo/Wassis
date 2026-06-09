@@ -132,7 +132,7 @@ WSPath >> assignSourceAndDestination [
 		| wsClass isSource |
 		wsClass := aClassNode tileInWhichCollapsed wsClass.
 		
-		isSource := wsClass connectedWith anySatisfy: [ :conn |
+		isSource := wsClass outgoingConnections anySatisfy: [ :conn |
 			(allWSClasses includes: conn target) and: [ conn target ~= wsClass ] 
 		].
 	

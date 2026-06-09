@@ -5,6 +5,7 @@ Class {
 	#name : 'WSClassConnection',
 	#superclass : 'WSObject',
 	#instVars : [
+		'source',
 		'target',
 		'relations'
 	],
@@ -14,6 +15,26 @@ Class {
 }
 
 { #category : 'instance creation' }
+WSClassConnection class >> withSource: aSource withTarget: aTarget andRelation: aRelation [
+	
+	| newInstance |
+	newInstance :=  self new source: aSource; target: aTarget.
+	newInstance addRelation: aRelation.
+
+	^ newInstance.
+]
+
+{ #category : 'instance creation' }
+WSClassConnection class >> withSource: aSource withTarget: aTarget andRelations: aRelationsArray [
+	
+	| newInstance |
+	newInstance := self new source: aSource; target: aTarget.
+	newInstance relations addAll: aRelationsArray.
+
+	^ newInstance.
+]
+
+{ #category : 'deprecated' }
 WSClassConnection class >> withTarget: aTarget andRelation: aRelation [
 	
 	| newInstance |
@@ -23,7 +44,7 @@ WSClassConnection class >> withTarget: aTarget andRelation: aRelation [
 	^ newInstance.
 ]
 
-{ #category : 'instance creation' }
+{ #category : 'deprecated' }
 WSClassConnection class >> withTarget: aTarget andRelations: aRelationsArray [
 	
 	| newInstance |
@@ -62,6 +83,18 @@ WSClassConnection >> relations [
 WSClassConnection >> relations: anObject [
 
 	relations := anObject
+]
+
+{ #category : 'accessing' }
+WSClassConnection >> source [
+
+	^ source
+]
+
+{ #category : 'accessing' }
+WSClassConnection >> source: anObject [
+
+	source := anObject
 ]
 
 { #category : 'accessing' }
