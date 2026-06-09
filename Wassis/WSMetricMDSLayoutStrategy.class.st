@@ -214,9 +214,9 @@ WSMetricMDSLayoutStrategy >> openMDSPositionCanvas [
 	canvas := RSCanvas new.
    self classes doWithIndex: [ :cls :i |  
    		| shape pos |
-      shape := self makeShapeForClass: cls withSize: 5.
+      shape := self makeShapeForClass: cls withSize: 10.
       pos := self matrix atRow: i.
-      shape position: (pos first @ pos second) * 150.
+      shape position: (pos first @ pos second) * 500.
 		classShapes at: cls put: shape.
       canvas add: shape ].
 	
@@ -277,7 +277,7 @@ WSMetricMDSLayoutStrategy >> run [
     self replaceInfiniteValues.
     self classDistances: self matrix deepCopy.
 
-	 self openRectanglePackingCanvas.
+	self openRectanglePackingCanvas.
 	 self openForceBasedCanvas.
 
     self applyPowerTransformation.
@@ -303,7 +303,7 @@ WSMetricMDSLayoutStrategy >> runSMACOF: initialPositions [
 	[ iteration < self maxIterations ] whileTrue: [
 		| bMatrix relativeChange |
 		iteration := iteration + 1.
-		WSLogger log: iteration .
+
 		currentStress := self calculateStressFor: currentPositions.
 		
 		relativeChange := (previousStress - currentStress) abs / (previousStress max: 1.0e-10).
