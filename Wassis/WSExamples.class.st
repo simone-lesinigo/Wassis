@@ -150,7 +150,7 @@ WSExamples class >> exampleRunRectangularGrid [
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
 			(WSFullHierarchyCollector withOriginClass: InstructionClient ).
-			
+
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
 			withTopology: WS2DRectangularGridTopology 
@@ -253,7 +253,7 @@ WSExamples class >> loadSolutionFromFile [
 	<script>
 	| adaptiveSolver |
 	adaptiveSolver := 
-		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'nice_sol.fuel') fullName.
+		WSAdaptiveSolver loadFromFile: (WSObject resourcesRootPath / 'solutions' / 'solution-10-06-2026_07h12m56s.fuel') fullName.
 	WSConfig isHeadless: false.
 	adaptiveSolver createVisualization .
 ]
