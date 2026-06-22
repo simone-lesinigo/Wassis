@@ -102,7 +102,7 @@ WSAdaptive2DGridSolver >> solveWithIncreasingSize [
             on: WSNoValidPlacementFound, WSMaxTriesReached
             do: [ :e | 
                 WSLogger log: e logMessage, String cr.
-                size := size + 1.
+                size := size + 5.
                 solverID := solverID + 1 ]
     ]
 
