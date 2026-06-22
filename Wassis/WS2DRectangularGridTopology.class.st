@@ -259,61 +259,38 @@ WS2DRectangularGridTopology >> calculateDistancesBetweenClasses [
 	^ dict
 ]
 
-{ #category : 'deprecated-directions' }
-WS2DRectangularGridTopology >> computeConnectionDirectionsFor2: aClass withFootprint: aFootprint [
-    "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
-
-	 | pathIDToClasses connectionDirections sourceCenter |
-    connectionDirections := Dictionary new.
-    sourceCenter := aFootprint centerNode.
-    pathIDToClasses := Dictionary new.
-    
-    "Raggruppa le classi connesse per pathID"
-    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
-        | pathID |
-        pathID := self swSystem pathIDOf: aClass and: eachConnectedClass.
-        (pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) add: eachConnectedClass ].
-
-    "Per ogni pathID calcola la direzione verso il centroide del gruppo"
-    pathIDToClasses keysAndValuesDo: [ :pathID :classes |
-        | centroidColumn centroidRow centroidNode directions |
-		centroidColumn := ((classes collect: [ :c | (self classFootprint at: c) centerNode column ]) 
-		    inject: 0 into: [ :sum :col | sum + col ]) / classes size.
-		centroidRow := ((classes collect: [ :c | (self classFootprint at: c) centerNode row ])
-		    inject: 0 into: [ :sum :row | sum + row ]) / classes size.
-        "Crea un nodo virtuale per il centroide"
-        centroidNode := WSNode new position: {centroidRow rounded . centroidColumn rounded}.
-        directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
-        connectionDirections at: pathID put: directions ].
-    
-    ^ connectionDirections
-]
-
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
-    "Returns a Dictionary, keys are all the classes connected to aClass, values the preferred directions for each connected class"
+	"Returns a Dictionary, keys are all the IDs that a class must have, values the preferred directions for each id"
 
-	 | pathIDToClasses connectionDirections sourceCenter |
-    connectionDirections := Dictionary new.
-    sourceCenter := aFootprint centerNode.
-    pathIDToClasses := Dictionary new.
-    
-    (self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
-        (self swSystem pathIDsOf: aClass and: eachConnectedClass) do: [ :pathID |
-            (pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) 
-                add: eachConnectedClass ] ].
+	| pathIDToClasses connectionDirections sourceCenter |
+	connectionDirections := Dictionary new.
+	sourceCenter := aFootprint centerNode.
+	pathIDToClasses := Dictionary new.
+	
+	(self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
+			(self swSystem pathIDsOf: aClass and: eachConnectedClass) do: [ :pathID |
+				(pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) add: eachConnectedClass ] ].
 
-    pathIDToClasses keysAndValuesDo: [ :pathID :classes |
-        | centroidColumn centroidRow centroidNode directions |
-        centroidColumn := ((classes collect: [ :c | (self classFootprint at: c) centerNode column ]) 
-            inject: 0 into: [ :sum :col | sum + col ]) / classes size.
-        centroidRow := ((classes collect: [ :c | (self classFootprint at: c) centerNode row ])
-            inject: 0 into: [ :sum :row | sum + row ]) / classes size.
-        centroidNode := WSNode new position: { centroidRow rounded . centroidColumn rounded }.
-        directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
-        connectionDirections at: pathID put: directions ].
-    
-    ^ connectionDirections
+	pathIDToClasses keysAndValuesDo: [ :pathID :classes |
+		| sumRow sumCol count centroidNode directions |
+		
+		sumRow := 0.
+		sumCol := 0.
+		count := classes size.
+		
+		classes do: [ :eachClass | 
+			| node |
+			node := (self classFootprint at: eachClass) centerNode.
+			sumRow := sumRow + node row.
+			sumCol := sumCol + node column ].
+		
+		centroidNode := WSNode new position: { (sumRow / count) . (sumCol / count) }.
+		
+		directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
+		connectionDirections at: pathID put: directions ].
+
+	^ connectionDirections
 ]
 
 { #category : 'directions' }
@@ -663,7 +640,7 @@ WS2DRectangularGridTopology >> removePossibilitiesFromLastRowIn: aGrid [
 
 { #category : 'collapse' }
 WS2DRectangularGridTopology >> selectBestCandidate: candidates forClass: aClass footprintSize: n in: aGrid [
-	"Among the candidates for class psoitioning, select the one that minimize the manhattan distance form all the classes it is connected to"
+	"Among the candidates for class positioning, select the one that minimize the manhattan distance form all the classes it is connected to that have already been placed"
 	
 	 | connectedFootprints |
 	 connectedFootprints := OrderedCollection new.
