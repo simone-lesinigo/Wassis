@@ -507,7 +507,7 @@ WSSolver >> reifyWFCPaths [
 	"self graph correctPaths."
 	self graph setPathLengths.
 	"self graph calculatePathMetrics."
-	 self assignArrowDirectionsToAllPaths.
+	self assignArrowDirectionsToAllPaths.
 
 	
 	
@@ -539,7 +539,7 @@ WSSolver >> run [
 	self topology rebuildClassNodes: self graph.
 
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
-	self updateGraphMetrics.
+	"self updateGraphMetrics."
 	
 	
 	

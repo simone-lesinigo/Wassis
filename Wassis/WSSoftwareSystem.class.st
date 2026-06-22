@@ -110,17 +110,13 @@ WSSoftwareSystem >> createAllConnectionsPerClass [
 	"Create a dictionary. The key is a class, the value is a Set with all the classes thata are connected to that class (undirected)"
 
 	self allConnectionsPerClass: Dictionary new.
-	 	
-	self classes do: [ :eachClass |
-		self allConnectionsPerClass at: eachClass put: { eachClass incomingConnections . eachClass outgoingConnections } flattened.
-	]
 
-	"self classes do: [ :eachClass |
+	self classes do: [ :eachClass |
    		eachClass outgoingConnections do: [ :eachConnection |
       		| target |
          target := eachConnection target.
          (self allConnectionsPerClass at: eachClass ifAbsentPut: [ Set new ]) add: target.
-         (self allConnectionsPerClass at: target ifAbsentPut: [ Set new ]) add: eachClass ] ]"
+         (self allConnectionsPerClass at: target ifAbsentPut: [ Set new ]) add: eachClass ] ]
 ]
 
 { #category : 'creation' }
