@@ -166,37 +166,13 @@ WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge [
         | destination relationType allIDs pathID |
         destination := destAndType key.
         relationType := destAndType value.
-        allIDs := ((sources collect: [ :s | s id ]) copyWith: destination id) asSortedCollection.
-        pathID := (allIDs inject: '' into: [ :acc :id | acc , id printString ]) , '-' , relationType name.
+        allIDs := ((sources collect: [ :eachSource | eachSource id ]) copyWith: destination id) asSortedCollection.
+		  pathID := (allIDs inject: '' into: [ :acc :id | '' join: { acc . id } ]) , '-' , relationType name.
         
         sources do: [ :source |
             self classesPathIDs 
                 at: source and: destination and: relationType 
                 put: pathID ] ]
-]
-
-{ #category : 'creation' }
-WSSoftwareSystem >> createPathIDsFromClassesAllowinMerge2 [
-    "Classes that are connected to the same class share the same pathID"
-    
-        | destinationToSources |
-    destinationToSources := Dictionary new.
-    
-    self classes do: [ :eachClass |
-        eachClass outgoingConnections do: [ :eachConnection |
-            | target |
-            target := eachConnection target.
-            (destinationToSources at: target ifAbsentPut: [ OrderedCollection new ])
-                add: eachClass ] ].
- 
-    destinationToSources keysAndValuesDo: [ :destination :sources |
-        | allIDs pathID |
-        allIDs := ((sources collect: [ :s | s id ]) copyWith: destination id) asSortedCollection.
-
-        pathID := allIDs inject: '' into: [ :acc :id | acc , id printString ].
-        
-        sources do: [ :source |
-            self classesPathIDs at: (source -> destination) put: pathID ] ]
 ]
 
 { #category : 'initialization' }
