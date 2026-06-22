@@ -101,11 +101,10 @@ WSGrid2D >> getNeighboursOf: aNode atLevel: aNumber [
     
     (posX - aNumber) to: (posX + aNumber) do: [ :x |
         (posY - aNumber) to: (posY + aNumber) do: [ :y |
-            ((x = (posX - aNumber) or: [ x = (posX + aNumber) ]) or: [
-              y = (posY - aNumber) or: [ y = (posY + aNumber) ]])
-                ifTrue: [
-                    (self isInBoundsRow: x column: y) ifTrue: [
-                        neighbours add: (self atRow: x atColumn: y) ] ] ] ].
+			((x = ( posX -aNumber )) or: [ (x = (posX + aNumber)) or: [ (y = (posY - aNumber)) or: [ y = (posY + aNumber) ] ] ])
+         		ifTrue: [
+            		(self isInBoundsRow: x column: y) ifTrue: [
+                	neighbours add: (self atRow: x atColumn: y) ] ] ] ].
     
     ^ neighbours
 ]

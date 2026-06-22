@@ -74,6 +74,7 @@ WSAdaptiveSolver >> save [
 
 { #category : 'saving' }
 WSAdaptiveSolver >> saveFailedExecutionHistory [
+	"Add to the collection of failed execution at a certain dimension the failed executions of the current solver before erasing it"
 	
 	self solver ifNotNil: [ 
 		(self historyOfFailedExecutions at: self solver dimension ifAbsentPut: [ OrderedCollection new ])
