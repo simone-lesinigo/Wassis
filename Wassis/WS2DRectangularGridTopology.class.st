@@ -298,10 +298,11 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 	"Returns an OrderedCollection of directions sorted by preference"
 	| preferred remaining |
 	
-	preferred := self primaryDirectionsFor: deltaX and: deltaY.
+	preferred := (self primaryDirectionsFor: deltaX and: deltaY) asOrderedCollection.
+	preferred size = 2 ifTrue: [ preferred add: (self oppositeDirections at: preferred second) ].
 	
 	remaining := self class allSymbols asOrderedCollection.
-	remaining removeAll: preferred.
+	remaining removeAll: preferred. 
 	
 	^ preferred , (remaining shuffled)
 ]
