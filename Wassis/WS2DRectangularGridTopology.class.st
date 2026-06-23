@@ -141,8 +141,11 @@ WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
     | slots |
     slots := OrderedCollection new.
     aFootprint nodes do: [ :aNode |
-        (self exposedDirectionsOf: aNode inFootprint: aFootprint ) do: [ :dir |
-            slots add: aNode -> dir ] ].
+			| exposedDir |
+			exposedDir := (self exposedDirectionsOf: aNode inFootprint: aFootprint ).
+			exposedDir ifNotEmpty: [ slots add: aNode -> exposedDir ].
+    ].
+
     ^ slots
 ]
 
@@ -294,7 +297,7 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
 ]
 
 { #category : 'directions' }
-WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
+WS2DRectangularGridTopology >> computeDirectionsFor2: deltaX and: deltaY [
 	"Returns an OrderedCollection of directions sorted by preference"
 	| preferred remaining |
 	
@@ -305,6 +308,24 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
 	remaining removeAll: preferred. 
 	
 	^ preferred , (remaining shuffled)
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
+	"Returns an OrderedCollection of directions. At each direction is assigned a value (weight) based on the cosine similarity. 0 = perfect, 1 = orthogonal, 2 = opposite. Note: it's not possibile that both deltaX and deltaY are 0 at the same time"
+
+    | norm costFor directions |
+    norm := ((deltaX * deltaX) + (deltaY * deltaY)) sqrt.
+    costFor := [ :vx :vy | 1.0 - (((deltaX * vx) + (deltaY * vy)) / norm) ].
+
+	 directions := OrderedCollection new
+        add: self class rightSymbol -> (costFor value:  1 value:  0);
+        add: self class leftSymbol  -> (costFor value: -1 value:  0);
+        add: self class downSymbol  -> (costFor value:  0 value:  1);
+        add: self class upSymbol    -> (costFor value:  0 value: -1);
+        yourself.
+
+    ^ directions sorted: [ :a :b | a value >= b value ]
 ]
 
 { #category : 'tileset' }
@@ -338,8 +359,9 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
     | connectionDirections slots nodes |
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
+
 	 slots := self buildAvailableSlotsFor: aFootprint.
-	
+
 	 "Add border nodes"
 	 nodes := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
 	 "Add inner nodes"
@@ -566,7 +588,7 @@ WS2DRectangularGridTopology >> manhattanDistanceBetweenNode: node1 andNode: node
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> preferredDirectionsFrom: sourceNode to: targetNode [
-	"Create a list of directions (up, left, right, down), the order of the directions is given by a preferred choice based on the relative position of the target compared with the position of the source"
+	"Create a list of associations (up -> weight, left -> weight, right -> weight, down -> weight), the order of the directions is given by a preferred choice based on the relative position of the target compared with the position of the source"
 	
     | deltaX deltaY |
     deltaX := targetNode column - sourceNode column.
@@ -595,8 +617,8 @@ WS2DRectangularGridTopology >> primaryDirectionsFor: deltaX and: deltaY [
 	deltaX = 0 ifTrue: [ ^ { vertical } , (self class horizontalSymbols shuffled) ].
 
 	^ deltaX abs > deltaY abs 
-		ifTrue: [ { horizontal. vertical } ] 
-		ifFalse: [ { vertical. horizontal } ]
+		ifTrue: [ { horizontal  } ] 
+		ifFalse: [ { vertical . horizontal } ]
 ]
 
 { #category : 'reification' }
