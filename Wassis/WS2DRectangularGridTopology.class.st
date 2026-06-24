@@ -93,10 +93,10 @@ WS2DRectangularGridTopology >> asFailedExecution [
 	^ WS2DRectangularGridFailedExecution
 ]
 
-{ #category : 'directions' }
-WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
-    
-    | nodeEdges |
+{ #category : 'deprecated-directions' }
+WS2DRectangularGridTopology >> assignConnections2: connectionDirections toSlots: slots forClass: aClass [
+
+	| nodeEdges |
 
     nodeEdges := Dictionary new.
     slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
@@ -112,11 +112,67 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
             slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
             (nodeEdges at: slot key) at: bestDir put: pathID.
             slots remove: slot ] ].
-    
+
     ^ nodeEdges
 ]
 
 { #category : 'directions' }
+WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
+	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
+ 	
+	| nodeEdges groupedByPreferredDir |
+	nodeEdges := Dictionary new.
+	slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
+	groupedByPreferredDir := Dictionary new.
+	connectionDirections do: [ :eachAssign | (groupedByPreferredDir at: eachAssign targetDir key ifAbsentPut: [ SortedCollection sortBlock: [ :a :b |  a targetDir value <= b targetDir value] ]) add: eachAssign ].
+	
+	groupedByPreferredDir keysAndValuesDo: [ :eachDir :eachAssign | 
+		| remaining slotsSize eachAssignSize |
+		remaining := OrderedCollection new.
+		slotsSize := (slots at: eachDir) size.
+		eachAssignSize := eachAssign size.
+		slotsSize < eachAssignSize 
+			ifTrue: [ 
+				self halt.
+				remaining addAll: (eachAssign removeLast: eachAssignSize - slotsSize ).
+				self assignPathIDs: (eachAssign removeFirst: slotsSize) toSlots: (slots at: eachDir) into: nodeEdges.
+				remaining do: [ :eachRemaining | eachRemaining degrade].
+				remaining do: [ :eachRemaining | self assignPathIDs: eachRemaining toSlots: (slots at: eachRemaining targetDir key) into: nodeEdges.].
+			]
+			ifFalse: [ self assignPathIDs: (eachAssign removeFirst: eachAssignSize ) toSlots: (slots at: eachDir) into: nodeEdges]
+	].
+	
+	^ nodeEdges
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> assignPathIDs: assignments toSlots: slots into: nodeEdges [
+	
+	| sortedByAlignment |
+	sortedByAlignment := (SortedCollection sortBlock: [ :a :b |  a alignmentDir value <= b alignmentDir value]) addAll: assignments; yourself.
+	
+	sortedByAlignment do: [ :eachAssign |
+  		| bestNode |
+      bestNode := self bestNodeFrom: slots alignedWith: eachAssign alignmentDir key.
+      nodeEdges at: bestNode at: eachAssign targetDir key put: eachAssign pathID.
+      slots remove: bestNode ].
+	
+	
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> bestNodeFrom: nodes alignedWith: alignmentDir [
+
+    nodes size = 1 ifTrue: [ ^ nodes first ].
+    alignmentDir = self class leftSymbol  ifTrue: [ ^ nodes detectMin: [ :n | n column ] ].
+    alignmentDir = self class rightSymbol ifTrue: [ ^ nodes detectMax: [ :n | n column ] ].
+    alignmentDir = self class upSymbol    ifTrue: [ ^ nodes detectMin: [ :n | n row ] ].
+    alignmentDir = self class downSymbol  ifTrue: [ ^ nodes detectMax: [ :n | n row ] ].
+
+    ^ nodes first
+]
+
+{ #category : 'deprecated-directions' }
 WS2DRectangularGridTopology >> bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots [
     "Among all slots with bestDir, pick the one whose node is most aligned 
      with secondaryDir"
@@ -136,14 +192,14 @@ WS2DRectangularGridTopology >> bestSlotForDirection: bestDir secondaryDir: secon
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> buildAvailableSlotsFor: aFootprint [
-    "Returns an OrderedCollection of (WSNode -> direction) for all exposed directions"
+    "Returns a Dictionary of (direction -> WSNode) for all exposed directions"
     
     | slots |
-    slots := OrderedCollection new.
+    slots := Dictionary new.
     aFootprint nodes do: [ :aNode |
 			| exposedDir |
 			exposedDir := (self exposedDirectionsOf: aNode inFootprint: aFootprint ).
-			exposedDir ifNotEmpty: [ slots add: aNode -> exposedDir ].
+			exposedDir do: [ :eachDir | (slots at: eachDir ifAbsentPut: [ OrderedCollection new ]) add: aNode]
     ].
 
     ^ slots
@@ -267,7 +323,7 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
 	"Returns a Dictionary, keys are all the IDs that a class must have, values the preferred directions for each id"
 
 	| pathIDToClasses connectionDirections sourceCenter |
-	connectionDirections := Dictionary new.
+	connectionDirections := OrderedCollection new.
 	sourceCenter := aFootprint centerNode.
 	pathIDToClasses := Dictionary new.
 	
@@ -291,12 +347,12 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
 		centroidNode := WSNode new position: { (sumRow / count) . (sumCol / count) }.
 		
 		directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
-		connectionDirections at: pathID put: directions ].
+		connectionDirections add: (WSPathAssignment withPathID: pathID withDirectionCosts: directions) ].
 
 	^ connectionDirections
 ]
 
-{ #category : 'directions' }
+{ #category : 'deprecated-directions' }
 WS2DRectangularGridTopology >> computeDirectionsFor2: deltaX and: deltaY [
 	"Returns an OrderedCollection of directions sorted by preference"
 	| preferred remaining |
@@ -312,8 +368,8 @@ WS2DRectangularGridTopology >> computeDirectionsFor2: deltaX and: deltaY [
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
-	"Returns an OrderedCollection of directions. At each direction is assigned a value (weight) based on the cosine similarity. 0 = perfect, 1 = orthogonal, 2 = opposite. Note: it's not possibile that both deltaX and deltaY are 0 at the same time"
-
+	"Returns an OrderedCollection of directions. At each direction is assigned a value based on the cosine similarity. 0 = perfect, 1 = orthogonal, 2 = opposite. Note: it's not possibile that both deltaX and deltaY are 0 at the same time"
+	<toDo> "Rimuovi il blocco per serializzare"
     | norm costFor directions |
     norm := ((deltaX * deltaX) + (deltaY * deltaY)) sqrt.
     costFor := [ :vx :vy | 1.0 - (((deltaX * vx) + (deltaY * vy)) / norm) ].
@@ -325,7 +381,7 @@ WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
         add: self class upSymbol    -> (costFor value:  0 value: -1);
         yourself.
 
-    ^ directions sorted: [ :a :b | a value >= b value ]
+    ^ directions sorted: [ :a :b | a value <= b value ]
 ]
 
 { #category : 'tileset' }
@@ -361,7 +417,6 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 
 	 slots := self buildAvailableSlotsFor: aFootprint.
-
 	 "Add border nodes"
 	 nodes := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
 	 "Add inner nodes"
@@ -599,7 +654,7 @@ WS2DRectangularGridTopology >> preferredDirectionsFrom: sourceNode to: targetNod
 	
 ]
 
-{ #category : 'directions' }
+{ #category : 'deprecated-directions' }
 WS2DRectangularGridTopology >> primaryDirectionsFor: deltaX and: deltaY [
 	"Note that deltaX can be equal to deltaY but they cannot be both 0 at the same time"
 	
