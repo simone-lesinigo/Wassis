@@ -120,28 +120,62 @@ WS2DRectangularGridTopology >> assignConnections2: connectionDirections toSlots:
 WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
 	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
  	
-	| nodeEdges groupedByPreferredDir |
+	| nodeEdges groupedByPreferredDir remaining|
 	nodeEdges := Dictionary new.
 	slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
 	groupedByPreferredDir := Dictionary new.
-	connectionDirections do: [ :eachAssign | (groupedByPreferredDir at: eachAssign targetDir key ifAbsentPut: [ SortedCollection sortBlock: [ :a :b |  a targetDir value <= b targetDir value] ]) add: eachAssign ].
+	    connectionDirections do: [ :eachAssign |
+        (groupedByPreferredDir
+            at: eachAssign targetDir key
+            ifAbsentPut: [ SortedCollection sortBlock: [ :a :b | a targetDir value <= b targetDir value ] ])
+            add: eachAssign ].
 	
 	groupedByPreferredDir keysAndValuesDo: [ :eachDir :eachAssign | 
-		| remaining slotsSize eachAssignSize |
+		| slotsSize eachAssignSize |
 		remaining := OrderedCollection new.
-		slotsSize := (slots at: eachDir) size.
+		slotsSize := (slots at: eachDir ifAbsent: [{}]) size.
 		eachAssignSize := eachAssign size.
 		slotsSize < eachAssignSize 
 			ifTrue: [ 
-				self halt.
-				remaining addAll: (eachAssign removeLast: eachAssignSize - slotsSize ).
+				remaining addAll: (eachAssign removeLast: eachAssignSize - slotsSize).
 				self assignPathIDs: (eachAssign removeFirst: slotsSize) toSlots: (slots at: eachDir) into: nodeEdges.
-				remaining do: [ :eachRemaining | eachRemaining degrade].
-				remaining do: [ :eachRemaining | self assignPathIDs: eachRemaining toSlots: (slots at: eachRemaining targetDir key) into: nodeEdges.].
 			]
 			ifFalse: [ self assignPathIDs: (eachAssign removeFirst: eachAssignSize ) toSlots: (slots at: eachDir) into: nodeEdges]
 	].
-	
+
+	[ remaining isNotEmpty ] whileTrue: [
+        | groupedBySecondDir |
+
+        remaining do: [ :each | each degrade ].
+        
+        groupedBySecondDir := Dictionary new.
+        remaining do: [ :each | 
+            (groupedBySecondDir at: each targetDir key ifAbsentPut: [ 
+                SortedCollection sortBlock: [ :a :b | a targetDir value <= b targetDir value ] 
+            ]) add: each ].
+            
+        remaining := OrderedCollection new.
+
+        groupedBySecondDir keysAndValuesDo: [ :nextDir :assignments |
+            | availableSlotsSize |
+            availableSlotsSize := (slots at: nextDir ifAbsent: [ #() ]) size.
+            
+            assignments size <= availableSlotsSize
+                ifTrue: [
+                    self assignPathIDs: assignments asOrderedCollection toSlots: (slots at: nextDir) into: nodeEdges.
+                ]
+                ifFalse: [
+
+                    | winners losers |
+                    winners := assignments removeFirst: availableSlotsSize.
+                    losers := assignments. 
+                    
+                    self assignPathIDs: winners toSlots: (slots at: nextDir) into: nodeEdges.
+                    
+                    remaining addAll: losers.
+                ]
+        ].
+    ].
 	^ nodeEdges
 ]
 
@@ -150,7 +184,7 @@ WS2DRectangularGridTopology >> assignPathIDs: assignments toSlots: slots into: n
 	
 	| sortedByAlignment |
 	sortedByAlignment := (SortedCollection sortBlock: [ :a :b |  a alignmentDir value <= b alignmentDir value]) addAll: assignments; yourself.
-	
+
 	sortedByAlignment do: [ :eachAssign |
   		| bestNode |
       bestNode := self bestNodeFrom: slots alignedWith: eachAssign alignmentDir key.

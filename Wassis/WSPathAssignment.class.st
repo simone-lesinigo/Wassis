@@ -37,6 +37,15 @@ WSPathAssignment >> alignmentDir: anObject [
 	alignmentDir := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+WSPathAssignment >> degrade [
+	
+	| currentIndex |
+	currentIndex := self directionCosts indexOf: self targetDir.
+	self targetDir: (self directionCosts at: currentIndex + 1).
+	self alignmentDir: (self directionCosts first).
+]
+
 { #category : 'accessing' }
 WSPathAssignment >> directionCosts [
 
