@@ -37,7 +37,7 @@ WSPathAssignment >> alignmentDir: anObject [
 	alignmentDir := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'modifying' }
 WSPathAssignment >> degrade [
 	
 	| currentIndex |

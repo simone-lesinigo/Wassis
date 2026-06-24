@@ -122,6 +122,7 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
  	
 	| nodeEdges groupedByPreferredDir remaining|
 	nodeEdges := Dictionary new.
+	remaining := OrderedCollection new.
 	slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
 	groupedByPreferredDir := Dictionary new.
 	    connectionDirections do: [ :eachAssign |
@@ -132,7 +133,6 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
 	
 	groupedByPreferredDir keysAndValuesDo: [ :eachDir :eachAssign | 
 		| slotsSize eachAssignSize |
-		remaining := OrderedCollection new.
 		slotsSize := (slots at: eachDir ifAbsent: [{}]) size.
 		eachAssignSize := eachAssign size.
 		slotsSize < eachAssignSize 
