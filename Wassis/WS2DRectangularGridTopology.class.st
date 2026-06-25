@@ -95,35 +95,16 @@ WS2DRectangularGridTopology >> asFailedExecution [
 
 { #category : 'deprecated-directions' }
 WS2DRectangularGridTopology >> assignConnections2: connectionDirections toSlots: slots forClass: aClass [
-
-	| nodeEdges |
-
-    nodeEdges := Dictionary new.
-    slots do: [ :s | nodeEdges at: s key ifAbsentPut: [ Dictionary new ] ].
-    
-    connectionDirections keysAndValuesDo: [ :pathID :directions |
-        | bestDir secondaryDir slot |
-        bestDir := directions 
-            detect: [ :dir | slots anySatisfy: [ :s | s value = dir ] ]
-            ifNone: [ nil ].
-        
-        bestDir ifNotNil: [
-            secondaryDir := directions detect: [ :dir | dir ~= bestDir ] ifNone: [ nil ].
-            slot := self bestSlotForDirection: bestDir secondaryDir: secondaryDir fromSlots: slots.
-            (nodeEdges at: slot key) at: bestDir put: pathID.
-            slots remove: slot ] ].
-
-    ^ nodeEdges
-]
-
-{ #category : 'directions' }
-WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
 	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
  	
 	| nodeEdges groupedByPreferredDir remaining|
 	nodeEdges := Dictionary new.
 	remaining := OrderedCollection new.
 	slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
+	
+	
+	
+	
 	groupedByPreferredDir := Dictionary new.
 	    connectionDirections do: [ :eachAssign |
         (groupedByPreferredDir
@@ -177,6 +158,62 @@ WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: 
         ].
     ].
 	^ nodeEdges
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
+    "Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
+
+    | nodeEdges remaining |
+    nodeEdges := Dictionary new.
+    slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
+
+    remaining := self
+        assignGrouped: connectionDirections
+        toSlots: slots
+        into: nodeEdges.
+
+    [ remaining isNotEmpty ] whileTrue: [
+        remaining do: [ :each | each degrade ].
+        remaining := self
+            assignGrouped: remaining
+            toSlots: slots
+            into: nodeEdges.
+    ].
+
+    ^ nodeEdges
+]
+
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> assignGrouped: assignments toSlots: slots into: nodeEdges [
+    "Assign each assignment to its preferred slot direction.
+     Returns an OrderedCollection of assignments that couldn't be placed."
+
+    | grouped overflow |
+    overflow := OrderedCollection new.
+    grouped := Dictionary new.
+
+    assignments do: [ :each |
+        (grouped
+            at: each targetDir key
+            ifAbsentPut: [ SortedCollection sortBlock: [ :a :b | a targetDir value <= b targetDir value ] ])
+            add: each ].
+
+    grouped keysAndValuesDo: [ :dir :dirAssignments |
+        | available winners losers dirAssignmentsColl |
+        available := (slots at: dir ifAbsent: [ { } ]) size.
+		  dirAssignmentsColl := dirAssignments asOrderedCollection.
+        dirAssignmentsColl  size <= available
+            ifTrue: [
+                winners := dirAssignments asOrderedCollection.
+                losers := { } ]
+            ifFalse: [
+                winners := dirAssignmentsColl  copyFrom: 1 to: available.
+                losers := dirAssignmentsColl  copyFrom: available + 1 to: dirAssignmentsColl  size ].
+        self assignPathIDs: winners toSlots: (slots at: dir ifAbsent: [ { } ]) into: nodeEdges.
+        overflow addAll: losers ].
+
+    ^ overflow
 ]
 
 { #category : 'directions' }
@@ -326,6 +363,7 @@ WS2DRectangularGridTopology >> buildTiles: nodeEdges forClass: aClass [
         dirPathDict keysAndValuesDo: [ :dir :pathID |
             edges at: (posDir at: dir) put: pathID ].
         result at: aNode put: (WSClassTile withClass: aClass andEdges: (self createTileEdgesFrom: edges)) ].
+
     ^ result
 ]
 
