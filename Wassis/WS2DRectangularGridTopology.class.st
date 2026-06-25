@@ -353,6 +353,23 @@ WS2DRectangularGridTopology >> calculateDistancesBetweenClasses [
 ]
 
 { #category : 'directions' }
+WS2DRectangularGridTopology >> centroidNodeForClasses: aCollectionOfClasses [
+	"Computes the average position (centroid) of a collection of classes"
+
+	| sumPoint count |
+	count := aCollectionOfClasses size.
+	
+	sumPoint := aCollectionOfClasses 
+		inject: 0 @ 0
+		into: [ :acc :eachClass | 
+			| node |
+			node := (self classFootprint at: eachClass) centerNode.
+			acc + (node row @ node column) ].
+
+	^ WSNode new position: { (sumPoint x / count) . (sumPoint y / count) }
+]
+
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootprint: aFootprint [
 	"Returns a Dictionary, keys are all the IDs that a class must have, values the preferred directions for each id"
 
@@ -364,26 +381,16 @@ WS2DRectangularGridTopology >> computeConnectionDirectionsFor: aClass withFootpr
 	(self swSystem allConnectionsOf: aClass) do: [ :eachConnectedClass |
 			(self swSystem pathIDsOf: aClass and: eachConnectedClass) do: [ :pathID |
 				(pathIDToClasses at: pathID ifAbsentPut: [ OrderedCollection new ]) add: eachConnectedClass ] ].
-
-	pathIDToClasses keysAndValuesDo: [ :pathID :classes |
-		| sumRow sumCol count centroidNode directions |
 		
-		sumRow := 0.
-		sumCol := 0.
-		count := classes size.
+	^ pathIDToClasses associations collect: [ :eachAssociation |
+		| pathID classes centroidNode directions |
+		pathID := eachAssociation key.
+		classes := eachAssociation value.
 		
-		classes do: [ :eachClass | 
-			| node |
-			node := (self classFootprint at: eachClass) centerNode.
-			sumRow := sumRow + node row.
-			sumCol := sumCol + node column ].
-		
-		centroidNode := WSNode new position: { (sumRow / count) . (sumCol / count) }.
-		
+		centroidNode := self centroidNodeForClasses: classes.
 		directions := self preferredDirectionsFrom: sourceCenter to: centroidNode.
-		connectionDirections add: (WSPathAssignment withPathID: pathID withDirectionCosts: directions) ].
-
-	^ connectionDirections
+		
+		WSPathAssignment withPathID: pathID withDirectionCosts: directions ]
 ]
 
 { #category : 'deprecated-directions' }
