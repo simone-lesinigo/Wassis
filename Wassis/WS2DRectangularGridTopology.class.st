@@ -402,9 +402,17 @@ WS2DRectangularGridTopology >> computeDirectionsFor2: deltaX and: deltaY [
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> computeDirectionsFor: deltaX and: deltaY [
-	"Returns an OrderedCollection of directions. At each direction is assigned a value based on the cosine similarity. 0 = perfect, 1 = orthogonal, 2 = opposite. Note: it's not possibile that both deltaX and deltaY are 0 at the same time"
-	<toDo> "Rimuovi il blocco per serializzare"
+	"Returns an OrderedCollection of directions. At each direction is assigned a value based on the cosine similarity. 0 = perfect, 1 = orthogonal, 2 = opposite. Note: despite the classes have a minimum distance between them, due to the calculation of the centroid bot deltaX and deltaY cna be 0 at the same time -> no preferred direction"
+
     | norm costFor directions |
+	 (deltaX = 0 and: [ deltaY = 0 ]) ifTrue: [ 
+	    ^ (OrderedCollection new
+	        add: self class rightSymbol -> 1.0;
+	        add: self class leftSymbol  -> 1.0;
+	        add: self class downSymbol  -> 1.0;
+	        add: self class upSymbol    -> 1.0;
+	        yourself) shuffled ].
+
     norm := ((deltaX * deltaX) + (deltaY * deltaY)) sqrt.
     costFor := [ :vx :vy | 1.0 - (((deltaX * vx) + (deltaY * vy)) / norm) ].
 
