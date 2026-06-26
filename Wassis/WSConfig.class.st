@@ -227,18 +227,12 @@ WSConfig class >> readConfigFile [
 
 { #category : 'class initialization' }
 WSConfig class >> reset [
+	"Clean all the values of the cofnig attributes"
 	
-	self configFile: nil.
-	self maxNumberOfRegeneratedGraph: nil.
-	self maxNumberOfTriesPerGraph: nil.
-	self emptyTileWeight: nil.
-	self classTileWeight: nil.
-	self isHeadless: nil.
-	self placementStrategy: nil.
-	self saveFailedExecution: nil.
-	self heapType: nil.
+	self classPool keysAndValuesDo: [ :varName :value | self classPool at: varName put: nil ].
 	
-	self allSubclassesDo: [ :eachSubclass | eachSubclass reset ]
+	self allSubclassesDo: [ :subclass | 
+		subclass classPool keysAndValuesDo: [ :varName :value | subclass classPool at: varName put: nil ] ]
 ]
 
 { #category : 'accessing' }

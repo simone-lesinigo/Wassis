@@ -67,18 +67,6 @@ WS2DRectangularGridConfig class >> mergingTileWeight: anObject [
 	MergingTileWeight := anObject
 ]
 
-{ #category : 'class initialization' }
-WS2DRectangularGridConfig class >> reset [
-
-	self emptyTileWeight: nil. 
-	self cornerTileWeight: nil. 
-	self straightTileWeight: nil. 
-	self crossingTileWeight: nil. 
-	self mergingTileWeight: nil. 
-	
-	self squareVisitorTileSize: nil. 
-]
-
 { #category : 'accessing' }
 WS2DRectangularGridConfig class >> squareVisitorTileSize [
 	
