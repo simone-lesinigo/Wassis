@@ -462,13 +462,16 @@ WS2DRectangularGridTopology >> createAllPathTiles [
 WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
-    | connectionDirections slots nodes |
+    | connectionDirections slots nodes strategySelector |
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 
 	 slots := self buildAvailableSlotsFor: aFootprint.
+	
 	 "Add border nodes"
-	 nodes := self assignConnectionsGreedy: connectionDirections toSlots: slots forClass: aClass.
+	 strategySelector := ('assignConnections' , WSConfig connectionAssignmentStrategy , ':toSlots:forClass:') asSymbol.
+	 nodes := self perform: strategySelector withArguments: { connectionDirections .  slots . aClass }.
+
 	 "Add inner nodes"
 	 (aFootprint innerNodes: self) do: [ :eachNode | 
 		nodes at: eachNode put: Dictionary new

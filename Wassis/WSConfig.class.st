@@ -7,6 +7,7 @@ Class {
 	#classVars : [
 		'ClassTileWeight',
 		'ConfigFile',
+		'ConnectionAssignmentStrategy',
 		'EmptyTileWeight',
 		'HeapType',
 		'IsHeadless',
@@ -51,6 +52,30 @@ WSConfig class >> configFile [
 WSConfig class >> configFile: anObject [
 
 	ConfigFile := anObject
+]
+
+{ #category : 'accessing-pathID' }
+WSConfig class >> connectionAssignmentStrategy [
+	
+	ConnectionAssignmentStrategy ifNil: [ 
+		| strategyString |
+		strategyString := self configFile 
+			atPath: #('connectionAssignmentStrategy') 
+			default: 'grouped'.
+			
+		(#('grouped' 'greedy') includes: strategyString) ifFalse: [ 
+			strategyString := 'grouped' ].
+			
+		self connectionAssignmentStrategy: strategyString capitalized asSymbol.
+	].
+
+	^ ConnectionAssignmentStrategy
+]
+
+{ #category : 'accessing-pathID' }
+WSConfig class >> connectionAssignmentStrategy: anObject [
+
+	ConnectionAssignmentStrategy := anObject
 ]
 
 { #category : 'accessing' }

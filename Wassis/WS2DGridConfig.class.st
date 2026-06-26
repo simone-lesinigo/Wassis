@@ -5,30 +5,12 @@ Class {
 	#name : 'WS2DGridConfig',
 	#superclass : 'WSConfig',
 	#classVars : [
-		'ConnectionAssignmentStrategy',
 		'GridSafetyMooreRadius'
 	],
 	#category : 'Wassis-Config',
 	#package : 'Wassis',
 	#tag : 'Config'
 }
-
-{ #category : 'accessing' }
-WS2DGridConfig class >> connectionAssignmentStrategy [
-	
-	ConnectionAssignmentStrategy ifNil: [ 
-		self connectionAssignmentStrategy: 
-			(self configFile atPath: {'WS2DGridTopology' . 'connectionAssignmentStrategy'} default: 'grouped').
-	].
-
-	^ ConnectionAssignmentStrategy
-]
-
-{ #category : 'private - accessing' }
-WS2DGridConfig class >> connectionAssignmentStrategy: anObject [
-
-	ConnectionAssignmentStrategy := anObject
-]
 
 { #category : 'accessing' }
 WS2DGridConfig class >> gridSafetyMooreRadius [
