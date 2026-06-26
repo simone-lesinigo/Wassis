@@ -93,7 +93,7 @@ WSConfig class >> heapType [
 	
 	HeapType ifNil: [ 
 		self heapType: 
-			(self configFile atPath:  {'heapType'} default: 'minHeap').
+			(self configFile atPath:  {'heapType'} default: 'maxHeap').
 	].
 
 	^ HeapType 

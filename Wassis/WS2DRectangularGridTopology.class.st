@@ -93,76 +93,38 @@ WS2DRectangularGridTopology >> asFailedExecution [
 	^ WS2DRectangularGridFailedExecution
 ]
 
-{ #category : 'deprecated-directions' }
-WS2DRectangularGridTopology >> assignConnections2: connectionDirections toSlots: slots forClass: aClass [
-	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
+{ #category : 'directions' }
+WS2DRectangularGridTopology >> assignConnectionsGreedy: connectionDirections toSlots: slots forClass: aClass [
+	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID. Greedy strategy based on the first available slot"
  	
-	| nodeEdges groupedByPreferredDir remaining|
-	nodeEdges := Dictionary new.
-	remaining := OrderedCollection new.
-	slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
-	
-	
-	
-	
-	groupedByPreferredDir := Dictionary new.
-	    connectionDirections do: [ :eachAssign |
-        (groupedByPreferredDir
-            at: eachAssign targetDir key
-            ifAbsentPut: [ SortedCollection sortBlock: [ :a :b | a targetDir value <= b targetDir value ] ])
-            add: eachAssign ].
-	
-	groupedByPreferredDir keysAndValuesDo: [ :eachDir :eachAssign | 
-		| slotsSize eachAssignSize |
-		slotsSize := (slots at: eachDir ifAbsent: [{}]) size.
-		eachAssignSize := eachAssign size.
-		slotsSize < eachAssignSize 
-			ifTrue: [ 
-				remaining addAll: (eachAssign removeLast: eachAssignSize - slotsSize).
-				self assignPathIDs: (eachAssign removeFirst: slotsSize) toSlots: (slots at: eachDir) into: nodeEdges.
-			]
-			ifFalse: [ self assignPathIDs: (eachAssign removeFirst: eachAssignSize ) toSlots: (slots at: eachDir) into: nodeEdges]
+	| nodeEdges |
+
+    nodeEdges := Dictionary new.
+    slots do: [ :nodes | nodes do: [ :aNode | nodeEdges at: aNode ifAbsentPut: [ Dictionary new ] ] ].
+
+	connectionDirections do: [ :eachAssign | 
+		| bestDir  availableNodes bestNode |
+		bestDir := eachAssign directionCosts detect: [ :eachCostAssoc | 
+			(slots at: eachCostAssoc key ifAbsent: [ #() ]) isNotEmpty ] ifNone: [ nil ].
+		
+		bestDir ifNotNil: [  
+			| bestDirSymbol secondaryDirSymbol |
+			bestDirSymbol := bestDir key.
+			secondaryDirSymbol := (eachAssign directionCosts detect: [ :eachAssoc | eachAssoc key ~= bestDirSymbol ]) key.
+			availableNodes := slots at: bestDirSymbol.
+			bestNode := self bestNodeFrom: availableNodes alignedWith: secondaryDirSymbol.
+			nodeEdges at: bestNode at: bestDirSymbol put: eachAssign pathID.
+			availableNodes remove: bestNode
+		]
 	].
+    
+    ^ nodeEdges
 
-	[ remaining isNotEmpty ] whileTrue: [
-        | groupedBySecondDir |
-
-        remaining do: [ :each | each degrade ].
-        
-        groupedBySecondDir := Dictionary new.
-        remaining do: [ :each | 
-            (groupedBySecondDir at: each targetDir key ifAbsentPut: [ 
-                SortedCollection sortBlock: [ :a :b | a targetDir value <= b targetDir value ] 
-            ]) add: each ].
-            
-        remaining := OrderedCollection new.
-
-        groupedBySecondDir keysAndValuesDo: [ :nextDir :assignments |
-            | availableSlotsSize |
-            availableSlotsSize := (slots at: nextDir ifAbsent: [ #() ]) size.
-            
-            assignments size <= availableSlotsSize
-                ifTrue: [
-                    self assignPathIDs: assignments asOrderedCollection toSlots: (slots at: nextDir) into: nodeEdges.
-                ]
-                ifFalse: [
-
-                    | winners losers |
-                    winners := assignments removeFirst: availableSlotsSize.
-                    losers := assignments. 
-                    
-                    self assignPathIDs: winners toSlots: (slots at: nextDir) into: nodeEdges.
-                    
-                    remaining addAll: losers.
-                ]
-        ].
-    ].
-	^ nodeEdges
 ]
 
 { #category : 'directions' }
-WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
-    "Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID"
+WS2DRectangularGridTopology >> assignConnectionsGrouped: connectionDirections toSlots: slots forClass: aClass [
+    "Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID. Group the pathIDs by preferred direction and try to assign the best slot globally"
 
     | nodeEdges remaining |
     nodeEdges := Dictionary new.
@@ -201,16 +163,16 @@ WS2DRectangularGridTopology >> assignGrouped: assignments toSlots: slots into: n
 
     grouped keysAndValuesDo: [ :dir :dirAssignments |
         | available winners losers dirAssignmentsColl |
-        available := (slots at: dir ifAbsent: [ { } ]) size.
+        available := (slots at: dir ifAbsent: [ #() ]) size.
 		  dirAssignmentsColl := dirAssignments asOrderedCollection.
-        dirAssignmentsColl  size <= available
+        dirAssignmentsColl size <= available
             ifTrue: [
                 winners := dirAssignments asOrderedCollection.
-                losers := { } ]
+                losers := #() ]
             ifFalse: [
-                winners := dirAssignmentsColl  copyFrom: 1 to: available.
-                losers := dirAssignmentsColl  copyFrom: available + 1 to: dirAssignmentsColl  size ].
-        self assignPathIDs: winners toSlots: (slots at: dir ifAbsent: [ { } ]) into: nodeEdges.
+                winners := dirAssignmentsColl copyFrom: 1 to: available.
+                losers := dirAssignmentsColl copyFrom: available + 1 to: dirAssignmentsColl size ].
+        self assignPathIDs: winners toSlots: (slots at: dir ifAbsent: [ #() ]) into: nodeEdges.
         overflow addAll: losers ].
 
     ^ overflow
@@ -233,6 +195,7 @@ WS2DRectangularGridTopology >> assignPathIDs: assignments toSlots: slots into: n
 
 { #category : 'directions' }
 WS2DRectangularGridTopology >> bestNodeFrom: nodes alignedWith: alignmentDir [
+	"Between the nodes that expose all the same direction, find the one that best fit alignmentDir"
 
     nodes size = 1 ifTrue: [ ^ nodes first ].
     alignmentDir = self class leftSymbol  ifTrue: [ ^ nodes detectMin: [ :n | n column ] ].
@@ -505,7 +468,7 @@ WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint
 
 	 slots := self buildAvailableSlotsFor: aFootprint.
 	 "Add border nodes"
-	 nodes := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
+	 nodes := self assignConnectionsGreedy: connectionDirections toSlots: slots forClass: aClass.
 	 "Add inner nodes"
 	 (aFootprint innerNodes: self) do: [ :eachNode | 
 		nodes at: eachNode put: Dictionary new
