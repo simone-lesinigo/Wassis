@@ -3,6 +3,7 @@
     "saveFailedExecution": false,
     "heapType": "maxHeap",
     "placementStrategy": "metricMDS",
+    "connectionAssignmentStrategy": "grouped",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
         "maxNumberOfRegeneratedGraph": 5000
