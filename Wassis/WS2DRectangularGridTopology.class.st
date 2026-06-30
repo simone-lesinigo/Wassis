@@ -94,6 +94,17 @@ WS2DRectangularGridTopology >> asFailedExecution [
 ]
 
 { #category : 'directions' }
+WS2DRectangularGridTopology >> assignConnections: connectionDirections toSlots: slots forClass: aClass [
+	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID. Select the right strategy"
+	
+	| strategySelector |
+	
+	strategySelector := ('assignConnections' , WSConfig connectionAssignmentStrategy , ':toSlots:forClass:') asSymbol.
+	
+	^ self perform: strategySelector withArguments: { connectionDirections . slots . aClass }.
+]
+
+{ #category : 'directions' }
 WS2DRectangularGridTopology >> assignConnectionsGreedy: connectionDirections toSlots: slots forClass: aClass [
 	"Return a dictionary WSNode -> aDictionary where aDictionary is direction -> pathID. Greedy strategy based on the first available slot"
  	
@@ -462,15 +473,14 @@ WS2DRectangularGridTopology >> createAllPathTiles [
 WS2DRectangularGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
     "Returns a Dictionary WSNode -> WSClassTile with exits distributed across the footprint"
 
-    | connectionDirections slots nodes strategySelector |
+    | connectionDirections slots nodes |
 
     connectionDirections := (self computeConnectionDirectionsFor: aClass withFootprint: aFootprint).
 
 	 slots := self buildAvailableSlotsFor: aFootprint.
 	
 	 "Add border nodes"
-	 strategySelector := ('assignConnections' , WSConfig connectionAssignmentStrategy , ':toSlots:forClass:') asSymbol.
-	 nodes := self perform: strategySelector withArguments: { connectionDirections .  slots . aClass }.
+	 nodes := self assignConnections: connectionDirections toSlots: slots forClass: aClass.
 
 	 "Add inner nodes"
 	 (aFootprint innerNodes: self) do: [ :eachNode | 
