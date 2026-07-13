@@ -55,8 +55,10 @@ WSAdaptive2DGridSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 WSAdaptive2DGridSolver >> executeRun [
 
     | totalTime |
+
     metrics := WSMetrics new.
     self resetEnvironment.
+
     WSCurrentMetrics value: metrics during: [
         totalTime := [ self solveWithIncreasingSize. Smalltalk garbageCollect ] timeToRun.
         self updatePerformanceMetricsWithTime: totalTime.
@@ -84,6 +86,7 @@ WSAdaptive2DGridSolver >> resetEnvironment [
 
 { #category : 'running' }
 WSAdaptive2DGridSolver >> run [
+	"If the current configuration is not headless, fork the run"
 
     WSConfig isHeadless 
         ifTrue: [ self executeRun ]

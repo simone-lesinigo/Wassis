@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Placement'
 }
+
+{ #category : 'calculating' }
+WSRandomClassPlacingOrder >> orderForSwSystem: swSystem [
+	
+	^ swSystem classes shuffled
+]

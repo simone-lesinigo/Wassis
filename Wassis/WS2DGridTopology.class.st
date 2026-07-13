@@ -41,7 +41,7 @@ WS2DGridTopology class >> withGrid: aPoint [
 { #category : 'collapse' }
 WS2DGridTopology >> assignNodesToClassesIn: aGrid [
     "For each class select the node in which it will be placed"
-
+	
     self createClassesPlacingOrder do: [ :eachClass |
         | footprint |
         footprint := self buildFootprintFor: eachClass in: aGrid.
@@ -135,36 +135,7 @@ WS2DGridTopology >> createClassTiles: aClass forFootprint: aFootprint [
 WS2DGridTopology >> createClassesPlacingOrder [
 	"Create the order in which the class will be placed"
 	
-    | startClass visited queue result |
-		^ self swSystem classes shuffled.
-   " startClass := self swSystem classes detectMax: [ :each | (self swSystem allConnectionsOf: each) size ].
-    
-    result := OrderedCollection new. 
-    visited := Set new.             
-    queue := OrderedCollection new.
-    
-    queue add: startClass.
-    visited add: startClass. 
-
-    [ queue notEmpty ] whileTrue: [
-        | current neighbors |
-        current := queue removeFirst.
-        result add: current.
-        
-        neighbors := (self swSystem allConnectionsOf: current) reject: [ :each | visited includes: each ].
-            
-        neighbors do: [ :each | 
-            visited add: each.
-            queue addLast: each ].
-    ].
-
-
-    self swSystem classes do: [ :each |
-        (visited includes: each) ifFalse: [ 
-            result add: each.
-            visited add: each ] ].
-
-    ^ result"
+	 ^ WSConfig classPlacingOrder orderForSwSystem: self swSystem
 ]
 
 { #category : 'matrix' }
@@ -257,8 +228,10 @@ WS2DGridTopology >> createMatrixFromTileset [
 WS2DGridTopology >> createMockNode [
 
 	 | node |
+	
     node := WSNode new possibleTiles: (self tileset tiles veryDeepCopy).
     node updateShannonEntropyFromScratch.
+
     ^ node
 ]
 
