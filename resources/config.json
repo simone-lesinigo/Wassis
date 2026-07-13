@@ -3,6 +3,7 @@
     "saveFailedExecution": false,
     "heapType": "maxHeap",
     "placementStrategy": "metricMDS",
+    "classPlacingOrder": "BFSmax",
     "connectionAssignmentStrategy": "grouped",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
