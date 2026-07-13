@@ -37,7 +37,7 @@ WSBFSClassPlacingOrder >> orderForSwSystem: swSystem [
 	^ result
 ]
 
-{ #category : 'calculating' }
+{ #category : 'accessing' }
 WSBFSClassPlacingOrder >> startClassFor: swSystem [
 
 	^ self subclassResponsibility
