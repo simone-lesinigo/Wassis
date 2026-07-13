@@ -5,6 +5,7 @@ Class {
 	#name : 'WSConfig',
 	#superclass : 'WSObject',
 	#classVars : [
+		'ClassPlacingOrder',
 		'ClassTileWeight',
 		'ConfigFile',
 		'ConnectionAssignmentStrategy',
@@ -20,6 +21,38 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Config'
 }
+
+{ #category : 'accessing' }
+WSConfig class >> classPlacingOrder [
+	
+	ClassPlacingOrder ifNil: [ 
+		| placingOrderKey placingOrderMap placingOrder |
+		
+		placingOrderKey := self configFile atPath: {'classPlacingOrder'} default: 'random'.
+		
+		placingOrderMap := Dictionary new
+			at: 'random' put: WSRandomClassPlacingOrder;
+			at: 'minConnectionFirst' put: WSMinConnectionFirstClassPlacingOrder;
+			at: 'maxConnectionFirst' put: WSMaxConnectionFirstClassPlacingOrder;
+			at: 'BFSmin' put: WSBFSMinClassPlacingOrder;
+			at: 'BFSmax' put: WSBFSMaxClassPlacingOrder;
+			yourself.
+		
+		placingOrder := (placingOrderMap at: placingOrderKey ifAbsent: [ self error: 'Unknown class placing order: ', placingOrderKey ]).
+			
+		self classPlacingOrder: placingOrder new.
+	].
+
+	^ ClassPlacingOrder
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> classPlacingOrder: anObject [
+	
+	ClassPlacingOrder := anObject
+	
+	
+]
 
 { #category : 'accessing-tileWeight' }
 WSConfig class >> classTileWeight [
