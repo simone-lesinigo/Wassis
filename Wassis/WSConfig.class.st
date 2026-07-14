@@ -14,6 +14,7 @@ Class {
 		'IsHeadless',
 		'MaxNumberOfRegeneratedGraph',
 		'MaxNumberOfTriesPerGraph',
+		'PathTargetStrategy',
 		'PlacementStrategy',
 		'SaveFailedExecution'
 	],
@@ -241,6 +242,36 @@ WSConfig class >> maxNumberOfTriesPerGraph [
 WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 
 	MaxNumberOfTriesPerGraph := anObject
+]
+
+{ #category : 'accessing' }
+WSConfig class >> pathTargetStrategy [
+	
+	PathTargetStrategy ifNil: [ 
+		| pathTargetKey pathTargetMap pathTarget |
+		
+		pathTargetKey := self configFile atPath: {'pathTargetStrategy'} default: 'closest'.
+		
+		pathTargetMap := Dictionary new
+			at: 'centroid' put: WSCentroidPathTargetStrategy;
+			at: 'closest' put: WSClosestPathTargetStrategy;
+			at: 'none' put: WSNonePathTargetStrategy;
+			yourself.
+		
+		pathTarget := (pathTargetMap at: pathTargetKey ifAbsent: [ self error: 'Unknown path target strategy: ', pathTargetKey ]).
+			
+		self pathTargetStrategy: pathTarget new.
+	].
+
+	^ PathTargetStrategy 
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> pathTargetStrategy: anObject [
+	
+	PathTargetStrategy := anObject
+	
+	
 ]
 
 { #category : 'accessing' }

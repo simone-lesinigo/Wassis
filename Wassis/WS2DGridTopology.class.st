@@ -49,6 +49,26 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
         self classFootprint at: eachClass put: footprint ]
 ]
 
+{ #category : 'calculating' }
+WS2DGridTopology >> assignPathTargetsFor: aClass footprint: aFootprint [
+    "For each node of aFootprint, seed pathTargets for each pathID on its tile edges"
+
+	 | strategy |
+
+    aFootprint nodes do: [ :eachNode |
+        (eachNode tileInWhichCollapsed edges) do: [ :edgeSymbols |
+				| symbol |
+				symbol := edgeSymbols first.
+            (WSConfig isPathID: symbol) ifTrue: [
+                | targetNode |
+                targetNode := self 
+                    findClosestTargetNodeFor: aClass 
+                    pathID: symbol
+                    fromNode: eachNode.
+                targetNode ifNotNil: [
+                    eachNode pathTargets at: symbol put: targetNode ] ] ] ]
+]
+
 { #category : 'collapse' }
 WS2DGridTopology >> buildFootprintFor: aClass in: aGrid [
 	"Build the footprint for a class, return the footprint"
@@ -105,7 +125,7 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 	 ].
 
 	 self classFootprint keysAndValuesDo: [ :eachClass :eachFootprint | 
-		   self seedPathTargetsFor: eachClass footprint: eachFootprint
+		   self assignPathTargetsFor: eachClass footprint: eachFootprint
 	 ].
 
     ^ result
@@ -550,24 +570,6 @@ WS2DGridTopology >> scaleNormalizedValue: aValue toInnerRange: n [
     "Scale a normalized value [0,1] to [2, n-1], excluding border positions"
 
     ^ ((aValue * (n - 3)) rounded) + 2
-]
-
-{ #category : 'calculating' }
-WS2DGridTopology >> seedPathTargetsFor: aClass footprint: aFootprint [
-    "For each node of aFootprint, seed pathTargets for each pathID on its tile edges"
-
-    aFootprint nodes do: [ :eachNode |
-        (eachNode tileInWhichCollapsed edges) do: [ :edgeSymbols |
-				| symbol |
-				symbol := edgeSymbols first.
-            (WSConfig isPathID: symbol) ifTrue: [
-                | targetNode |
-                targetNode := self 
-                    findClosestTargetNodeFor: aClass 
-                    pathID: symbol
-                    fromNode: eachNode.
-                targetNode ifNotNil: [
-                    eachNode pathTargets at: symbol put: targetNode ] ] ] ]
 ]
 
 { #category : 'collapse' }
