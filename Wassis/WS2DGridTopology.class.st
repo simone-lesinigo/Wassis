@@ -51,9 +51,10 @@ WS2DGridTopology >> assignNodesToClassesIn: aGrid [
 
 { #category : 'calculating' }
 WS2DGridTopology >> assignPathTargetsFor: aClass footprint: aFootprint [
-    "For each node of aFootprint, seed pathTargets for each pathID on its tile edges"
+    "For each node of aFootprint, assign the target node for each pathID on its tile edges"
 
-	 | strategy |
+	 | pathTargetStrategy |
+	 pathTargetStrategy := WSConfig pathTargetStrategy.
 
     aFootprint nodes do: [ :eachNode |
         (eachNode tileInWhichCollapsed edges) do: [ :edgeSymbols |
@@ -61,10 +62,12 @@ WS2DGridTopology >> assignPathTargetsFor: aClass footprint: aFootprint [
 				symbol := edgeSymbols first.
             (WSConfig isPathID: symbol) ifTrue: [
                 | targetNode |
-                targetNode := self 
-                    findClosestTargetNodeFor: aClass 
+                targetNode := pathTargetStrategy
+                    findTargetNodeFor: aClass 
                     pathID: symbol
-                    fromNode: eachNode.
+                    node: eachNode
+						  topology: self.
+						
                 targetNode ifNotNil: [
                     eachNode pathTargets at: symbol put: targetNode ] ] ] ]
 ]
@@ -129,6 +132,14 @@ WS2DGridTopology >> collapseNodesToClassesIn: aGrid [
 	 ].
 
     ^ result
+]
+
+{ #category : 'tileset' }
+WS2DGridTopology >> createAllPathTiles [
+
+	^ self subclassResponsibility 
+	
+	
 ]
 
 { #category : 'deprecated' }
@@ -280,6 +291,12 @@ WS2DGridTopology >> createTileset [
 
 ]
 
+{ #category : 'visualization' }
+WS2DGridTopology >> createVisualizationFor: aSolver [
+	
+	^ self subclassResponsibility
+]
+
 { #category : 'metrics' }
 WS2DGridTopology >> distanceBetweenNode: aNode1 toNode: aNode2 [
 	
@@ -296,36 +313,6 @@ WS2DGridTopology >> emptyMatrixCheckpoint [
 WS2DGridTopology >> emptyMatrixCheckpoint: anObject [
 
 	emptyMatrixCheckpoint := anObject
-]
-
-{ #category : 'calculating' }
-WS2DGridTopology >> findClosestTargetNodeFor: aClass pathID: aPathID fromNode: aNode [
-    "Return the closest border node among all footprints sharing aPathID, excluding aClass"
-
-    | connectedClasses bestNode bestDistance |
-    connectedClasses := self swSystem allClassesConnectedByPathID: aPathID.
-    bestNode := nil.
-    bestDistance := SmallInteger maxVal.
-    
-    connectedClasses do: [ :eachConnectedClass |
-        (eachConnectedClass = aClass) ifFalse: [
-				| targetFootprint |
-				targetFootprint := (classFootprint at: eachConnectedClass ifAbsent: [ nil ]).
-				targetFootprint ifNotNil: [ 
-					| targetNode |
-					targetNode := targetFootprint nodeThatIncludes: aPathID.
-					targetNode ifNotNil: [ 
-						| currentDistance |
-						currentDistance := self distanceBetweenNode: aNode toNode: targetNode.
-						currentDistance < bestDistance ifTrue: [ 
-                        bestDistance := currentDistance.
-                        bestNode := targetNode ]
-					]
-				]
-			] 
-		].
-
-    ^ bestNode
 ]
 
 { #category : 'collapse' }

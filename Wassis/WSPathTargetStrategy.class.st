@@ -8,3 +8,9 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Path Target'
 }
+
+{ #category : 'finding' }
+WSPathTargetStrategy >> findTargetNodeFor: aClass pathID: aPathID node: aNode topology: aTopology [
+	
+	^ self subclassResponsibility 
+]
