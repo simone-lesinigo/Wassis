@@ -1,5 +1,5 @@
 "
-Assign as a target for a path of a class the closest class on the grid that share the same pathID
+Selects the closest class to which it should be connected on the grid, and assigns its corresponding node (matching the same pathID) as the target
 "
 Class {
 	#name : 'WSClosestPathTargetStrategy',

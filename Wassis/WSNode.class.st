@@ -59,27 +59,6 @@ WSNode >> addEdge: anEdge [
 	self outgoingEdges add: anEdge
 ]
 
-{ #category : 'deprecated' }
-WSNode >> areEdgesCompatible2: edgeA with: edgeB [
-    "Two edges are compatible if:
-     - they are equal, OR
-     - one is a real pathID (not empty, not placeholder) and the other is a placeholder"
-
-    | placeholders emptySymbol |
-    emptySymbol := WSConfig emptyEdgeSymbol.
-    placeholders := { WSConfig firstPathSymbol . WSConfig secondPathSymbol }.
-
-    edgeA = edgeB ifTrue: [ ^ true ].
-
-    ((placeholders notIncludes: edgeA) and: [ edgeA ~= emptySymbol ])
-        ifTrue: [ ^ placeholders includes: edgeB ].
-
-    ((placeholders notIncludes: edgeB) and: [ edgeB ~= emptySymbol ])
-        ifTrue: [ ^ placeholders includes: edgeA ].
-
-    ^ false
-]
-
 { #category : 'propagating' }
 WSNode >> areEdgesCompatible: edgeA with: edgeB [
     "Two edges are compatible if:
@@ -410,21 +389,21 @@ WSNode >> isTileConsistent: aTile [
 		"Prendi tutti i simboli che il vicino può offrire su questa faccia condivisa"
 		neighborEdges := neighbor possibleTiles flatCollect: [ :t | t edges at: oppDir ].
 		
-		"Isola solo i pathID reali/concreti già decisi dal vicino (escludi vuoti e placeholder)"
+		"Isola solo i pathID concreti già decisi dal vicino (escludi vuoti e placeholder)"
 		concretePIDs := neighborEdges select: [ :sym | 
 			(placeholders includes: sym) not and: [ sym ~= emptySymbol ] ].
 		
-		"Se il vicino ha una situazione definita per questa strada (ha un solo pathID concreto possibile)"
+		"Se il vicino ha una situazione definita per questo path (ha un solo pathID  possibile)"
 		concretePIDs asSet size = 1 ifTrue: [
 			| concretePID myEdgeSymbols |
 			concretePID := concretePIDs anyOne.
 			myEdgeSymbols := aTile edges at: dir.
 			
-			"Verifica se i placeholder della tessera candidata vanno in conflitto"
+			"Verifica se i placeholder della tile candidata vanno in conflitto"
 			myEdgeSymbols do: [ :mySym |
 				(placeholders includes: mySym) ifTrue: [
 					(mapping includesKey: mySym) ifTrue: [
-						"Se questo placeholder era già stato mappato a un ALTRO percorso su un'altra faccia -> CONFLITTO!"
+						"Se questo placeholder era già stato mappato a un ALTRO percorso su un'altra faccia -> CONFLITTO"
 						(mapping at: mySym) = concretePID ifFalse: [ ^ false ] ].
 					mapping at: mySym put: concretePID ] ] ] ].
 	^ true

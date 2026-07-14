@@ -33,6 +33,17 @@ WSTile >> buildPopup [
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'finding' }
+WSTile >> directionOfSymbol: aSymbol [
+	"Return the direction in which aSymbol is present. Return nil if aSymbol is not found"
+		
+	self edges keysAndValuesDo: [ :eachDir :eachArrayOfSymbols | 
+		(eachArrayOfSymbols includes: aSymbol) ifTrue: [ ^ eachDir ]
+	].
+	
+	^ nil
+]
+
 { #category : 'accessing' }
 WSTile >> edges [
 

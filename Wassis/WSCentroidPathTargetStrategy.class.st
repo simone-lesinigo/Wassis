@@ -1,5 +1,5 @@
 "
-Assign as a target for a path of a class the centroid of all the class that share the same pathID
+Assign as a target for a path of a class the centroid node of all the classes that share the same pathID
 "
 Class {
 	#name : 'WSCentroidPathTargetStrategy',

@@ -1,5 +1,5 @@
 "
-Defines the strategy for selecting the target of each path for a class
+Defines the strategy for selecting the target of each path of a class
 "
 Class {
 	#name : 'WSPathTargetStrategy',

@@ -255,6 +255,7 @@ WSConfig class >> pathTargetStrategy [
 		pathTargetMap := Dictionary new
 			at: 'centroid' put: WSCentroidPathTargetStrategy;
 			at: 'closest' put: WSClosestPathTargetStrategy;
+			at: 'closest-exit' put: WSClosestExitPathTargetStrategy;
 			at: 'none' put: WSNonePathTargetStrategy;
 			yourself.
 		
