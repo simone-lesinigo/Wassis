@@ -90,6 +90,20 @@ WSConfig class >> configFile: anObject [
 
 { #category : 'accessing-pathID' }
 WSConfig class >> connectionAssignmentStrategy [
+	"Defines how pathIDs are assigned to nodes and directions within a class.
+	Each pathID evaluates the directions based on a preference order.
+
+	Available strategies:
+	
+	- 'greedy': Iterates through the directions. It picks the first direction 
+	  that still has available slots among the nodes. To select the specific node 
+	  among those available, it uses the first preferred alignment direction 
+	  encountered that differs from the one chosen for the slots.
+	
+	- 'grouped': Leverages weights for assignment. Paths are grouped by their 
+	  preferred target direction and sorted by weight. If an overflow occurs (more 
+	  paths than available slots), the unassigned paths are 'degraded' (their 
+	  preferences shift) and reassigned iteratively until placement is resolved."
 	
 	ConnectionAssignmentStrategy ifNil: [ 
 		| strategyString |
@@ -97,8 +111,7 @@ WSConfig class >> connectionAssignmentStrategy [
 			atPath: #('connectionAssignmentStrategy') 
 			default: 'grouped'.
 			
-		(#('grouped' 'greedy') includes: strategyString) ifFalse: [ 
-			strategyString := 'grouped' ].
+		(#('grouped' 'greedy') includes: strategyString) ifFalse: [ self error: 'Unknown connections assignment strategy ', strategyString ].
 			
 		self connectionAssignmentStrategy: strategyString capitalized asSymbol.
 	].
