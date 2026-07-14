@@ -25,6 +25,19 @@ Class {
 
 { #category : 'accessing' }
 WSConfig class >> classPlacingOrder [
+	"Defines the order in which classes are  placed on the grid.
+	
+	Available ordering strategies:
+	
+	- 'random': Places classes in a randomized order.
+	
+	- 'minConnectionFirst': Classes are sorted by their number of connections (low to high).
+	
+	- 'maxConnectionFirst': Classes are sorted by their number of connections (high to low)
+	
+	- 'BFSmin': Traverses the classes using a BFS, the first is the one with the fewest number of connections.
+	
+	- 'BFSmax': Traverses the classes using a BFS, the first is the one with the most number of connections."
 	
 	ClassPlacingOrder ifNil: [ 
 		| placingOrderKey placingOrderMap placingOrder |
