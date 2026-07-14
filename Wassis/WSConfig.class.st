@@ -272,6 +272,18 @@ WSConfig class >> maxNumberOfTriesPerGraph: anObject [
 
 { #category : 'accessing' }
 WSConfig class >> pathTargetStrategy [
+	"Defines how the target of a path is chosen and assigned to a class.
+	
+	Available targeting strategies:
+	
+	- 'centroid': Targets the geometric centroid of the classes associated with the path.
+	
+	- 'closest': Selects the closest class to which it should be connected on the grid, targeting the class node that has the pathID.
+	
+	- 'closest-exit': Identifies the closest connected class on the grid and targets its corresponding exit node (matching the same pathID) instead 
+	  of the class node itself.
+	
+	- 'none': Disables target selection, resulting in no target being assigned."
 	
 	PathTargetStrategy ifNil: [ 
 		| pathTargetKey pathTargetMap pathTarget |
