@@ -8,3 +8,10 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Path Target'
 }
+
+{ #category : 'finding' }
+WSNonePathTargetStrategy >> findTargetNodeFor: aClass pathID: aPathID node: aNode topology: aTopology [
+	"This method returns nil on purpose so a target is not assigned"
+	
+	^ nil
+]
