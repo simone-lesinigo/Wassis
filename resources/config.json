@@ -5,6 +5,7 @@
     "placementStrategy": "metricMDS",
     "classPlacingOrder": "BFSmax",
     "connectionAssignmentStrategy": "grouped",
+    "pathTargetStrategy": "closest-exit",
     "WSBacktracking": {
         "maxNumberOfTriesPerGraph": 0,
         "maxNumberOfRegeneratedGraph": 5000
