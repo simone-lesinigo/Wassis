@@ -11,6 +11,7 @@ Class {
 
 { #category : 'finding' }
 WSPathTargetStrategy >> findTargetNodeFor: aClass pathID: aPathID node: aNode topology: aTopology [
+	"Return the target node for a path based on the strategy"
 	
 	^ self subclassResponsibility 
 ]

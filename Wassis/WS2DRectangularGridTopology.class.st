@@ -378,7 +378,7 @@ WS2DRectangularGridTopology >> centroidNodeForClasses: aCollectionOfClasses [
 			node := (self classFootprint at: eachClass) centerNode.
 			acc + (node row @ node column) ].
 
-	^ WSNode new position: { (sumPoint x / count) . (sumPoint y / count) }
+	^ WSNode new position: { (sumPoint x / count) rounded . (sumPoint y / count) rounded }
 ]
 
 { #category : 'directions' }

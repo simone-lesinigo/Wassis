@@ -11,7 +11,7 @@ Class {
 
 { #category : 'finding' }
 WSNonePathTargetStrategy >> findTargetNodeFor: aClass pathID: aPathID node: aNode topology: aTopology [
-	"This method returns nil on purpose so a target is not assigned"
+	"This method returns nil on purpose so that a target is not assigned"
 	
 	^ nil
 ]
