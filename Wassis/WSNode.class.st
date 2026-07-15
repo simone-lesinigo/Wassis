@@ -153,13 +153,14 @@ WSNode >> calculatePathBiases [
 
 { #category : 'collapse' }
 WSNode >> calculateWeightedTiles [
-	"Calulcate the weight for each tile for the choice"
+	"Calulcate the weight for each tile for the weighted choice"
 	
 	| pathBiases |
-	self pathTargets isEmpty ifTrue: [ 
+	self pathTargets ifEmpty: [ 
 		^ self possibleTiles collect: [ :tile | tile -> tile weight ] ].
 		
 	pathBiases := self calculatePathBiases.
+	
 	^ self possibleTiles collect: [ :tile | 
 		tile -> (tile weight * (self boostFactorFor: tile givenBiases: pathBiases)) ]
 ]
@@ -647,7 +648,7 @@ WSNode >> row [
 { #category : 'collapse' }
 WSNode >> selectInWhichTileToCollapse [
 	"Return the tile in which the node should collapse (weighted choice)"
-	| weightedTiles totalWeight randomNumber |
+	| weightedTiles totalWeight |
 	
 	self possibleTiles detect: [ :tile | tile isEmptyTile ] ifFound: [ :emptyTile | ^ emptyTile ].
 	
@@ -656,14 +657,9 @@ WSNode >> selectInWhichTileToCollapse [
 	
 	totalWeight <= 0 ifTrue: [ ^ self possibleTiles atRandom ].
 	
-	randomNumber := Random new next * totalWeight.
+	^ self weightedChoiceFor: weightedTiles withWeight: totalWeight 
 	
-	^ weightedTiles 
-		detect: [ :assoc | 
-			randomNumber := randomNumber - assoc value.
-			randomNumber <= 0 ]
-		ifFound: [ :assoc | assoc key ]
-		ifNone: [ self possibleTiles atRandom ]
+
 ]
 
 { #category : 'accessing' }
@@ -758,4 +754,19 @@ WSNode >> updateShannonEntropyFromScratch [
 	self entropy: shannonEntropy.
 
 	^ shannonEntropy
+]
+
+{ #category : 'collapse' }
+WSNode >> weightedChoiceFor: weightedTiles withWeight: totalWeight [ 
+	"Choose one tile by performing a weighted choice on them."
+
+	| randomNumber |
+	randomNumber := Random new next * totalWeight.
+	
+	^ weightedTiles 
+		detect: [ :assoc | 
+			randomNumber := randomNumber - assoc value.
+			randomNumber <= 0 ]
+		ifFound: [ :assoc | assoc key ]
+		ifNone: [ self possibleTiles atRandom ]
 ]
