@@ -541,7 +541,7 @@ WSSolver >> run [
 	self topology rebuildClassNodes: self graph.
 
 	performanceMetrics pathReificationTime: [ self reifyWFCPaths ] timeToRun.
-	"self updateGraphMetrics."
+	self updateGraphMetrics.
 	
 	
 	
