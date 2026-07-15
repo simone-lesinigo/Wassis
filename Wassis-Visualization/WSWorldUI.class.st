@@ -1,3 +1,6 @@
+"
+Add items to the top menu
+"
 Class {
 	#name : 'WSWorldUI',
 	#superclass : 'WSObject',

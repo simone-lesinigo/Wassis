@@ -69,7 +69,7 @@ WSPath >> asOrderedCollection [
 	self nodes: self nodes asOrderedCollection 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'arrow' }
 WSPath >> assignArrowDirections [
     "Assign the direction in which the arrow should be"
     self lastNodes do: [ :eachLastNode |
@@ -85,7 +85,7 @@ WSPath >> assignArrowDirections [
     ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'arrow' }
 WSPath >> assignFirstAndLastNodes [
 	"Assign or reassign firstNodes and lastNodes to a path based on its source and destination classes"
 	
@@ -116,7 +116,7 @@ WSPath >> assignFirstAndLastNodes [
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'arrow' }
 WSPath >> assignSourceAndDestination [
 	"Assign correct sources and destinations"
 	

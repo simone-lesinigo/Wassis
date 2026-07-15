@@ -75,15 +75,18 @@ WSNode >> areEdgesCompatible: edgeA with: edgeB [
 	^ false
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'calculating' }
 WSNode >> biasesForTarget: targetNode from: myPosition [
+	"Compute a boost per direction (at most one for rows: up/down, one for columns:
+	left/right) proportional to how much of the remaining distance lies
+	along that axis. The boost is scaled by maxBoost and normalized by totalDelta"
 
 	| targetPosition deltaRow deltaCol totalDelta biases maxBoost rowWeight colWeight |
 	targetPosition := targetNode position.
 	deltaRow := (targetPosition first - myPosition first) abs.
 	deltaCol := (targetPosition last - myPosition last) abs.
 	totalDelta := deltaRow + deltaCol.
-	
+
 	biases := Dictionary new.
 	totalDelta > 0 ifFalse: [ ^ biases ].
 	
@@ -98,12 +101,14 @@ WSNode >> biasesForTarget: targetNode from: myPosition [
 	targetPosition last > myPosition last 
 		ifTrue: [ biases at: #right put: (1.0 + (maxBoost * colWeight)) ]
 		ifFalse: [ biases at: #left put: (1.0 + (maxBoost * colWeight)) ].
-	
+
 	^ biases
 ]
 
 { #category : 'collapse' }
 WSNode >> boostFactorFor: aTile givenBiases: pathBiases [
+	"Increase the weight of the tiles that exposes the correct directions"
+
     | totalBoost |
     totalBoost := 1.0.
 
@@ -140,6 +145,7 @@ WSNode >> buildCollapsedConstraints [
 
 { #category : 'collapse' }
 WSNode >> calculatePathBiases [
+	"For every path target this class has (pathID -> targetNode), compute the boosts for each 	direction that guides the WFC choice toward that specific target, from the current grid 	position"
 
 	| pathBiases myPosition |
 	pathBiases := Dictionary new.
@@ -147,13 +153,13 @@ WSNode >> calculatePathBiases [
 	
 	self pathTargets keysAndValuesDo: [ :pathID :targetNode | 
 		pathBiases at: pathID put: (self biasesForTarget: targetNode from: myPosition) ].
-		
+
 	^ pathBiases
 ]
 
 { #category : 'collapse' }
 WSNode >> calculateWeightedTiles [
-	"Calulcate the weight for each tile for the weighted choice"
+	"Calculate the weight for each tile in possibleTiles for the weighted random choice"
 	
 	| pathBiases |
 	self pathTargets ifEmpty: [ 

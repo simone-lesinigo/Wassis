@@ -19,7 +19,7 @@ WS2DRectangularGridFailedExecution class >> timestamp: aTimestamp nOfTry: number
 	^ instance
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'visualization' }
 WS2DRectangularGridFailedExecution >> collapseUncollapsedNodes [
 	"To visualize the failed solution we have select a tile for each uncollapsed node"
 
