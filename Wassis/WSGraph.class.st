@@ -585,35 +585,6 @@ WSGraph >> entropyHeap: anObject [
 ]
 
 { #category : 'deprecated' }
-WSGraph >> findOptimalPathWithID2: pathID andClasses: classes [
-	"Find optimal path between two classes. May change the exit for each class"
-
-	| footprint1 footprint2 shortestPath |
-	footprint1 := (self topology classFootprint at: classes key).
-	footprint2 := (self topology classFootprint at: classes value).
-
-	shortestPath := nil.
-	
-   (footprint1 borderNodes: self topology) do: [ :node1 |
-   		(footprint2 borderNodes: self topology) do: [ :node2 |
-      		| candidate |
-         candidate := self
-         		runDijkstraFrom: node1
-            to: node2
-            withExtraNodes: { node1. node2 }
-            pathID: pathID.
-			
-			candidate isNotEmpty ifTrue: 
-				[ (shortestPath isNil or: [ candidate size < shortestPath size ])
-                ifTrue: [  shortestPath := candidate ] ] ] ].
-
-    shortestPath removeFirst.
-    shortestPath removeLast.
-
-    ^ shortestPath
-]
-
-{ #category : 'deprecated' }
 WSGraph >> findOptimalPathWithID: pathID [
 	"Find optimal path between two classes. Does NOT change the exit for each class"
 	

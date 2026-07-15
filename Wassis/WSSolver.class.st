@@ -456,7 +456,7 @@ WSSolver >> onContradiction [
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
 	
-	"bt restartFromClassesGraphForSolver: self."
+	bt restartFromClassesGraphForSolver: self.
 	bt addOneToContradictionPerGraph.
 
 	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
@@ -508,7 +508,7 @@ WSSolver >> reifyWFCPaths [
 	self graph mergePathsWithSameID.
 	"self graph correctPaths."
 	self graph setPathLengths.
-	"self graph calculatePathMetrics."
+	self graph calculatePathMetrics.
 	self assignArrowDirectionsToAllPaths.
 
 	
