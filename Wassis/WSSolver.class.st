@@ -238,10 +238,12 @@ WSSolver >> clearAllPathsOf: aClass [
 WSSolver >> collapseNextNode [
 
     | node |
+
     node := self graph selectNextNodeToCollapse.
     node := node collapseTo: node selectInWhichTileToCollapse.
     self graph addOneToCollapsedNodes.
     node collapseStep: self executionHistory historyOfCollapsedNodes size + 1.
+
     ^ node
 ]
 
@@ -566,7 +568,7 @@ WSSolver >> step [
 	"Take a step of the algorithm (select a node to collapse, collapse it and propagate)"
 	
 	| collapsedNode touchedNodes resolvedNodes |
-	
+
 	self ensureHeapIsNotEmpty.
 	self recordHeapSnapshot.
 	
