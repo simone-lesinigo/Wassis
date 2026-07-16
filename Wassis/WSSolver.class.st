@@ -508,7 +508,7 @@ WSSolver >> reifyWFCPaths [
 	self graph mergePathsWithSameID.
 	"self graph correctPaths."
 	self graph setPathLengths.
-	self graph calculatePathMetrics.
+	"self graph calculatePathMetrics."
 	self assignArrowDirectionsToAllPaths.
 
 	

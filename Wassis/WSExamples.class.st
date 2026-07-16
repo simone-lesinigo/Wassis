@@ -149,7 +149,7 @@ WSExamples class >> exampleRunRectangularGrid [
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSFullHierarchyCollector withOriginClass: Slot).
+			(WSFullHierarchyCollector withOriginClass: File).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
@@ -227,12 +227,13 @@ WSExamples class >> findClasses [
 	ProtoObject withAllSuperAndSubclassesDo: [ :eachClass |
 		eachClass isMeta ifFalse: [
 	    | sw connections |
-	    sw := WSSoftwareSystem 
-	        createForClass: eachClass 
-	        usingStrategy: WSFullHierarchyCollector new.
+	   sw := WSSoftwareSystem 
+			usingStrategy: 
+			(WSFullHierarchyCollector withOriginClass: eachClass).
+			
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between:45 and: 50) 
+	    ((sw classes size between:40 and: 45) 
 	    	"and: [ (connections allSatisfy: [ :row | row value size < 7 ])  
 		 		and: [ (connections select: [ :row | row value size > 2 ]) size >= 4 ] 
 			]"
