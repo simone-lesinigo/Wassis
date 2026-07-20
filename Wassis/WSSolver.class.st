@@ -616,15 +616,12 @@ WSSolver >> updateGraphMetrics [
 	| graphMetrics classNodes pathNodes numberOfOverlaps |
 	graphMetrics := WSCurrentMetrics getGraphMetrics.
 	
-	classNodes := 0.
-	self topology classFootprint do: [ :eachFootprint | classNodes := classNodes + eachFootprint nodes size ].
+	classNodes := self topology classFootprint sum: [ :eachFootprint | eachFootprint nodes size ].
 	
-	pathNodes := 0.
-	numberOfOverlaps := 0.
+	pathNodes := self graph paths sum: [ :eachPath | eachPath length ].
 	
-	self graph paths do: [ :eachPath | 
-		pathNodes := pathNodes + eachPath length.
-		eachPath nodes do: [ :eachNode | (eachNode tileInWhichCollapsed id = 12) ifTrue: [ numberOfOverlaps := numberOfOverlaps + 1 ] ]
+	numberOfOverlaps := self graph paths sum: [ :eachPath | 
+		eachPath nodes count: [ :eachNode | eachNode tileInWhichCollapsed id = 12 ] 
 	].
 	
 	graphMetrics 
@@ -632,8 +629,6 @@ WSSolver >> updateGraphMetrics [
 		numberOfPathNodes: pathNodes; 
 		numberOfEmptyNodes: (graphMetrics totalNumberOfNodes - classNodes - pathNodes);
 		numberOfOverlaps: numberOfOverlaps / 2
-	
-	
 ]
 
 { #category : 'visualization' }
