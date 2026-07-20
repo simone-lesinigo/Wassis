@@ -53,23 +53,28 @@ WSGraph class >> createClassNodesFrom: collapsedNodes [
 ]
 
 { #category : 'creation' }
+WSGraph class >> createHeap [ 
+	"Create the correct heap based on the config"
+	
+	^ WSConfig isMinHeap 
+		ifTrue: [ Heap sortBlock: [ :a :b | a entropy <= b entropy ] ]
+		ifFalse: [ Heap sortBlock: [ :a :b | a entropy >= b entropy ] ]
+]
+
+{ #category : 'creation' }
 WSGraph class >> createInitialHeapFrom: collapsedClassNodes [
 	"Create the initial heap for the execution. A min heap or a max heap can be chosen"
 	
-	 | initialHeap initValue |
+	| initialHeap initValue |
 	
-	WSConfig isMinHeap 
-		ifTrue: [ 
-			initValue := SmallInteger minVal.
-			initialHeap := Heap new.
-		]
-		ifFalse: [ 
-			initValue := SmallInteger maxVal.
-			initialHeap := Heap sortBlock: [ :a :b | a >= b ].
-		].
+	initValue := WSConfig isMinHeap 
+		ifTrue: [ SmallInteger minVal ]
+		ifFalse: [ SmallInteger maxVal ].
 	
-	collapsedClassNodes do: [ :eachNode | eachNode entropy: initValue; sumOfWeights: initValue; sumOfWeightsLog: initValue ].
-	initialHeap addAll: collapsedClassNodes.
+	collapsedClassNodes do: [ :eachNode | eachNode entropy: initValue; sumOfWeights: initValue; sumOfWeightsLog: initValue; isCollapsed: false ].
+	
+	initialHeap := self createHeap.
+	initialHeap addAll: (WSHeapEntry fromNodes: collapsedClassNodes).
 	
 	^ initialHeap 
 ]
@@ -386,6 +391,14 @@ WSGraph >> collapseNode: aNode toPathTile: pathID between: prevNode and: nextNod
 WSGraph >> collectFootprintFrom: aNode size: n [
 	
 	^ self structure collectFootprintFrom: aNode size: n
+]
+
+{ #category : 'performance' }
+WSGraph >> compactHeapIfNeeded [
+	"If the heap contains too many collapsed nodes, calls the method to remove them"
+	
+	self entropyHeap size > (self numberOfNonCollapsedNodes * 2)
+		ifTrue: [ self compactHeap ]
 ]
 
 { #category : 'path reification' }
@@ -902,6 +915,13 @@ WSGraph >> numberOfNodes: anObject [
 	numberOfNodes := anObject
 ]
 
+{ #category : 'accessing' }
+WSGraph >> numberOfNonCollapsedNodes [
+	"Return the number of non-collapsed nodes"
+		
+	^ self numberOfNodes - self numberOfCollapsedNodes
+]
+
 { #category : 'path optimization' }
 WSGraph >> optimizeAllPathsAllowingExitModifications: aBoolean [
 	"Optimize all the paths, decide if you allow exit changing"
@@ -983,7 +1003,7 @@ WSGraph >> propagate: aNode [
       		(self propagateEdge: eachEdge from: currentNode into: queue) 
          		ifNotNil: [ :neighbour | touchedNodes add: neighbour ] ] ].
     
-    self updateMinEntropyHeap: touchedNodes.
+    self updateEntropyHeap: touchedNodes.
 
 	^ touchedNodes 
 	
@@ -1121,7 +1141,7 @@ WSGraph >> restoreEntropyHeap [
 		nodeToAdd := nodesArray at: (nodesArray size atRandom). 
 		isCollapsed := nodeToAdd isCollapsed ].
 	
-	self entropyHeap add: nodeToAdd
+	self entropyHeap add: (WSHeapEntry node: nodeToAdd entropy: nodeToAdd entropy)
 ]
 
 { #category : 'deprecated' }
@@ -1306,9 +1326,17 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
 
 { #category : 'collapse' }
 WSGraph >> selectNextNodeToCollapse [
-	"Returns the cell to collapse"
-
-	^ self entropyHeap removeFirst .
+	"Returns the node to collapse. If the node is already collapsed or it is not the most fresh one, remove it and retry"
+	
+	| entry isStale |
+	isStale := true.
+	
+	[ isStale ] whileTrue: [ 
+		entry := self entropyHeap removeFirst.
+		isStale := entry node isCollapsed or: [ entry entropy ~= entry node entropy ].
+	].
+	
+	^ entry node
 
 ]
 
@@ -1539,6 +1567,14 @@ WSGraph >> topology: anObject [
 	topology := anObject
 ]
 
+{ #category : 'propagating' }
+WSGraph >> updateEntropyHeap: aNodesArray [
+	"Update the heap by updating the position of each node that has been changed during a propagation wave"
+	
+	self entropyHeap addAll: (WSHeapEntry fromNodes: aNodesArray).
+	self compactHeapIfNeeded
+]
+
 { #category : 'deprecated' }
 WSGraph >> updateExitForFootprint: aFootprint adjacentTo: aPathNode withPathID: aPathID [
     "Remove pathID from all exits of the footprint, then reassign it to the node adjacent to aPathNode"
@@ -1590,17 +1626,4 @@ WSGraph >> updateExitTilesFor: generatedPath [
 			].
 		]
 	 ].	
-]
-
-{ #category : 'propagating' }
-WSGraph >> updateMinEntropyHeap: aNodesArray [
-	"Update the min heap by updating the position of each node that has been changed during a propagation wave"
-
-	self entropyHeap addAll: 
-		(aNodesArray collect: [ 
-			:eachNode |
-				self entropyHeap remove: eachNode ifAbsent: [ ].
-				eachNode 
-			]
-		)
 ]

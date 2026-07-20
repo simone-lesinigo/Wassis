@@ -149,7 +149,7 @@ WSExamples class >> exampleRunRectangularGrid [
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSFullHierarchyCollector withOriginClass: MCReader).
+			(WSFullHierarchyCollector withOriginClass: File).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 

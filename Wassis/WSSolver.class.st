@@ -485,7 +485,7 @@ WSSolver >> recordHeapSnapshot [
 	"Save a snapshot of the heap"
 
     self executionHistory historyOfMinEntropyHeap 
-        add: (self copyOfNodesWithoutEdges: self graph entropyHeap)
+        add: (self copyOfNodesWithoutEdges: (self graph entropyHeap collect: [ :eachEntry | eachEntry node]))
 ]
 
 { #category : 'running' }
