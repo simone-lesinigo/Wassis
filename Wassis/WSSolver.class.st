@@ -46,6 +46,8 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 		topology: aTopology;
 		backtracking: (WSBacktracking newWithGraph: graph).
 	
+	graph serializeToFileNamed: 'test.fuel'.
+	
 	inst executionHistory copyOfInitalNodes: aTopology initialNodes.
 	
 	^ inst
@@ -412,7 +414,7 @@ WSSolver >> logTotalTries [
 	| totalNumberOfTries |
 	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
 	
-	(totalNumberOfTries \\ 10 = 0) ifTrue: [ 
+	(totalNumberOfTries \\ 50 = 0) ifTrue: [ 
 		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
 ]
 
@@ -551,7 +553,7 @@ WSSolver >> run [
 { #category : 'running' }
 WSSolver >> solveGraph [
 	"Core method that executes WFC"
-	
+
 	WSLogger log: 'Execution started'.
 
 	[ self graph allNodesCollapsed ] whileFalse: [ 
@@ -611,19 +613,25 @@ WSSolver >> updateExecutionHistory [
 WSSolver >> updateGraphMetrics [
 	"Set the number of empty, path and class nodes"
 	
-	| graphMetrics classNodes pathNodes |
+	| graphMetrics classNodes pathNodes numberOfOverlaps |
 	graphMetrics := WSCurrentMetrics getGraphMetrics.
 	
 	classNodes := 0.
 	self topology classFootprint do: [ :eachFootprint | classNodes := classNodes + eachFootprint nodes size ].
 	
 	pathNodes := 0.
-	self graph paths do: [ :eachPath | pathNodes := pathNodes + eachPath nodes size ].
+	numberOfOverlaps := 0.
+	
+	self graph paths do: [ :eachPath | 
+		pathNodes := pathNodes + eachPath length.
+		eachPath nodes do: [ :eachNode | (eachNode tileInWhichCollapsed id = 12) ifTrue: [ numberOfOverlaps := numberOfOverlaps + 1 ] ]
+	].
 	
 	graphMetrics 
 		numberOfClassNodes: classNodes; 
 		numberOfPathNodes: pathNodes; 
-		numberOfEmptyNodes: (graphMetrics totalNumberOfNodes - classNodes - pathNodes )
+		numberOfEmptyNodes: (graphMetrics totalNumberOfNodes - classNodes - pathNodes);
+		numberOfOverlaps: numberOfOverlaps / 2
 	
 	
 ]

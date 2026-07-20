@@ -149,7 +149,7 @@ WSExamples class >> exampleRunRectangularGrid [
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSFullHierarchyCollector withOriginClass: File).
+			(WSFullHierarchyCollector withOriginClass: MCReader).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 
@@ -233,7 +233,7 @@ WSExamples class >> findClasses [
 			
 	    connections := sw allConnectionsPerClass.
 	    
-	    ((sw classes size between:40 and: 45) 
+	    ((sw classes size between:100 and: 120) 
 	    	"and: [ (connections allSatisfy: [ :row | row value size < 7 ])  
 		 		and: [ (connections select: [ :row | row value size > 2 ]) size >= 4 ] 
 			]"

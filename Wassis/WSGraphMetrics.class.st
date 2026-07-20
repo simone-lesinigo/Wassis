@@ -9,6 +9,7 @@ Class {
 		'numberOfPathNodes',
 		'numberOfClassNodes',
 		'numberOfEmptyNodes',
+		'numberOfOverlaps',
 		'dimension'
 	],
 	#category : 'Wassis-Metrics',
@@ -50,6 +51,18 @@ WSGraphMetrics >> numberOfEmptyNodes [
 WSGraphMetrics >> numberOfEmptyNodes: anObject [
 
 	numberOfEmptyNodes := anObject
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfOverlaps [
+
+	^ numberOfOverlaps
+]
+
+{ #category : 'accessing' }
+WSGraphMetrics >> numberOfOverlaps: anObject [
+
+	numberOfOverlaps := anObject
 ]
 
 { #category : 'accessing' }

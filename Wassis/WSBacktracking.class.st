@@ -113,7 +113,7 @@ WSBacktracking >> restartCounterOfContradictionperGraph [
 { #category : 'restart' }
 WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 	"Restart the algorithm with the same nodes collapsed to classes"
-	
+
 	aSolver graph: (self classesGraphCheckpoint veryDeepCopy).
 	self addOneToContradictionPerGraph.
 ]
