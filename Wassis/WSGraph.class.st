@@ -394,6 +394,22 @@ WSGraph >> collectFootprintFrom: aNode size: n [
 ]
 
 { #category : 'performance' }
+WSGraph >> compactHeap [
+	"Remove all the useless entries in the heap"
+	
+	| latestVersionPerNode cleanedHeap |
+	latestVersionPerNode := Dictionary new.
+
+	self entropyHeap do: [ :eachEntry |
+		(eachEntry node isNotCollapsed and: [ eachEntry node entropy = eachEntry entropy ])
+			ifTrue: [ latestVersionPerNode at: eachEntry node put: eachEntry ] ].
+	
+	cleanedHeap := self class createHeap.
+	cleanedHeap addAll: latestVersionPerNode values.
+	self entropyHeap: cleanedHeap
+]
+
+{ #category : 'performance' }
 WSGraph >> compactHeapIfNeeded [
 	"If the heap contains too many collapsed nodes, calls the method to remove them"
 	
