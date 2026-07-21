@@ -46,8 +46,6 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 		topology: aTopology;
 		backtracking: (WSBacktracking newWithGraph: graph).
 	
-	graph serializeToFileNamed: 'test.fuel'.
-	
 	inst executionHistory copyOfInitalNodes: aTopology initialNodes.
 	
 	^ inst
