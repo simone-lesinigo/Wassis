@@ -7,29 +7,31 @@ Class {
 	#instVars : [
 		'classesGraphCheckpoint',
 		'nOfContradicitonsPerGraph',
-		'nOfRegeneratedGraph'
+		'nOfRegeneratedGraph',
+		'checkpoints'
 	],
-	#category : 'Wassis-Core',
+	#category : 'Wassis-Backtracking',
 	#package : 'Wassis',
-	#tag : 'Core'
+	#tag : 'Backtracking'
 }
 
 { #category : 'default-settings' }
-WSBacktracking class >> maxNumberOfRegeneratedGraph [
-	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
+WSBacktracking class >> maxNumberOfBacktrackPerGraph [
+	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 	
-	^ WSConfig maxNumberOfRegeneratedGraph 
+	^ WSBacktrackingConfig maxNumberOfBacktrackPerGraph 
 ]
 
 { #category : 'default-settings' }
-WSBacktracking class >> maxNumberOfTriesPerGraph [
-	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
+WSBacktracking class >> maxRegenerationsPerGridSize [
+	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
 	
-	^ WSConfig maxNumberOfTriesPerGraph 
+	^ WSBacktrackingConfig maxRegenerationsPerGridSize 
 ]
 
 { #category : 'instance creation' }
 WSBacktracking class >> newWithGraph: aGraph [
+	"Initial graph with the classes already placed"
 
 	^ self new
 		classesGraphCheckpoint: (aGraph veryDeepCopy)
@@ -45,6 +47,18 @@ WSBacktracking >> addOneToContradictionPerGraph [
 WSBacktracking >> addOneToRegeneratedGraph [
 
 	self nOfRegeneratedGraph: (self nOfRegeneratedGraph + 1)
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> checkpoints [
+
+	^ checkpoints
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> checkpoints: anObject [
+
+	checkpoints := anObject
 ]
 
 { #category : 'accessing' }
@@ -64,20 +78,21 @@ WSBacktracking >> initialize [
 	super initialize.
 	self 
 		nOfContradicitonsPerGraph: 0;
-		nOfRegeneratedGraph: 0
+		nOfRegeneratedGraph: 0;
+		checkpoints: OrderedCollection new
 ]
 
 { #category : 'accessing' }
-WSBacktracking >> maxNumberOfRegeneratedGraph [
-	
-	^ self class maxNumberOfRegeneratedGraph
-]
-
-{ #category : 'accessing' }
-WSBacktracking >> maxNumberOfTriesPerGraph [
+WSBacktracking >> maxNumberOfBacktrackPerGraph [
 	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 	
-	^ self class maxNumberOfTriesPerGraph
+	^ self class maxNumberOfBacktrackPerGraph
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> maxRegenerationsPerGridSize [
+	
+	^ self class maxRegenerationsPerGridSize
 ]
 
 { #category : 'accessing' }

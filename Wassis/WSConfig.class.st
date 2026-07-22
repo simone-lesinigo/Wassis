@@ -238,38 +238,6 @@ WSConfig class >> isPlaceholder: aSymbol [
     ^ aSymbol = self firstPathSymbol or: [ aSymbol = self secondPathSymbol ]
 ]
 
-{ #category : 'accessing-backtracking' }
-WSConfig class >> maxNumberOfRegeneratedGraph [
-
-	MaxNumberOfRegeneratedGraph ifNil: [ 
-		self maxNumberOfRegeneratedGraph: (self configFile atPath: {'WSBacktracking' . 'maxNumberOfRegeneratedGraph'} default: 10)
-	].
-
-	^ MaxNumberOfRegeneratedGraph 
-]
-
-{ #category : 'private - accessing' }
-WSConfig class >> maxNumberOfRegeneratedGraph: anObject [
-
-	MaxNumberOfRegeneratedGraph := anObject
-]
-
-{ #category : 'accessing-backtracking' }
-WSConfig class >> maxNumberOfTriesPerGraph [
-
-	MaxNumberOfTriesPerGraph ifNil: [ 
-		self maxNumberOfTriesPerGraph: (self configFile atPath: {'WSBacktracking' . 'maxNumberOfTriesPerGraph'} default: 10)
-	].
-
-	^ MaxNumberOfTriesPerGraph
-]
-
-{ #category : 'private - accessing' }
-WSConfig class >> maxNumberOfTriesPerGraph: anObject [
-
-	MaxNumberOfTriesPerGraph := anObject
-]
-
 { #category : 'accessing' }
 WSConfig class >> pathTargetStrategy [
 	"Defines how the target of a path is chosen and assigned to a class.

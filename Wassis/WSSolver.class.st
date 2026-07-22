@@ -240,9 +240,13 @@ WSSolver >> collapseNextNode [
     | node |
 
     node := self graph selectNextNodeToCollapse.
+	 self graph addOneToCollapsedNodes.
+ 	 node collapseStep: self graph numberOfCollapsedNodes.
+	
+	 self backtracking checkIfSaveNeeded: node.
+	
     node := node collapseTo: node selectInWhichTileToCollapse.
-    self graph addOneToCollapsedNodes.
-    node collapseStep: self executionHistory historyOfCollapsedNodes size + 1.
+
 
     ^ node
 ]
@@ -452,18 +456,18 @@ WSSolver >> onContradiction [
 	"self createTemporaryVisualization. self halt."
 	self updateExecutionHistory.
 	
-	bt := self backtracking.
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
 	
+	bt := self backtracking.
 	bt restartFromClassesGraphForSolver: self.
 	bt addOneToContradictionPerGraph.
 
-	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfTriesPerGraph) ifFalse: [ ^ self ].
+	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfBacktrackPerGraph) ifFalse: [ ^ self ].
 
 	bt restartFromEmptyGraphForSolver: self.
 	
-	bt nOfRegeneratedGraph >= bt maxNumberOfRegeneratedGraph
+	bt nOfRegeneratedGraph >= bt maxRegenerationsPerGridSize
 		ifTrue: [ WSMaxTriesReached signal. ]
 ]
 
