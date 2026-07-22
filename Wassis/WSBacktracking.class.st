@@ -6,14 +6,21 @@ Class {
 	#superclass : 'WSObject',
 	#instVars : [
 		'classesGraphCheckpoint',
-		'nOfContradicitonsPerGraph',
-		'nOfRegeneratedGraph',
+		'graphBacktracks',
+		'classPlacementBacktracks',
+		'emptyGridBacktracks',
 		'checkpoints'
 	],
 	#category : 'Wassis-Backtracking',
 	#package : 'Wassis',
 	#tag : 'Backtracking'
 }
+
+{ #category : 'accessing' }
+WSBacktracking class >> allowsSameClassPlacementRetry [
+	
+	^ WSBacktrackingConfig allowsSameClassPlacementRetry
+]
 
 { #category : 'default-settings' }
 WSBacktracking class >> maxNumberOfBacktrackPerGraph [
@@ -29,6 +36,12 @@ WSBacktracking class >> maxRegenerationsPerGridSize [
 	^ WSBacktrackingConfig maxRegenerationsPerGridSize 
 ]
 
+{ #category : 'accessing' }
+WSBacktracking class >> maxRetriesForSameClassPlacement [
+	
+	^ WSBacktrackingConfig maxRetriesForSameClassPlacement
+]
+
 { #category : 'instance creation' }
 WSBacktracking class >> newWithGraph: aGraph [
 	"Initial graph with the classes already placed"
@@ -38,15 +51,37 @@ WSBacktracking class >> newWithGraph: aGraph [
 ]
 
 { #category : 'adding' }
-WSBacktracking >> addOneToContradictionPerGraph [
+WSBacktracking >> addOneToClassPlacementBacktracks [
 
-	self nOfContradicitonsPerGraph: (self nOfContradicitonsPerGraph + 1)
+	self classPlacementBacktracks: (self classPlacementBacktracks + 1)
 ]
 
 { #category : 'adding' }
-WSBacktracking >> addOneToRegeneratedGraph [
+WSBacktracking >> addOneToEmptyGridBacktracks [
 
-	self nOfRegeneratedGraph: (self nOfRegeneratedGraph + 1)
+	self emptyGridBacktracks: (self emptyGridBacktracks + 1)
+]
+
+{ #category : 'adding' }
+WSBacktracking >> addOneToGraphBacktracks [
+
+	self graphBacktracks: (self graphBacktracks + 1)
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> allowsSameClassPlacementRetry [
+	
+	^ self class allowsSameClassPlacementRetry
+]
+
+{ #category : 'backtracking' }
+WSBacktracking >> backtrackInSolver: aSolver [
+	"Perform the backtrack based on the strategy. Retun true if backtrack was succesfully executed, false otherwise"
+	
+	self graphBacktracks > self maxNumberOfBacktrackPerGraph ifTrue: [ ^ false ].
+	self addOneToGraphBacktracks.
+	
+	^ self performBacktrackInSolver: aSolver
 ]
 
 { #category : 'accessing' }
@@ -62,6 +97,18 @@ WSBacktracking >> checkpoints: anObject [
 ]
 
 { #category : 'accessing' }
+WSBacktracking >> classPlacementBacktracks [
+
+	^ classPlacementBacktracks
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> classPlacementBacktracks: anObject [
+
+	classPlacementBacktracks := anObject
+]
+
+{ #category : 'accessing' }
 WSBacktracking >> classesGraphCheckpoint [
 
 	^ classesGraphCheckpoint
@@ -73,12 +120,43 @@ WSBacktracking >> classesGraphCheckpoint: anObject [
 	classesGraphCheckpoint := anObject
 ]
 
+{ #category : 'accessing' }
+WSBacktracking >> emptyGridBacktracks [
+
+	^ emptyGridBacktracks
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> emptyGridBacktracks: anObject [
+
+	emptyGridBacktracks := anObject
+]
+
+{ #category : 'evaluating' }
+WSBacktracking >> evaluateCheckpointBasedOn: aNode inSolver: aSolver [
+
+	^ self subclassResponsibility 
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> graphBacktracks [
+
+	^ graphBacktracks
+]
+
+{ #category : 'accessing' }
+WSBacktracking >> graphBacktracks: anObject [
+
+	graphBacktracks := anObject
+]
+
 { #category : 'initialization' }
 WSBacktracking >> initialize [ 
 	super initialize.
 	self 
-		nOfContradicitonsPerGraph: 0;
-		nOfRegeneratedGraph: 0;
+		graphBacktracks: 0;
+		classPlacementBacktracks: 0;
+		emptyGridBacktracks: 0;
 		checkpoints: OrderedCollection new
 ]
 
@@ -96,53 +174,50 @@ WSBacktracking >> maxRegenerationsPerGridSize [
 ]
 
 { #category : 'accessing' }
-WSBacktracking >> nOfContradicitonsPerGraph [
-
-	^ nOfContradicitonsPerGraph
+WSBacktracking >> maxRetriesForSameClassPlacement [
+	
+	^ self class maxRetriesForSameClassPlacement
 ]
 
-{ #category : 'accessing' }
-WSBacktracking >> nOfContradicitonsPerGraph: anObject [
+{ #category : 'backtracking' }
+WSBacktracking >> performBacktrackInSolver: aSolver [
 
-	nOfContradicitonsPerGraph := anObject
+	^ self subclassResponsibility
 ]
 
-{ #category : 'accessing' }
-WSBacktracking >> nOfRegeneratedGraph [
+{ #category : 'resetting' }
+WSBacktracking >> resetClassPlacementBacktracks [
 
-	^ nOfRegeneratedGraph
+	self classPlacementBacktracks: 0
 ]
 
-{ #category : 'accessing' }
-WSBacktracking >> nOfRegeneratedGraph: anObject [
+{ #category : 'resetting' }
+WSBacktracking >> resetGraphBacktracks [
 
-	nOfRegeneratedGraph := anObject
+	self graphBacktracks: 0
 ]
 
-{ #category : 'restart' }
+{ #category : 'deprecated' }
 WSBacktracking >> restartCounterOfContradictionperGraph [
 	
-	self nOfContradicitonsPerGraph: 0
+	self graphBacktracks: 0
 ]
 
 { #category : 'restart' }
 WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 	"Restart the algorithm with the same nodes collapsed to classes"
-
+	
 	aSolver graph: (self classesGraphCheckpoint veryDeepCopy).
-	self addOneToContradictionPerGraph.
+	self addOneToClassPlacementBacktracks.
+	self resetGraphBacktracks
 ]
 
 { #category : 'restart' }
 WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 	"Restart the algorithm collapsing other nodes to classes"
-	| newGraph |
-	newGraph := aSolver topology createGraph.
-	
-	"self classesGraphCheckpoint: newGraph veryDeepCopy."
-	aSolver graph: newGraph.
-	
-	self addOneToContradictionPerGraph.
-	self restartCounterOfContradictionperGraph.
-	self addOneToRegeneratedGraph 
+
+	aSolver recreateGraph.
+	self addOneToEmptyGridBacktracks.
+	self resetGraphBacktracks.
+	self resetClassPlacementBacktracks.
 ]

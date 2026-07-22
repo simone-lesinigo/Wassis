@@ -19,14 +19,15 @@ Class {
 { #category : 'deprecated' }
 WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 
-	| graph |
+	| graph backtracking |
 	aTopology initializeWith: aSwSystem.
 	graph := aTopology createGraph.
+	backtracking := WSBacktrackingConfig backtrackingStrategy.
 	
 	^ self new
 		graph: graph;
 		topology: aTopology;
-		backtracking: (WSBacktracking newWithGraph: graph)
+		backtracking: (backtracking newWithGraph: graph)
 
 		
 		
@@ -36,15 +37,16 @@ WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem [
 { #category : 'instance creation' }
 WSSolver class >> withTopology: aTopology andSwSystem: aSwSystem andID: aID [
 
-	| graph inst |
+	| graph inst backtracking |
 	aTopology initializeWith: aSwSystem.
 	graph := aTopology createGraph.
+	backtracking := WSBacktrackingConfig backtrackingStrategy.
 	
 	inst :=  self new
 		id: aID;
 		graph: graph;
 		topology: aTopology;
-		backtracking: (WSBacktracking newWithGraph: graph).
+		backtracking: (backtracking newWithGraph: graph).
 	
 	inst executionHistory copyOfInitalNodes: aTopology initialNodes.
 	
@@ -243,10 +245,9 @@ WSSolver >> collapseNextNode [
 	 self graph addOneToCollapsedNodes.
  	 node collapseStep: self graph numberOfCollapsedNodes.
 	
-	 self backtracking checkIfSaveNeeded: node.
+	 self backtracking evaluateCheckpointBasedOn: node inSolver: self.
 	
     node := node collapseTo: node selectInWhichTileToCollapse.
-
 
     ^ node
 ]
@@ -450,6 +451,29 @@ WSSolver >> nRows [
 
 { #category : 'error handling' }
 WSSolver >> onContradiction [
+
+	| bt |
+	self updateExecutionHistory.
+	self addOneToTotalNumberOfTries.
+	self logTotalTries.
+	
+	bt := self backtracking.
+	
+	(bt backtrackInSolver: self) 
+		ifTrue: [ ^ self ].
+
+	(bt allowsSameClassPlacementRetry and: [ bt classPlacementBacktracks < bt maxRetriesForSameClassPlacement ])
+		ifTrue: [ ^ bt restartFromClassesGraphForSolver: self ].
+		
+	bt emptyGridBacktracks > bt maxRegenerationsPerGridSize
+		ifTrue: [ WSMaxTriesReached signal ].
+
+	bt restartFromEmptyGraphForSolver: self.
+
+]
+
+{ #category : 'deprecated' }
+WSSolver >> onContradiction2 [
 	"Method executed when a contradiction has been found"
 
 	| bt | 
@@ -461,13 +485,13 @@ WSSolver >> onContradiction [
 	
 	bt := self backtracking.
 	bt restartFromClassesGraphForSolver: self.
-	bt addOneToContradictionPerGraph.
+	bt addOneToGraphBacktracks.
 
-	(bt nOfContradicitonsPerGraph) >= (bt maxNumberOfBacktrackPerGraph) ifFalse: [ ^ self ].
+	(bt graphBacktracks) >= (bt maxNumberOfBacktrackPerGraph) ifFalse: [ ^ self ].
 
 	bt restartFromEmptyGraphForSolver: self.
 	
-	bt nOfRegeneratedGraph >= bt maxRegenerationsPerGridSize
+	bt emptyGridBacktracks >= bt maxRegenerationsPerGridSize
 		ifTrue: [ WSMaxTriesReached signal. ]
 ]
 
@@ -499,6 +523,14 @@ WSSolver >> recordStepHistory: collapsedNode resolved: resolvedNodes touched: to
     eh := self executionHistory.
     eh historyOfCollapsedNodes add: (self copyOfNodesWithoutEdges: ({ collapsedNode }, resolvedNodes)).
     eh historyOfTouchedNodes add: (self copyOfNodesWithoutEdges: touchedNodes).
+]
+
+{ #category : 'restart' }
+WSSolver >> recreateGraph [
+	"Recreate the graph from scratch. Places again all the classes"
+	
+	self graph: self topology createGraph
+	
 ]
 
 { #category : 'path reification' }

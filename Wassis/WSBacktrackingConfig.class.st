@@ -66,7 +66,7 @@ WSBacktrackingConfig class >> backtrackingStrategy [
 		
 		backtracking := (backtrackingMap at: backtrackingKey ifAbsent: [ self error: 'Unknown backtracking strategy: ', backtrackingKey ]).
 			
-		self backtrackingStrategy: backtracking new.
+		self backtrackingStrategy: backtracking.
 	].
 
 	^ BacktrackingStrategy
