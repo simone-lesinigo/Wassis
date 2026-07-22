@@ -243,7 +243,7 @@ WSSolver >> collapseNextNode [
 	 self graph addOneToCollapsedNodes.
  	 node collapseStep: self graph numberOfCollapsedNodes.
 	
-	 self backtracking checkIfSaveNeeded: node.
+	 "self backtracking checkIfSaveNeeded: node."
 	
     node := node collapseTo: node selectInWhichTileToCollapse.
 

@@ -14,7 +14,7 @@ WSBacktrackingConfig class >> maxNumberOfBacktrackPerGraph [
 	"How many times WFC should try to find a solution on the same graph (classes collapsed in the same nodes)"
 
 	MaxNumberOfTriesPerGraph ifNil: [ 
-		self maxNumberOfBacktrackPerGraph: (self configFile atPath: { self path . 'maxNumberOfTriesPerGraph'} default: 10)
+		self maxNumberOfBacktrackPerGraph: (self configFile atPath: { self path . 'maxNumberOfBacktrackPerGraph'} default: 10)
 	].
 
 	^ MaxNumberOfTriesPerGraph
@@ -37,7 +37,7 @@ WSBacktrackingConfig class >> maxRegenerationsPerGridSize [
 	"How many times WFC should try to find a solution on a graph with the same size (classes collapsed in different nodes)"
 
 	MaxNumberOfRegeneratedGraph ifNil: [ 
-		self maxNumberOfRegeneratedGraph: (self configFile atPath: { self path . 'maxNumberOfRegeneratedGraph'} default: 10)
+		self maxNumberOfRegeneratedGraph: (self configFile atPath: { self path . 'maxRegenerationsPerGridSize'} default: 10)
 	].
 
 	^ MaxNumberOfRegeneratedGraph 
