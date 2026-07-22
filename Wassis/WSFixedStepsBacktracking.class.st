@@ -16,7 +16,7 @@ Class {
 WSFixedStepsBacktracking class >> numberOfFixedSteps [
 	"How many steps it should go back for bactracking"
 		
-	^ WSConfig 
+	^ WSFixedStepsBacktrackingConfig numberOfFixedSteps
 ]
 
 { #category : 'accessing' }

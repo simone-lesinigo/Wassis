@@ -22,7 +22,7 @@ WSBacktrackingConfig class >> allowsSameClassPlacementRetry [
 	
 	AllowsSameClassPlacementRetry ifNil: [ 
 		self allowsSameClassPlacementRetry: (self configFile 
-			atPath: (self sameClassPlacementPath , #('enabled')) 
+			atPath: (self sameClassPlacementPath , { #enabled }) 
 			default: true)
 	].
 
@@ -54,7 +54,7 @@ WSBacktrackingConfig class >> backtrackingStrategy [
 	BacktrackingStrategy ifNil: [ 
 		| backtrackingKey backtrackingMap backtracking |
 		
-		backtrackingKey := self configFile atPath: {'classbacktracking'} default: 'random'.
+		backtrackingKey := self configFile atPath: { 'classbacktracking' } default: 'restart'.
 		
 		backtrackingMap := Dictionary new
 			at: 'fixedSteps' put: WSFixedStepsBacktracking;
@@ -84,7 +84,7 @@ WSBacktrackingConfig class >> maxNumberOfBacktrackPerGraph [
 
 	MaxNumberOfBacktrackPerGraph ifNil: [ 
 		self maxNumberOfBacktrackPerGraph: (self configFile 
-			atPath: (self path , #('maxNumberOfBacktrackPerGraph'))
+			atPath: (self path , { #maxNumberOfBacktrackPerGraph })
 			default: 10)
 	].
 
@@ -103,7 +103,7 @@ WSBacktrackingConfig class >> maxRegenerationsPerGridSize [
 
 	MaxRegenerationsPerGridSize ifNil: [ 
 		self maxRegenerationsPerGridSize: (self configFile 
-			atPath: (self path , #('maxRegenerationsPerGridSize')) 
+			atPath: (self path , { #maxRegenerationsPerGridSize }) 
 			default: 10)
 	].
 
@@ -122,7 +122,7 @@ WSBacktrackingConfig class >> maxRetriesForSameClassPlacement [
 
 	MaxRetriesForSameClassPlacement ifNil: [ 
 		self maxRetriesForSameClassPlacement: (self configFile 
-			atPath: (self sameClassPlacementPath , #('maxNumberOfRetries'))
+			atPath: (self sameClassPlacementPath , { #maxNumberOfRetries })
 			default: 10)
 	].
 
@@ -138,11 +138,11 @@ WSBacktrackingConfig class >> maxRetriesForSameClassPlacement: anObject [
 { #category : 'accessing-path' }
 WSBacktrackingConfig class >> path [
 	
-	^ #('WSBacktracking')
+	^ { #WSBacktracking }
 ]
 
 { #category : 'accessing-path' }
 WSBacktrackingConfig class >> sameClassPlacementPath [
 	
-	^ self path , #('retryWithSameClassPlacement')
+	^ self path , { #retryWithSameClassPlacement }
 ]
