@@ -12,8 +12,6 @@ Class {
 		'EmptyTileWeight',
 		'HeapType',
 		'IsHeadless',
-		'MaxNumberOfRegeneratedGraph',
-		'MaxNumberOfTriesPerGraph',
 		'PathTargetStrategy',
 		'PlacementStrategy',
 		'SaveFailedExecution'
