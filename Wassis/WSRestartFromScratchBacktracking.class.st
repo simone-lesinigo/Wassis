@@ -8,3 +8,15 @@ Class {
 	#package : 'Wassis',
 	#tag : 'Backtracking'
 }
+
+{ #category : 'evaluating' }
+WSRestartFromScratchBacktracking >> evaluateCheckpointBasedOn: aWSCollapseEvent historySize: historySize withGraph: aGraph [
+	"This method is empty on purpose as it should not save any checkpoint"
+
+]
+
+{ #category : 'backtracking' }
+WSRestartFromScratchBacktracking >> performBacktrackInSolver: aSolver [
+
+	^ false
+]

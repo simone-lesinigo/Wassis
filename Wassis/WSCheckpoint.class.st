@@ -7,24 +7,34 @@ Class {
 	#instVars : [
 		'graphCopy',
 		'timestamp',
-		'try',
-		'collapsedNode'
+		'collapseEvent',
+		'historySize'
 	],
 	#category : 'Wassis-Backtracking',
 	#package : 'Wassis',
 	#tag : 'Backtracking'
 }
 
-{ #category : 'accessing' }
-WSCheckpoint >> collapsedNode [
-
-	^ collapsedNode
+{ #category : 'instance creation' }
+WSCheckpoint class >> fromCollapseEvent: aWSCollapseEvent withHistorySize: aSize withGraph: aGraph [
+	
+	^ self new
+		graphCopy: aGraph veryDeepCopy;
+		historySize: aSize;
+		collapseEvent: aWSCollapseEvent;
+		timestamp: DateAndTime now
 ]
 
 { #category : 'accessing' }
-WSCheckpoint >> collapsedNode: anObject [
+WSCheckpoint >> collapseEvent [
 
-	collapsedNode := anObject
+	^ collapseEvent
+]
+
+{ #category : 'accessing' }
+WSCheckpoint >> collapseEvent: anObject [
+
+	collapseEvent := anObject
 ]
 
 { #category : 'accessing' }
@@ -40,6 +50,18 @@ WSCheckpoint >> graphCopy: anObject [
 ]
 
 { #category : 'accessing' }
+WSCheckpoint >> historySize [
+
+	^ historySize
+]
+
+{ #category : 'accessing' }
+WSCheckpoint >> historySize: anObject [
+
+	historySize := anObject
+]
+
+{ #category : 'accessing' }
 WSCheckpoint >> timestamp [
 
 	^ timestamp
@@ -49,16 +71,4 @@ WSCheckpoint >> timestamp [
 WSCheckpoint >> timestamp: anObject [
 
 	timestamp := anObject
-]
-
-{ #category : 'accessing' }
-WSCheckpoint >> try [
-
-	^ try
-]
-
-{ #category : 'accessing' }
-WSCheckpoint >> try: anObject [
-
-	try := anObject
 ]

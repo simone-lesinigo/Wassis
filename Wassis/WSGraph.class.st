@@ -1005,6 +1005,30 @@ WSGraph >> paths: anObject [
 	paths := anObject
 ]
 
+{ #category : 'collapse' }
+WSGraph >> peekNextNodeToCollapse [
+	"Returns the node to collapse. If the node is already collapsed or it is not the most fresh one, remove it and retry. Note: it doesn't remove from the heap the node that is going to be collapsed"
+	
+	| entry isStale |
+	isStale := true.
+	
+	[ isStale ] whileTrue: [ 
+		entry := self entropyHeap first.
+		isStale := entry node isCollapsed or: [ entry entropy ~= entry node entropy ].
+		isStale ifTrue: [ self entropyHeap removeFirst ].
+	].
+	
+	^ entry node
+
+]
+
+{ #category : 'collapse' }
+WSGraph >> popNextNodeToCollapse [
+	"Remove from the heap the first entry (already validated by peekNextNodeToCollapse)"
+	
+	^ self entropyHeap removeFirst node 
+]
+
 { #category : 'propagating' }
 WSGraph >> propagate: aNode [
 	"Propagate the constraint of a collapsed node to the graph"
@@ -1338,22 +1362,6 @@ WSGraph >> runDijkstraFrom: startNode to: endNode withExtraNodes: extraNodes pat
         weight: #third.
     shortestPath := (dijkstra runFrom: startNode to: endNode) asOrderedCollection.
     ^ shortestPath
-]
-
-{ #category : 'collapse' }
-WSGraph >> selectNextNodeToCollapse [
-	"Returns the node to collapse. If the node is already collapsed or it is not the most fresh one, remove it and retry"
-	
-	| entry isStale |
-	isStale := true.
-	
-	[ isStale ] whileTrue: [ 
-		entry := self entropyHeap removeFirst.
-		isStale := entry node isCollapsed or: [ entry entropy ~= entry node entropy ].
-	].
-	
-	^ entry node
-
 ]
 
 { #category : 'path reification' }

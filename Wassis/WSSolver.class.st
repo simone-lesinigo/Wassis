@@ -238,18 +238,32 @@ WSSolver >> clearAllPathsOf: aClass [
 
 { #category : 'running' }
 WSSolver >> collapseNextNode [
+	| node possibleTiles chosenTile historySize |
 
-    | node |
+	node := self graph peekNextNodeToCollapse.
 
-    node := self graph selectNextNodeToCollapse.
-	 self graph addOneToCollapsedNodes.
- 	 node collapseStep: self graph numberOfCollapsedNodes.
+	possibleTiles := node possibleTiles copy.	
+	chosenTile := node selectInWhichTileToCollapse.
 	
-	 self backtracking evaluateCheckpointBasedOn: node inSolver: self.
+	historySize := self executionHistory historyOfCollapsedNodes size.
 	
-    node := node collapseTo: node selectInWhichTileToCollapse.
+	self backtracking 
+		evaluateCheckpointBasedOn: (
+			WSCollapseEvent 
+				node: node 
+				possibleTiles: possibleTiles 
+				chosenTile: chosenTile
+			)
+		historySize: historySize
+		withGraph: self graph.
+	
+	self graph popNextNodeToCollapse.
+	self graph addOneToCollapsedNodes.
+	node collapseStep: self graph numberOfCollapsedNodes.
+	
+	node := node collapseTo: chosenTile.
 
-    ^ node
+	^ node
 ]
 
 { #category : 'copying' }
@@ -417,7 +431,7 @@ WSSolver >> logTotalTries [
 	| totalNumberOfTries |
 	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
 	
-	(totalNumberOfTries \\ 50 = 0) ifTrue: [ 
+	(totalNumberOfTries \\ 1 = 0) ifTrue: [ 
 		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
 ]
 
@@ -453,22 +467,21 @@ WSSolver >> nRows [
 WSSolver >> onContradiction [
 
 	| bt |
-	self updateExecutionHistory.
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
 	
 	bt := self backtracking.
 	
-	(bt backtrackInSolver: self) 
-		ifTrue: [ ^ self ].
+	(bt backtrackInSolver: self) ifTrue: [ ^ self ].
+	
+	self executionHistory reset.
 
 	(bt allowsSameClassPlacementRetry and: [ bt classPlacementBacktracks < bt maxRetriesForSameClassPlacement ])
 		ifTrue: [ ^ bt restartFromClassesGraphForSolver: self ].
-		
-	bt emptyGridBacktracks > bt maxRegenerationsPerGridSize
-		ifTrue: [ WSMaxTriesReached signal ].
-
+	
 	bt restartFromEmptyGraphForSolver: self.
+	
+	(bt emptyGridBacktracks >= bt maxRegenerationsPerGridSize) ifTrue: [ WSMaxTriesReached signal ].
 
 ]
 
@@ -510,7 +523,7 @@ WSSolver >> propagateFrom: collapsedNode andResolved: resolvedNodes [
 WSSolver >> recordHeapSnapshot [
 	"Save a snapshot of the heap"
 
-    self executionHistory historyOfMinEntropyHeap 
+    self executionHistory historyOfEntropyHeap 
         add: (self copyOfNodesWithoutEdges: (self graph entropyHeap collect: [ :eachEntry | eachEntry node]))
 ]
 

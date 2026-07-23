@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'historyOfCollapsedNodes',
 		'historyOfTouchedNodes',
-		'historyOfMinEntropyHeap',
+		'historyOfEntropyHeap',
 		'copyOfInitalNodes',
 		'historyOfFailedExecutions'
 	],
@@ -41,6 +41,18 @@ WSExecutionHistory >> historyOfCollapsedNodes: anObject [
 ]
 
 { #category : 'accessing' }
+WSExecutionHistory >> historyOfEntropyHeap [
+
+	^ historyOfEntropyHeap
+]
+
+{ #category : 'accessing' }
+WSExecutionHistory >> historyOfEntropyHeap: anObject [
+
+	historyOfEntropyHeap := anObject
+]
+
+{ #category : 'accessing' }
 WSExecutionHistory >> historyOfFailedExecutions [
 
 	^ historyOfFailedExecutions
@@ -50,18 +62,6 @@ WSExecutionHistory >> historyOfFailedExecutions [
 WSExecutionHistory >> historyOfFailedExecutions: anObject [
 
 	historyOfFailedExecutions := anObject
-]
-
-{ #category : 'accessing' }
-WSExecutionHistory >> historyOfMinEntropyHeap [
-
-	^ historyOfMinEntropyHeap
-]
-
-{ #category : 'accessing' }
-WSExecutionHistory >> historyOfMinEntropyHeap: anObject [
-
-	historyOfMinEntropyHeap := anObject
 ]
 
 { #category : 'accessing' }
@@ -81,7 +81,7 @@ WSExecutionHistory >> initialize [
 	super initialize.
 	self historyOfCollapsedNodes: OrderedCollection new.
 	self historyOfTouchedNodes: OrderedCollection new.
-	self historyOfMinEntropyHeap: OrderedCollection new.
+	self historyOfEntropyHeap: OrderedCollection new.
 	self historyOfFailedExecutions: OrderedCollection new
 ]
 
@@ -90,6 +90,14 @@ WSExecutionHistory >> reset [
 
 	self historyOfCollapsedNodes: OrderedCollection new.
 	self historyOfTouchedNodes: OrderedCollection new.
-	self historyOfMinEntropyHeap: OrderedCollection new.
+	self historyOfEntropyHeap: OrderedCollection new.
 	
+]
+
+{ #category : 'initialization' }
+WSExecutionHistory >> truncateTo: aSize [
+	
+	self historyOfCollapsedNodes: (self historyOfCollapsedNodes copyFrom: 1 to: aSize). 
+	self historyOfTouchedNodes: (self historyOfTouchedNodes copyFrom: 1 to: aSize).
+	self historyOfEntropyHeap: (self historyOfEntropyHeap copyFrom: 1 to: aSize).
 ]

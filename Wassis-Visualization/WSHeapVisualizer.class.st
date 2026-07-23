@@ -110,7 +110,7 @@ WSHeapVisualizer >> initialize [
 	super initialize.
 	self canvas: RSCanvas new.
 	self canvas @ RSCanvasController.
-	self historyHeap: model solver executionHistory historyOfMinEntropyHeap.
+	self historyHeap: model solver executionHistory historyOfEntropyHeap.
 	self updateHeapAtCurrentIndex.
 	self subscribeToEvents.
 ]
