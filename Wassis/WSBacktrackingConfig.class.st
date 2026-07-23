@@ -53,9 +53,9 @@ WSBacktrackingConfig class >> backtrackingStrategy [
 	
 	BacktrackingStrategy ifNil: [ 
 		| backtrackingKey backtrackingMap backtracking |
-		
-		backtrackingKey := self configFile atPath: { 'classbacktracking' } default: 'restart'.
-		
+
+		backtrackingKey := self configFile atPath: ( self path, { #backtrackingStrategy } ) default: 'restart'.
+
 		backtrackingMap := Dictionary new
 			at: 'fixedSteps' put: WSFixedStepsBacktracking;
 			at: 'numerousTile' put: WSNumerousTilesBacktracking;
