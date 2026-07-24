@@ -236,6 +236,25 @@ WSBacktracking >> maxRetriesForSameClassPlacement [
 ]
 
 { #category : 'backtracking' }
+WSBacktracking >> penalizeChosenTileIn: aCheckpoint forSolver: aSolver [
+	"Sets the weight of the failed tile choice to 0 in the newly restored graph so it won't be picked again"
+
+	| collapseEvent nodeToModify failedTileId tileToModify |
+	collapseEvent := aCheckpoint collapseEvent.
+	failedTileId := collapseEvent chosenTile id.
+
+	nodeToModify := aSolver graph 
+		atRow: collapseEvent node position first 
+		atColumn: collapseEvent node position last.
+
+	tileToModify := nodeToModify possibleTiles 
+		detect: [ :eachTile | eachTile id = failedTileId ]
+		ifNone: [ ^ self ].
+
+	tileToModify setWeightTo: 0
+]
+
+{ #category : 'backtracking' }
 WSBacktracking >> performBacktrackInSolver: aSolver [
 
 	^ self subclassResponsibility
@@ -296,6 +315,8 @@ WSBacktracking >> rollbackToCheckpointAtIndex: targetIndex inSolver: aSolver [
 	targetCheckpoint := self checkpoints at: targetIndex.
 
 	aSolver graph: targetCheckpoint graphCopy veryDeepCopy.
+	
+	self penalizeChosenTileIn: targetCheckpoint forSolver: aSolver.
 
 	aSolver executionHistory truncateTo: targetCheckpoint historySize.
 

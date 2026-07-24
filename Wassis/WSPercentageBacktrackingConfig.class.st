@@ -1,3 +1,6 @@
+"
+Config of percentage backatracking strategy. Let you define the percentage number to go back
+"
 Class {
 	#name : 'WSPercentageBacktrackingConfig',
 	#superclass : 'WSBacktrackingConfig',

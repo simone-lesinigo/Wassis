@@ -1,5 +1,5 @@
 "
-Config of fixes steps backatracking strategy
+Config of fixed steps backatracking strategy
 "
 Class {
 	#name : 'WSFixedStepsBacktrackingConfig',
