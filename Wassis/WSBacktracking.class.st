@@ -290,6 +290,7 @@ WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 
 { #category : 'backtracking' }
 WSBacktracking >> rollbackToCheckpointAtIndex: targetIndex inSolver: aSolver [
+	"Rollback at the checkpoint at targetIndex"
 
 	| targetCheckpoint |
 	targetCheckpoint := self checkpoints at: targetIndex.
