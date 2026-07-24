@@ -1,3 +1,6 @@
+"
+Config of numerous tile backatracking strategy
+"
 Class {
 	#name : 'WSNumerousTilesBacktrackingConfig',
 	#superclass : 'WSBacktrackingConfig',

@@ -138,7 +138,7 @@ WSBacktrackingConfig class >> maxRetriesForSameClassPlacement: anObject [
 { #category : 'accessing-path' }
 WSBacktrackingConfig class >> path [
 	
-	^ { #WSBacktracking }
+	^  #('WSBacktracking') 
 ]
 
 { #category : 'accessing-path' }
