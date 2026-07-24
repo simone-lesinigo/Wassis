@@ -466,46 +466,11 @@ WSSolver >> nRows [
 { #category : 'error handling' }
 WSSolver >> onContradiction [
 
-	| bt |
 	self addOneToTotalNumberOfTries.
 	self logTotalTries.
 	
-	bt := self backtracking.
-	
-	(bt backtrackInSolver: self) ifTrue: [ ^ self ].
-	
-	self executionHistory reset.
+	self backtracking handleContradictionFor: self.
 
-	(bt allowsSameClassPlacementRetry and: [ bt classPlacementBacktracks < bt maxRetriesForSameClassPlacement ])
-		ifTrue: [ ^ bt restartFromClassesGraphForSolver: self ].
-	
-	bt restartFromEmptyGraphForSolver: self.
-	
-	(bt emptyGridBacktracks >= bt maxRegenerationsPerGridSize) ifTrue: [ WSMaxTriesReached signal ].
-
-]
-
-{ #category : 'deprecated' }
-WSSolver >> onContradiction2 [
-	"Method executed when a contradiction has been found"
-
-	| bt | 
-	"self createTemporaryVisualization. self halt."
-	self updateExecutionHistory.
-	
-	self addOneToTotalNumberOfTries.
-	self logTotalTries.
-	
-	bt := self backtracking.
-	bt restartFromClassesGraphForSolver: self.
-	bt addOneToGraphBacktracks.
-
-	(bt graphBacktracks) >= (bt maxNumberOfBacktrackPerGraph) ifFalse: [ ^ self ].
-
-	bt restartFromEmptyGraphForSolver: self.
-	
-	bt emptyGridBacktracks >= bt maxRegenerationsPerGridSize
-		ifTrue: [ WSMaxTriesReached signal. ]
 ]
 
 { #category : 'running' }

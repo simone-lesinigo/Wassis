@@ -81,15 +81,40 @@ WSBacktracking >> allowsSameClassPlacementRetry [
 ]
 
 { #category : 'backtracking' }
-WSBacktracking >> backtrackInSolver: aSolver [
+WSBacktracking >> attemptBacktrackInSolver: aSolver [
 	"Perform the backtrack based on the strategy. Retun true if backtrack was succesfully executed, false otherwise"
 	
-	self checkpoints ifEmpty: [ WSLogger log: 'Empty checkpoints'. ^ false ].
-	self graphBacktracks >= self maxNumberOfBacktrackPerGraph ifTrue: [ ^ false ].
+	self checkpoints ifEmpty: [ ^ false ].
+		
+	self canBacktrackOnGraph ifFalse: [ ^ false ].
+	
 	self addOneToGraphBacktracks.
-	WSLogger log: ('Backtrack on the same graph: {1}' format: self graphBacktracks asString).
+	WSLogger log: 
+		('Backtrack on the same graph: {1}' format: { self graphBacktracks asString }).
 	
 	^ self performBacktrackInSolver: aSolver.
+]
+
+{ #category : 'testing' }
+WSBacktracking >> canBacktrackOnGraph [
+	"Check if you can backtrack on the same execution"
+	
+	^ self graphBacktracks < self maxNumberOfBacktrackPerGraph
+]
+
+{ #category : 'testing' }
+WSBacktracking >> canRestartWithEmptyGraph [
+	"Check if it can restart with a different positioning of classes but same grid size"
+
+	^ self emptyGridBacktracks < self maxRegenerationsPerGridSize
+]
+
+{ #category : 'testing' }
+WSBacktracking >> canRetrySameClassPlacement [
+	"Check if the restart from the same positioninf of classes is enabled. If it is, check if it can do it"
+
+	^ self allowsSameClassPlacementRetry and: [ 
+		self classPlacementBacktracks < self maxRetriesForSameClassPlacement ]
 ]
 
 { #category : 'accessing' }
@@ -164,6 +189,23 @@ WSBacktracking >> graphBacktracks: anObject [
 	graphBacktracks := anObject
 ]
 
+{ #category : 'backtracking' }
+WSBacktracking >> handleContradictionFor: aSolver [
+	"Manage what to do when a contradiction occurs"
+
+	(self attemptBacktrackInSolver: aSolver) ifTrue: [ ^ self ].
+
+	aSolver executionHistory reset.
+
+	self canRetrySameClassPlacement ifTrue: [ 
+		^ self restartFromClassesGraphForSolver: aSolver ].
+	
+	self canRestartWithEmptyGraph ifTrue: [ 
+		^ self restartFromEmptyGraphForSolver: aSolver ].
+	
+	WSMaxTriesReached signal.
+]
+
 { #category : 'initialization' }
 WSBacktracking >> initialize [ 
 	super initialize.
@@ -221,9 +263,11 @@ WSBacktracking >> restartCounterOfContradictionperGraph [
 WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 	"Restart the algorithm with the same nodes collapsed to classes"
 	
-	aSolver graph: (self classesGraphCheckpoint veryDeepCopy).
 	self addOneToClassPlacementBacktracks.
-	WSLogger log: ('Restarted from same positioning of classes {1}' format: { classPlacementBacktracks asString }).
+	WSLogger log: 
+		('Restarted from same positioning of classes {1}' format: { self classPlacementBacktracks asString }).
+	
+	aSolver graph: self classesGraphCheckpoint veryDeepCopy.
 	self resetGraphBacktracks.
 	self clearCheckpoints.
 	
@@ -234,12 +278,14 @@ WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 	"Restart the algorithm collapsing other nodes to classes"
 
-	aSolver recreateGraph.
 	self addOneToEmptyGridBacktracks.
-	WSLogger log: ('Restarted with different positioning of classes {1}' format: { emptyGridBacktracks asString }).
+	WSLogger log: 
+		('Restarted with different positioning of classes {1}' format: { self emptyGridBacktracks asString }).
+
+	aSolver recreateGraph.
 	self resetGraphBacktracks.
 	self resetClassPlacementBacktracks.
-	self clearCheckpoints 
+	self clearCheckpoints.
 ]
 
 { #category : 'backtracking' }
