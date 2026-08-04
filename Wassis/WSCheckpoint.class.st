@@ -5,7 +5,7 @@ Class {
 	#name : 'WSCheckpoint',
 	#superclass : 'WSObject',
 	#instVars : [
-		'graphCopy',
+		'graphSnapshot',
 		'timestamp',
 		'collapseEvent',
 		'historySize'
@@ -19,7 +19,7 @@ Class {
 WSCheckpoint class >> fromCollapseEvent: aWSCollapseEvent withHistorySize: aSize withGraph: aGraph [
 	
 	^ self new
-		graphCopy: aGraph veryDeepCopy;
+		graphSnapshot: aGraph createSnapshot;
 		historySize: aSize;
 		collapseEvent: aWSCollapseEvent;
 		timestamp: DateAndTime now
@@ -38,15 +38,15 @@ WSCheckpoint >> collapseEvent: anObject [
 ]
 
 { #category : 'accessing' }
-WSCheckpoint >> graphCopy [
+WSCheckpoint >> graphSnapshot [
 
-	^ graphCopy
+	^ graphSnapshot
 ]
 
 { #category : 'accessing' }
-WSCheckpoint >> graphCopy: anObject [
+WSCheckpoint >> graphSnapshot: anObject [
 
-	graphCopy := anObject
+	graphSnapshot := anObject
 ]
 
 { #category : 'accessing' }

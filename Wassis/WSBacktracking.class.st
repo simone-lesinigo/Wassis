@@ -314,7 +314,7 @@ WSBacktracking >> rollbackToCheckpointAtIndex: targetIndex inSolver: aSolver [
 	| targetCheckpoint |
 	targetCheckpoint := self checkpoints at: targetIndex.
 
-	aSolver graph: targetCheckpoint graphCopy veryDeepCopy.
+	aSolver graph restoreFromSnapshot: targetCheckpoint graphSnapshot.
 	
 	self penalizeChosenTileIn: targetCheckpoint forSolver: aSolver.
 
