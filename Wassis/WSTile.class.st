@@ -93,12 +93,6 @@ WSTile >> isPathTile [
 ]
 
 { #category : 'accessing' }
-WSTile >> setWeightTo: aNumber [
-	
-	self weight: aNumber 
-]
-
-{ #category : 'accessing' }
 WSTile >> weight [
 
 	^ weight

@@ -682,6 +682,8 @@ WSNode >> selectInWhichTileToCollapse [
 	"Return the tile in which the node should collapse (weighted choice)"
 	| weightedTiles totalWeight |
 	
+	self possibleTiles ifEmpty: [ WSContradiction signal ].
+	
 	self possibleTiles detect: [ :tile | tile isEmptyTile ] ifFound: [ :emptyTile | ^ emptyTile ].
 	
 	weightedTiles := self calculateWeightedTiles.
