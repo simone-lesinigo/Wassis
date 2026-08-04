@@ -210,7 +210,7 @@ WSNode >> column [
 
 { #category : 'copying' }
 WSNode >> copyWithoutEdges [
-	"Return a copy of self without outgoingEdge"
+	"Answer a new WSNode with the information required to reconstruct the history of the animation"
 	
 	| newNode |
 	newNode := self class new.
@@ -225,6 +225,20 @@ WSNode >> copyWithoutEdges [
 		pathTargets: self pathTargets;
 		entropy: self entropy.
 
+]
+
+{ #category : 'snapshot' }
+WSNode >> createSnapshot [
+
+	^ WSNodeSnapshot new
+		possibleTiles: self possibleTiles copy; 
+		isCollapsed: self isCollapsed;
+		tileInWhichCollapsed: self tileInWhichCollapsed;
+		collapseStep: self collapseStep;
+		entropy: self entropy;
+		sumOfWeights: self sumOfWeights;
+		sumOfWeightsLog: self sumOfWeightsLog;
+		yourself
 ]
 
 { #category : 'accessing' }
@@ -643,6 +657,18 @@ WSNode >> resolvePathTile: aTile [
     placeholderMapping ifEmpty: [ ^ aTile ].
 
     ^ aTile specializedWith: placeholderMapping
+]
+
+{ #category : 'snapshot' }
+WSNode >> restoreFromSnapshot: aSnapshot [
+
+	self possibleTiles: aSnapshot possibleTiles copy.
+	self isCollapsed: aSnapshot isCollapsed.
+	self tileInWhichCollapsed: aSnapshot tileInWhichCollapsed.
+	self collapseStep: aSnapshot collapseStep.
+	self entropy: aSnapshot entropy.
+	self sumOfWeights: aSnapshot sumOfWeights.
+	self sumOfWeightsLog: aSnapshot sumOfWeightsLog.
 ]
 
 { #category : 'accessing' }
