@@ -526,6 +526,16 @@ WSGraph >> createPaths [
 WSLogger log: 'Paths created'.
 ]
 
+{ #category : 'snapshot' }
+WSGraph >> createSnapshot [
+
+	^ WSGraphSnapshot new
+		nodes: (self nodes collect: [ :each | each createSnapshot ]);
+		entropyHeap: self entropyHeap copy;
+		numberOfCollapsedNodes: self numberOfCollapsedNodes;
+		yourself.
+]
+
 { #category : 'deprecated' }
 WSGraph >> deleteUselessCrossingFromAllPaths [
 	"While refining the paths, some crossing that are not needed remains. This method erases them from all paths"
@@ -1182,6 +1192,16 @@ WSGraph >> restoreEntropyHeap [
 		isCollapsed := nodeToAdd isCollapsed ].
 	
 	self entropyHeap add: (WSHeapEntry node: nodeToAdd entropy: nodeToAdd entropy)
+]
+
+{ #category : 'snapshot' }
+WSGraph >> restoreFromSnapshot: aSnapshot [
+
+	self nodes with: aSnapshot nodes do: [ :node :state | 
+		node restoreFromSnapshot: state ].
+	
+	self entropyHeap: aSnapshot entropyHeap copy.
+	self numberOfCollapsedNodes: aSnapshot numberOfCollapsedNodes.
 ]
 
 { #category : 'deprecated' }
