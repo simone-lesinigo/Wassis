@@ -7,25 +7,41 @@
     "connectionAssignmentStrategy": "grouped",
     "pathTargetStrategy": "closest-exit",
     "WSBacktracking": {
-        "maxNumberOfTriesPerGraph": 0,
-        "maxNumberOfRegeneratedGraph": 5000
+        "backtrackingStrategy": "percentage",
+        "maxNumberOfBacktrackPerGraph": 5,
+        "maxRegenerationsPerGridSize": 10,
+        "retryWithSameClassPlacement": {
+            "enabled": true,
+            "maxNumberOfRetries": 3
+        },
+        "WSFixedStepsBacktracking": {
+            "numberOfFixedSteps": 20
+        },
+        "WSPercentageBacktracking": {
+            "percentage": 20
+        },
+        "WSNumerousTilesBacktracking": {
+            "tileCountThreshold": 7
+        },
+        "WSSimilarWeightBacktracking": {
+            "minSimilarTilesPercentage": 2,
+            "weightDifferencePercentage": 0
+        }
     },
     "WSTile": {
-        "emptyTileWeight": 4000,
+        "emptyTileWeight": 10000,
         "classTileWeight": 1
     },
     "WS2DGridTopology": {
         "gridSafetyMooreRadius": 3,
-
         "WS2DRectangularGridTopology": {
             "squareVisitorTileSize": 200,
             "WS2DSquareTile": {
-                "straightTilesWeight": 28,
+                "straightTilesWeight": 25,
                 "cornerTilesWeight": 25,
                 "crossingTilesWeight": 0,
                 "mergingTilesWeight": 0
             }
-           
         }
     }
 }
