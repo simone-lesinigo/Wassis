@@ -39,13 +39,15 @@ WSSimilarWeightBacktracking >> evaluateCheckpointBasedOn: aWSCollapseEvent histo
 
 { #category : 'testing' }
 WSSimilarWeightBacktracking >> hasEnoughSimilarWeightTiles: aCollectionOfTiles [
-	"Returns true if at least minSimilarTilesPercentage % of tiles have weights within weightDifferencePercentage % of each other"
+	"Returns true if at least minSimilarTilesPercentage % of non-zero tiles have weights within weightDifferencePercentage % of each other"
 
-	| sortedWeights windowSize |
-	windowSize := ((aCollectionOfTiles size * self minSimilarTilesPercentage / 100) ceiling) max: 2.
-	aCollectionOfTiles size < windowSize ifTrue: [ ^ false ].
+	| nonZeroWeights sortedWeights windowSize |
+	nonZeroWeights := (aCollectionOfTiles collect: #weight) reject: #isZero.
 
-	sortedWeights := (aCollectionOfTiles collect: [ :each | each weight ]) asSortedCollection.
+	windowSize := ((nonZeroWeights size * self minSimilarTilesPercentage / 100) ceiling) max: 2.
+	nonZeroWeights size < windowSize ifTrue: [ ^ false ].
+
+	sortedWeights := nonZeroWeights asSortedCollection.
 
 	1 to: (sortedWeights size - windowSize + 1) do: [ :i |
 		| minWeight maxWeight allowedDelta |
