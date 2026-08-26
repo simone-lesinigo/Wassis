@@ -14,6 +14,12 @@ Class {
 	#tag : 'Snapshot'
 }
 
+{ #category : 'fuel support' }
+WSGraphSnapshot class >> fuelIgnoredInstanceVariableNames [
+
+    ^ #('entropyHeap')
+]
+
 { #category : 'accessing' }
 WSGraphSnapshot >> entropyHeap [
 
