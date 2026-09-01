@@ -23,19 +23,23 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses [
 { #category : 'filters' }
 WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: someFilters [
 
-    | validClasses |
-    validClasses := aCollectionOfClasses reject: [ :each | each isLikelyTest or: [ each isException ] ].
-	validClasses := validClasses first: (6 min: validClasses size).
+	| validClasses |
+	validClasses := aCollectionOfClasses reject: [ :each |
+		                each isLikelyTest or: [ each isException ] ].
+	validClasses := validClasses first: (5 min: validClasses size).
 
-    ^ (validClasses flatCollect: [ :eachClass |
-        | related |
-        related := someFilters flatCollect: [ :assoc | 
-            | result |
-            result := assoc key value: eachClass.
-            result ifNil: [ { } ] ifNotNil: [ result isCollection ifTrue: [ result ] ifFalse: { result } ] ].
-        related isEmpty
-            ifTrue: [ { } ]
-            ifFalse: [ { eachClass } , related ] ]) asSet
+	^ (validClasses flatCollect: [ :eachClass |
+			   | related |
+			   related := someFilters flatCollect: [ :assoc |
+					              | result |
+					              result := assoc key value: eachClass.
+					              result ifNil: [ {  } ] ifNotNil: [
+							              result isCollection
+								              ifTrue: [ result ]
+								              ifFalse: { result } ] ].
+			   related isEmpty
+				   ifTrue: [ {  } ]
+				   ifFalse: [ { eachClass } , related ] ]) asSet
 ]
 
 { #category : 'deprecated' }
