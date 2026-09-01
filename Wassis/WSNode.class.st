@@ -89,18 +89,18 @@ WSNode >> biasesForTarget: targetNode from: myPosition [
 
 	biases := Dictionary new.
 	totalDelta > 0 ifFalse: [ ^ biases ].
-	
+
 	rowWeight := deltaRow / totalDelta.
 	colWeight := deltaCol / totalDelta.
-	maxBoost := 100.0.
-	
-	targetPosition first > myPosition first 
-		ifTrue: [ biases at: #down put: (1.0 + (maxBoost * rowWeight)) ]
-		ifFalse: [ biases at: #up put: (1.0 + (maxBoost * rowWeight)) ].
-		
-	targetPosition last > myPosition last 
-		ifTrue: [ biases at: #right put: (1.0 + (maxBoost * colWeight)) ]
-		ifFalse: [ biases at: #left put: (1.0 + (maxBoost * colWeight)) ].
+	maxBoost := 5.0.
+
+	targetPosition first > myPosition first
+		ifTrue: [ biases at: #down put: 1.0 + (maxBoost * rowWeight) ]
+		ifFalse: [ biases at: #up put: 1.0 + (maxBoost * rowWeight) ].
+
+	targetPosition last > myPosition last
+		ifTrue: [ biases at: #right put: 1.0 + (maxBoost * colWeight) ]
+		ifFalse: [ biases at: #left put: 1.0 + (maxBoost * colWeight) ].
 
 	^ biases
 ]
