@@ -18,3 +18,11 @@ WSLogger class >> log: aString [
 	].
 	Transcript cr
 ]
+
+{ #category : 'logging' }
+WSLogger class >> log: aString enabled: aBoolean [
+
+	aBoolean
+		ifTrue: [ self log: aString ]
+		ifFalse: [ ^ self ]
+]

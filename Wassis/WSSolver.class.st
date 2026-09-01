@@ -294,17 +294,16 @@ WSSolver >> createHistoryVisualizationWithMilliSecDelay: aDelay [
 { #category : 'visualization' }
 WSSolver >> createTemporaryVisualization [
 	"Create a temporary visualization that does not affect at all self. All the node that were not collapsed are not displayed"
-	
+
 	| copyOfSelf uncollapsedTile |
 	uncollapsedTile := self topology createUncollapsedTile.
 	copyOfSelf := self veryDeepCopy.
-	copyOfSelf graph nodes do: [ :eachNode | 
-		eachNode isNotCollapsed ifTrue: [
-       	(eachNode hasZeroPossibleTiles)
-                ifTrue: [ eachNode collapseTo: self topology createErrorTile ]
-                ifFalse: [  eachNode collapseTo: uncollapsedTile ] ] ].
+	copyOfSelf graph nodes do: [ :eachNode |
+			eachNode isNotCollapsed ifTrue: [
+					eachNode hasZeroPossibleTiles
+						ifTrue: [ eachNode tileInWhichCollapsed: self topology createErrorTile ]
+						ifFalse: [ eachNode tileInWhichCollapsed: uncollapsedTile ] ] ].
 	copyOfSelf createVisualization
-	
 ]
 
 { #category : 'deprecated' }
@@ -429,10 +428,11 @@ WSSolver >> isValidToMove: aClass toNode: aNode [
 WSSolver >> logTotalTries [
 
 	| totalNumberOfTries |
-	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics totalNumberOfTries.
-	
-	(totalNumberOfTries \\ 1 = 0) ifTrue: [ 
-		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }). ].
+	totalNumberOfTries := WSCurrentMetrics getPerformanceMetrics
+		                      totalNumberOfTries.
+
+	totalNumberOfTries \\ 50 = 0 ifTrue: [
+		WSLogger log: ('Tries: {1}' format: { totalNumberOfTries }) ]
 ]
 
 { #category : 'drag and drop' }

@@ -83,16 +83,17 @@ WSBacktracking >> allowsSameClassPlacementRetry [
 { #category : 'backtracking' }
 WSBacktracking >> attemptBacktrackInSolver: aSolver [
 	"Perform the backtrack based on the strategy. Retun true if backtrack was succesfully executed, false otherwise"
-	
+
 	self checkpoints ifEmpty: [ ^ false ].
-		
+
 	self canBacktrackOnGraph ifFalse: [ ^ false ].
-	
+
 	self addOneToGraphBacktracks.
-	WSLogger log: 
-		('Backtrack on the same graph: {1}' format: { self graphBacktracks asString }).
-	
-	^ self performBacktrackInSolver: aSolver.
+	WSLogger 
+		log: ('Backtrack on the same graph: {1}' format:{ self graphBacktracks asString })
+		enabled: false.
+
+	^ self performBacktrackInSolver: aSolver
 ]
 
 { #category : 'testing' }
@@ -280,16 +281,16 @@ WSBacktracking >> restartCounterOfContradictionperGraph [
 { #category : 'restart' }
 WSBacktracking >> restartFromClassesGraphForSolver: aSolver [
 	"Restart the algorithm with the same nodes collapsed to classes"
-	
+
 	self addOneToClassPlacementBacktracks.
-	WSLogger log: 
-		('Restarted from same positioning of classes {1}' format: { self classPlacementBacktracks asString }).
-	
+	WSLogger log:
+		('Restarted from same positioning of classes {1}' format:
+			 { self classPlacementBacktracks asString })
+	enabled: false.
+
 	aSolver graph: self classesGraphCheckpoint veryDeepCopy.
 	self resetGraphBacktracks.
-	self clearCheckpoints.
-	
-	
+	self clearCheckpoints
 ]
 
 { #category : 'restart' }
@@ -297,13 +298,15 @@ WSBacktracking >> restartFromEmptyGraphForSolver: aSolver [
 	"Restart the algorithm collapsing other nodes to classes"
 
 	self addOneToEmptyGridBacktracks.
-	WSLogger log: 
-		('Restarted with different positioning of classes {1}' format: { self emptyGridBacktracks asString }).
+	WSLogger log:
+		('Restarted with different positioning of classes {1}' format:
+			 { self emptyGridBacktracks asString })
+		enabled: false.
 
 	aSolver recreateGraph.
 	self resetGraphBacktracks.
 	self resetClassPlacementBacktracks.
-	self clearCheckpoints.
+	self clearCheckpoints
 ]
 
 { #category : 'backtracking' }
@@ -314,7 +317,7 @@ WSBacktracking >> rollbackToCheckpointAtIndex: targetIndex inSolver: aSolver [
 	targetCheckpoint := self checkpoints at: targetIndex.
 
 	aSolver graph restoreFromSnapshot: targetCheckpoint graphSnapshot.
-	
+
 	self penalizeChosenTileIn: targetCheckpoint forSolver: aSolver.
 
 	aSolver executionHistory truncateTo: targetCheckpoint historySize.
