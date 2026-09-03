@@ -241,6 +241,9 @@ WSBacktracking >> penalizeChosenTileIn: aCheckpoint forSolver: aSolver [
 	"Removes the failed tile from the node's possible options in the restored graph"
 	| collapseEvent nodeToModify failedTileId failedTile |
 	collapseEvent := aCheckpoint collapseEvent.
+	
+	collapseEvent chosenTile isEmptyTile ifTrue: [ ^ self ].
+	
 	failedTileId := collapseEvent chosenTile id.
 
 	nodeToModify := aSolver graph 
