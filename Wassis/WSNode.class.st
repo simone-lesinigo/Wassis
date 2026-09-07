@@ -92,7 +92,7 @@ WSNode >> biasesForTarget: targetNode from: myPosition [
 
 	rowWeight := deltaRow / totalDelta.
 	colWeight := deltaCol / totalDelta.
-	maxBoost := 5.0.
+	maxBoost := 20.0.
 
 	targetPosition first > myPosition first
 		ifTrue: [ biases at: #down put: 1.0 + (maxBoost * rowWeight) ]
