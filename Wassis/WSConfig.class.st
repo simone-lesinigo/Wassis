@@ -12,6 +12,7 @@ Class {
 		'EmptyTileWeight',
 		'HeapType',
 		'IsHeadless',
+		'PathBoost',
 		'PathTargetStrategy',
 		'PlacementStrategy',
 		'SaveFailedExecution'
@@ -234,6 +235,25 @@ WSConfig class >> isPathID: aSymbol [
 WSConfig class >> isPlaceholder: aSymbol [
 
     ^ aSymbol = self firstPathSymbol or: [ aSymbol = self secondPathSymbol ]
+]
+
+{ #category : 'accessing-tileWeight' }
+WSConfig class >> pathBoost [
+	
+	PathBoost ifNil: [ 
+		self pathBoost: 
+			(self configFile atPath:  {'pathBoost'} default: 100).
+	].
+
+	^ PathBoost 
+]
+
+{ #category : 'private - accessing' }
+WSConfig class >> pathBoost: anObject [
+	
+	PathBoost := anObject
+	
+	
 ]
 
 { #category : 'accessing' }
