@@ -6,6 +6,7 @@
     "classPlacingOrder": "BFSmax",
     "connectionAssignmentStrategy": "grouped",
     "pathTargetStrategy": "closest-exit",
+    "pathBoost": 50,
     "WSBacktracking": {
         "backtrackingStrategy": "percentage",
         "maxNumberOfBacktrackPerGraph": 5,
