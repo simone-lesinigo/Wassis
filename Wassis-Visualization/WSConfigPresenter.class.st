@@ -40,37 +40,91 @@ WSConfigPresenter class >> open [
 WSConfigPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
-		  add: (self newLabel label: 'General Configuration') expand: false;
-		  add: (SpGridLayout new
-				   add: (self newLabel label: 'Heap Type:') atPoint: 1 @ 1;
-				   add: heapTypeDropList atPoint: 1 @ 2;
-				   add: (self newLabel label: 'Class Placing Order:') atPoint: 2 @ 1;
-				   add: classPlacingDropList atPoint: 2 @ 2;
-				   add: (self newLabel label: 'Minimum Class Distance:') atPoint: 1 @ 3;
-				   add: gridSafetyInput atPoint: 1 @ 4;
-				   yourself);
-		  spacing: 40;
-		  add: (self newLabel label: 'Path Configuration') expand: false;
-		  add: (SpGridLayout new
-				   add: (self newLabel label: 'Path Target Strategy:') atPoint: 1 @ 1;
-				   add: pathTargetDropList atPoint: 1 @ 2;
-				   add: (self newLabel label: 'Path Boost:') atPoint: 2 @ 1;
-				   add: pathBoostInput atPoint: 2 @ 2;
-				   yourself);
-		  spacing: 10;
-		  add: (self newLabel label: 'Tile Weights') expand: false;
-		  add: (SpGridLayout new
-				   add: (self newLabel label: 'Empty Tile:') atPoint: 1 @ 1;
-				   add: emptyTileWeightInput atPoint: 1 @ 2;
-					add: (self newLabel label: 'Straight Tile:') atPoint: 2 @ 1;
-				   add: straightTileWeightInput atPoint: 2 @ 2;
-					add: (self newLabel label: 'Corner Tile:') atPoint: 1 @ 3;
-				   add: cornerTileWeightInput atPoint: 1 @ 4;
-				   yourself);
-			add: (self newLabel label: 'Backtracking Strategy') expand: false;
-			add: backtrackingDropList expand: false;
-			add: dynamicStrategyContainer expand: false;
-			yourself
+		spacing: 20;
+
+		add: (SpBoxLayout newVertical
+			spacing: 5;
+			add: (self newLabel label: 'General Configuration') expand: false;
+			add: (SpBoxLayout newHorizontal
+				spacing: 15;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Heap Type:') expand: false;
+					add: heapTypeDropList expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Class Placing Order:') expand: false;
+					add: classPlacingDropList expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Minimum Class Distance:') expand: false;
+					add: gridSafetyInput expand: false;
+					yourself) expand: false;
+
+				yourself) expand: false;
+			yourself) expand: false;
+
+		add: (SpBoxLayout newVertical
+			spacing: 5;
+			add: (self newLabel label: 'Path Configuration') expand: false;
+			add: (SpBoxLayout newHorizontal
+				spacing: 15;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Path Target Strategy:') expand: false;
+					add: pathTargetDropList expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Path Boost:') expand: false;
+					add: pathBoostInput expand: false;
+					yourself) expand: false;
+
+				add: SpBoxLayout new;
+
+				yourself) expand: false;
+			yourself) expand: false;
+
+		add: (SpBoxLayout newVertical
+			spacing: 5;
+			add: (self newLabel label: 'Tile Weights') expand: false;
+			add: (SpBoxLayout newHorizontal
+				spacing: 15;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Empty Tile:') expand: false;
+					add: emptyTileWeightInput expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Straight Tile:') expand: false;
+					add: straightTileWeightInput expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Corner Tile:') expand: false;
+					add: cornerTileWeightInput expand: false;
+					yourself) expand: false;
+
+				yourself) expand: false;
+			yourself) expand: false;
+
+add: (SpBoxLayout newVertical
+	spacing: 5;
+	add: (self newLabel label: 'Backtracking Strategy') expand: false;
+	add: (SpBoxLayout newHorizontal
+		add: backtrackingDropList expand: false;
+		add: SpBoxLayout new;
+		yourself) expand: false;
+	add: (SpBoxLayout newHorizontal
+		add: dynamicStrategyContainer expand: false;
+		add: SpBoxLayout new;
+		yourself) expand: false;
+	yourself) expand: false;
+
+		yourself
 ]
 
 { #category : 'initialization' }
@@ -79,7 +133,7 @@ WSConfigPresenter >> initializeDialogWindow: aDialogPresenter [
 	super initializeWindow:aDialogPresenter.
 	aDialogPresenter
 		title: 'Wassis Configuration Settings';
-		initialExtent: 450 @ 800;
+		initialExtent: 500 @ 530;
 		addButton: 'Cancel' do: [ :dialog | dialog close ];
 		addButton: 'Save' do: [ :dialog | 
 			"self saveConfiguration."
@@ -88,6 +142,7 @@ WSConfigPresenter >> initializeDialogWindow: aDialogPresenter [
 
 { #category : 'initialization' }
 WSConfigPresenter >> initializePresenters [
+
 	super initializePresenters.
 
 	heapTypeDropList := self newDropList
@@ -96,60 +151,80 @@ WSConfigPresenter >> initializePresenters [
 		yourself.
 
 	classPlacingDropList := self newDropList
-		items: { 
-			WSRandomClassPlacingOrder . 
-			WSMinConnectionFirstClassPlacingOrder . 
-			WSMaxConnectionFirstClassPlacingOrder . 
-			WSBFSMinClassPlacingOrder . 
-			WSBFSMaxClassPlacingOrder 
+		items: {
+			WSRandomClassPlacingOrder.
+			WSMinConnectionFirstClassPlacingOrder.
+			WSMaxConnectionFirstClassPlacingOrder.
+			WSBFSMinClassPlacingOrder.
+			WSBFSMaxClassPlacingOrder
 		};
 		display: [ :aClass | self labelForClassPlacingStrategy: aClass ];
 		selectItem: WSConfig classPlacingOrder class;
 		yourself.
 
 	pathTargetDropList := self newDropList
-		items: { 
-			WSClosestExitPathTargetStrategy . 
-			WSCentroidPathTargetStrategy . 
-			WSNonePathTargetStrategy 
+		items: {
+			WSClosestExitPathTargetStrategy.
+			WSCentroidPathTargetStrategy.
+			WSNonePathTargetStrategy
 		};
 		display: [ :aClass | self labelForPathTargetStrategy: aClass ];
 		selectItem: WSConfig pathTargetStrategy class;
 		yourself.
 
-	pathBoostInput := self newNumberInput number: WSConfig pathBoost.
-	emptyTileWeightInput := self newNumberInput number: WSConfig emptyTileWeight.
-	straightTileWeightInput := self newNumberInput number: WS2DRectangularGridConfig straightTileWeight.
-	cornerTileWeightInput := self newNumberInput number: WS2DRectangularGridConfig cornerTileWeight.
-	gridSafetyInput := self newNumberInput number: WS2DRectangularGridConfig gridSafetyMooreRadius.
+	pathBoostInput := self newNumberInput
+		number: WSConfig pathBoost.
+
+	gridSafetyInput := self newNumberInput
+		number: WS2DRectangularGridConfig gridSafetyMooreRadius.
+
+	emptyTileWeightInput := self newNumberInput
+		number: WSConfig emptyTileWeight.
+
+	straightTileWeightInput := self newNumberInput
+		number: WS2DRectangularGridConfig straightTileWeight.
+
+	cornerTileWeightInput := self newNumberInput
+		number: WS2DRectangularGridConfig cornerTileWeight.
 
 	backtrackingDropList := self newDropList
-		items: { 
-			WSFixedStepsBacktracking . 
-			WSNumerousTilesBacktracking . 
-			WSPercentageBacktracking . 
-			WSSimilarWeightBacktracking . 
-			WSRestartFromScratchBacktracking 
+		items: {
+			WSFixedStepsBacktracking.
+			WSNumerousTilesBacktracking.
+			WSPercentageBacktracking.
+			WSSimilarWeightBacktracking.
+			WSRestartFromScratchBacktracking
 		};
 		display: [ :aClass | self labelForBacktrackingStrategy: aClass ];
 		selectItem: WSBacktrackingConfig backtrackingStrategy;
 		yourself.
-	
-	fixedStepsInput := self newNumberInput number: WSFixedStepsBacktrackingConfig numberOfFixedSteps.
-	numerousTilesInput := self newNumberInput number: WSNumerousTilesBacktrackingConfig tileCountThreshold.
-	percentageInput := self newNumberInput number: WSPercentageBacktrackingConfig percentage.
-	minSimilarTilesPercentage := self newNumberInput number: WSSimilarWeightBacktrackingConfig minSimilarTilesPercentage.
-	weightDifferencePercentage := self newNumberInput number: WSSimilarWeightBacktrackingConfig weightDifferencePercentage.
+
+	fixedStepsInput := self newNumberInput
+		number: WSFixedStepsBacktrackingConfig numberOfFixedSteps.
+
+	numerousTilesInput := self newNumberInput
+		number: WSNumerousTilesBacktrackingConfig tileCountThreshold.
+
+	percentageInput := self newNumberInput
+		number: WSPercentageBacktrackingConfig percentage.
+
+	minSimilarTilesPercentage := self newNumberInput
+		number: WSSimilarWeightBacktrackingConfig minSimilarTilesPercentage.
+
+	weightDifferencePercentage := self newNumberInput
+		number: WSSimilarWeightBacktrackingConfig weightDifferencePercentage.
 
 	stepsGroup := self newPresenter
 		layout: (SpBoxLayout newVertical
+			spacing: 5;
 			add: (self newLabel label: 'Number of Steps:') expand: false;
 			add: fixedStepsInput expand: false;
 			yourself);
-		yourself. 
+		yourself.
 
 	tilesGroup := self newPresenter
 		layout: (SpBoxLayout newVertical
+			spacing: 5;
 			add: (self newLabel label: 'Tile Threshold:') expand: false;
 			add: numerousTilesInput expand: false;
 			yourself);
@@ -157,33 +232,40 @@ WSConfigPresenter >> initializePresenters [
 
 	percentageGroup := self newPresenter
 		layout: (SpBoxLayout newVertical
+			spacing: 5;
 			add: (self newLabel label: 'Backtracking Percentage (0 - 100):') expand: false;
 			add: percentageInput expand: false;
 			yourself);
 		yourself.
-		
-similarWeightGroup := self newPresenter
-	layout: (SpBoxLayout newHorizontal
-		spacing: 10;
-		add: (SpBoxLayout newVertical
-			add: (self newLabel label: 'Tile to Consider:') expand: false;
-			add: minSimilarTilesPercentage expand: false;
+
+	similarWeightGroup := self newPresenter
+		layout: (SpBoxLayout newHorizontal
+			spacing: 20;
+
+			add: (SpBoxLayout newVertical
+				add: (self newLabel label: 'Tile to Consider:') expand: false;
+				add: minSimilarTilesPercentage expand: false;
+				yourself) expand: false;
+
+			add: (SpBoxLayout newVertical
+				add: (self newLabel label: 'Max % difference:') expand: false;
+				add: weightDifferencePercentage expand: false;
+				yourself) expand: false;
+
 			yourself);
-		add: (SpBoxLayout newVertical
-			add: (self newLabel label: 'Max % difference:') expand: false;
-			add: weightDifferencePercentage expand: false;
-			yourself);
-		yourself);
-	yourself.
-	
-   dynamicStrategyContainer := self newPresenter.
-	dynamicStrategyContainer layout: SpBoxLayout newVertical.
+		yourself.
 
-	backtrackingDropList whenSelectedItemChangedDo: [ :newStrategy | 
-		self updateDynamicConfigurationFor: newStrategy ].
+	dynamicStrategyContainer := self newPresenter.
+	dynamicStrategyContainer layout: (SpBoxLayout newVertical
+		spacing: 5;
+		yourself).
 
-	self updateDynamicConfigurationFor: backtrackingDropList selectedItem
+	backtrackingDropList
+		whenSelectedItemChangedDo: [ :newStrategy |
+			self updateDynamicConfigurationFor: newStrategy ].
 
+	self updateDynamicConfigurationFor:
+		backtrackingDropList selectedItem
 ]
 
 { #category : 'label' }
@@ -231,20 +313,29 @@ WSConfigPresenter >> labelForPathTargetStrategy: aClass [
 
 { #category : 'updating' }
 WSConfigPresenter >> updateDynamicConfigurationFor: aStrategy [
+
 	| newLayout |
-	newLayout := SpBoxLayout newVertical spacing: 5.
 
-	aStrategy = WSFixedStepsBacktracking ifTrue: [ 
-		newLayout add: stepsGroup expand: false ].
+	newLayout := SpBoxLayout newVertical
+		spacing: 0;
+		yourself.
 
-	aStrategy = WSNumerousTilesBacktracking ifTrue: [ 
-		newLayout add: tilesGroup expand: false ].
+	aStrategy = WSFixedStepsBacktracking ifTrue: [
+		newLayout
+			add: stepsGroup expand: false ].
 
-	aStrategy = WSPercentageBacktracking ifTrue: [ 
-		newLayout add: percentageGroup expand: false ].
-	
-	aStrategy = WSSimilarWeightBacktracking ifTrue: [ 
-		newLayout add: similarWeightGroup expand: false ].
+	aStrategy = WSNumerousTilesBacktracking ifTrue: [
+		newLayout
+			add: tilesGroup expand: false ].
 
-	dynamicStrategyContainer layout: newLayout
+	aStrategy = WSPercentageBacktracking ifTrue: [
+		newLayout
+			add: percentageGroup expand: false ].
+
+	aStrategy = WSSimilarWeightBacktracking ifTrue: [
+		newLayout
+			add: similarWeightGroup expand: false ].
+
+	dynamicStrategyContainer
+		layout: newLayout
 ]
