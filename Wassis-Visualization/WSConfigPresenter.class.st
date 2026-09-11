@@ -17,7 +17,10 @@ Class {
 		'dynamicStrategyContainer',
 		'fixedStepsInput',
 		'numerousTilesInput',
-		'percentageInput'
+		'percentageInput',
+		'stepsGroup',
+		'percentageGroup',
+		'tilesGroup'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -30,16 +33,8 @@ WSConfigPresenter class >> open [
 	^ self new openModal
 ]
 
-{ #category : 'initialization' }
-WSConfigPresenter >> connectPresenters [
-	super connectPresenters.
-	
-	backtrackingDropList whenSelectedItemChangedDo: [ :selectedStrategy |
-		self updateDynamicConfigurationFor: selectedStrategy ]
-]
-
 { #category : 'layout' }
-WSConfigPresenter >> defaultLayout [ 
+WSConfigPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  add: (self newLabel label: 'General Configuration') expand: false;
@@ -60,7 +55,7 @@ WSConfigPresenter >> defaultLayout [
 				   add: pathBoostInput atPoint: 2 @ 2;
 				   yourself);
 		  spacing: 10;
-		  add: (self newLabel label: 'Tile Wieghts') expand: false;
+		  add: (self newLabel label: 'Tile Weights') expand: false;
 		  add: (SpGridLayout new
 				   add: (self newLabel label: 'Empty Tile:') atPoint: 1 @ 1;
 				   add: emptyTileWeightInput atPoint: 1 @ 2;
@@ -72,7 +67,6 @@ WSConfigPresenter >> defaultLayout [
 			add: (self newLabel label: 'Backtracking Strategy') expand: false;
 			add: backtrackingDropList expand: false;
 			add: dynamicStrategyContainer expand: false;
-			add: SpNullPresenter new expand: true;
 			yourself
 ]
 
@@ -142,10 +136,35 @@ WSConfigPresenter >> initializePresenters [
 	numerousTilesInput := self newNumberInput number: WSNumerousTilesBacktrackingConfig tileCountThreshold.
 	percentageInput := self newNumberInput number: WSPercentageBacktrackingConfig percentage.
 
-	dynamicStrategyContainer := self newPresenter.
+	stepsGroup := self newPresenter
+		layout: (SpBoxLayout newVertical
+			add: (self newLabel label: 'Number of Steps:') expand: false;
+			add: fixedStepsInput expand: false;
+			yourself);
+		yourself. 
+
+	tilesGroup := self newPresenter
+		layout: (SpBoxLayout newVertical
+			add: (self newLabel label: 'Tile Threshold:') expand: false;
+			add: numerousTilesInput expand: false;
+			yourself);
+		yourself.
+
+	percentageGroup := self newPresenter
+		layout: (SpBoxLayout newVertical
+			add: (self newLabel label: 'Backtracking Percentage (0 - 100):') expand: false;
+			add: percentageInput expand: false;
+			yourself);
+		yourself.
+
+   dynamicStrategyContainer := self newPresenter.
 	dynamicStrategyContainer layout: SpBoxLayout newVertical.
-	
+
+	backtrackingDropList whenSelectedItemChangedDo: [ :newStrategy | 
+		self updateDynamicConfigurationFor: newStrategy ].
+
 	self updateDynamicConfigurationFor: backtrackingDropList selectedItem
+
 ]
 
 { #category : 'label' }
@@ -191,29 +210,19 @@ WSConfigPresenter >> labelForPathTargetStrategy: aClass [
 	^ labels at: aClass ifAbsent: [ aClass name ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updating' }
 WSConfigPresenter >> updateDynamicConfigurationFor: aStrategy [
 	| newLayout |
 	newLayout := SpBoxLayout newVertical spacing: 5.
+
 	aStrategy = WSFixedStepsBacktracking ifTrue: [ 
-		newLayout 
-			add: (self newLabel label: 'Number of Steps:') expand: false;
-			add: fixedStepsInput expand: false ].
+		newLayout add: stepsGroup expand: false ].
+
 	aStrategy = WSNumerousTilesBacktracking ifTrue: [ 
-		newLayout 
-			add: (self newLabel label: 'Tile Threshold:') expand: false;
-			add: numerousTilesInput expand: false ].
+		newLayout add: tilesGroup expand: false ].
 
 	aStrategy = WSPercentageBacktracking ifTrue: [ 
-		newLayout 
-			add: (self newLabel label: 'Backtracking Percentage (0 - 100):') expand: false;
-			add: percentageInput expand: false ].
+		newLayout add: percentageGroup expand: false ].
 
-	aStrategy = WSSimilarWeightBacktracking ifTrue: [ 
-		dynamicStrategyContainer layout: nil
-	].
-
-	aStrategy = WSRestartFromScratchBacktracking ifTrue: [ ].
-	
 	dynamicStrategyContainer layout: newLayout
 ]
