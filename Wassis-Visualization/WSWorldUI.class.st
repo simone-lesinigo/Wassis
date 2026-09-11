@@ -46,17 +46,20 @@ WSWorldUI class >> isTranscriptOpen [
 { #category : 'opening' }
 WSWorldUI class >> openSolution [
 
-	| file adaptiveSolver |
+	| files |
 
-	file := UIManager default
-		chooseExistingFileReference: 'Select a file.fuel'
+	files := UIManager default
+		chooseExistingFileReferences: 'Select files'
 		extensions: #('fuel')
 		path: (WSObject resourcesRootPath / 'solutions').
 
-	file ifNil: [ ^ self ].
-
-	adaptiveSolver := WSAdaptiveSolver loadFromFile: file fullName.
-
+	(files isNil or: [ files isEmpty ]) ifTrue: [ ^ self ].
+	
 	WSConfig isHeadless: false.
-	adaptiveSolver createVisualization.
+	
+	files do: [ :eachFile | 	
+			| adaptiveSolver |
+			adaptiveSolver := WSAdaptiveSolver loadFromFile: eachFile fullName. 
+			adaptiveSolver createVisualization.
+	]
 ]
