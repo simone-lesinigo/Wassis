@@ -27,7 +27,7 @@ WSWorldUI class >> buildWorldMenuOn: aBuilder [
 		
 	(aBuilder item: #GenerateVisualization)
 		"parent: #Wassis;"
-		label: 'Generate Hierarchy Visualization';
+		label: 'Pharo Hierarchy Visualization';
 		iconName: #hierarchy;
 		action: [ WSClassSelectionPresenter open ];
 		order: 200.

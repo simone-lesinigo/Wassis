@@ -10,7 +10,8 @@ Class {
 		'classIcon',
 		'selectClassButton',
 		'strategyDropList',
-		'runButton'
+		'runButton',
+		'configButton'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -41,7 +42,12 @@ WSClassSelectionPresenter >> defaultLayout [
 			add: (self newLabel label: 'Strategy:') expand: false;
 			add: strategyDropList expand: true;
 			yourself) expand: false;
-		add: runButton expand: false;
+		add: (SpBoxLayout newHorizontal 
+			spacing: 8;
+			vAlignCenter;
+			add: configButton expand: true;
+			add: runButton expand: true;
+			yourself) expand: false;
 		yourself
 ]
 
@@ -50,7 +56,7 @@ WSClassSelectionPresenter >> initializePresenters [
 	selectedClass := nil.
 	
 	classIcon := self newImage
-		image: (self iconNamed: #classIcon);
+		image: (self iconNamed: #class);
 		yourself.
 
 	classLabel := self newLabel yourself.
@@ -66,6 +72,12 @@ WSClassSelectionPresenter >> initializePresenters [
 		display: [ :aClass | self labelForStrategy: aClass ];
 		selectIndex: 1;
 		yourself.
+		
+	configButton := self newButton
+		label: 'Config';
+		iconName: #smallCogInitialState;
+		action: [ WSConfigPresenter open ];
+		yourself.
 
 	runButton := self newButton
 		label: 'Run Solver';
@@ -80,8 +92,9 @@ WSClassSelectionPresenter >> initializePresenters [
 WSClassSelectionPresenter >> initializeWindow: aWindowPresenter [
 
 	aWindowPresenter
-		title: 'Wassis - Generate Hierarchy Visualization';
-		initialExtent: 420 @ 160
+		title: 'Pharo Hierarchy Visualization';
+		initialExtent: 420 @ 150;
+		beNotResizable
 ]
 
 { #category : 'label' }

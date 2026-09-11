@@ -154,7 +154,7 @@ WSConfig class >> emptyTileWeight [
 	
 	EmptyTileWeight ifNil: [ 
 		self emptyTileWeight: 
-			(self configFile atPath:  {'WSTile' . 'emptyTileWeight'} default: 4000).
+			(self configFile atPath:  {'WSTile' . 'emptyTileWeight'} default: 10000).
 	].
 
 	^ EmptyTileWeight
