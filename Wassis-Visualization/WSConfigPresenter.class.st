@@ -13,7 +13,11 @@ Class {
 		'straightTileWeightInput',
 		'cornerTileWeightInput',
 		'gridSafetyInput',
-		'backtrackingDropList'
+		'backtrackingDropList',
+		'dynamicStrategyContainer',
+		'fixedStepsInput',
+		'numerousTilesInput',
+		'percentageInput'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -26,8 +30,16 @@ WSConfigPresenter class >> open [
 	^ self new openModal
 ]
 
+{ #category : 'initialization' }
+WSConfigPresenter >> connectPresenters [
+	super connectPresenters.
+	
+	backtrackingDropList whenSelectedItemChangedDo: [ :selectedStrategy |
+		self updateDynamicConfigurationFor: selectedStrategy ]
+]
+
 { #category : 'layout' }
-WSConfigPresenter >> defaultLayout [
+WSConfigPresenter >> defaultLayout [ 
 
 	^ SpBoxLayout newVertical
 		  add: (self newLabel label: 'General Configuration') expand: false;
@@ -58,7 +70,10 @@ WSConfigPresenter >> defaultLayout [
 				   add: cornerTileWeightInput atPoint: 1 @ 4;
 				   yourself);
 			add: (self newLabel label: 'Backtracking Strategy') expand: false;
-			add: backtrackingDropList expand: false
+			add: backtrackingDropList expand: false;
+			add: dynamicStrategyContainer expand: false;
+			add: SpNullPresenter new expand: true;
+			yourself
 ]
 
 { #category : 'initialization' }
@@ -70,12 +85,13 @@ WSConfigPresenter >> initializeDialogWindow: aDialogPresenter [
 		initialExtent: 450 @ 800;
 		addButton: 'Cancel' do: [ :dialog | dialog close ];
 		addButton: 'Save' do: [ :dialog | 
-			self saveConfiguration.
+			"self saveConfiguration."
 			dialog close ]
 ]
 
 { #category : 'initialization' }
 WSConfigPresenter >> initializePresenters [
+	super initializePresenters.
 
 	heapTypeDropList := self newDropList
 		items: #('minHeap' 'maxHeap');
@@ -94,25 +110,21 @@ WSConfigPresenter >> initializePresenters [
 		selectItem: WSConfig classPlacingOrder class;
 		yourself.
 
-pathTargetDropList := self newDropList
-	items: { 
-		WSClosestExitPathTargetStrategy . 
-		WSCentroidPathTargetStrategy . 
-		WSNonePathTargetStrategy 
-	};
-	display: [ :aClass | self labelForPathTargetStrategy: aClass ];
-	selectItem: WSConfig pathTargetStrategy class;
-	yourself.
+	pathTargetDropList := self newDropList
+		items: { 
+			WSClosestExitPathTargetStrategy . 
+			WSCentroidPathTargetStrategy . 
+			WSNonePathTargetStrategy 
+		};
+		display: [ :aClass | self labelForPathTargetStrategy: aClass ];
+		selectItem: WSConfig pathTargetStrategy class;
+		yourself.
 
-	pathBoostInput := self newTextInput text: WSConfig pathBoost asString.
-
-	emptyTileWeightInput := self newTextInput text:( WSConfig emptyTileWeight) asString.
-
-	straightTileWeightInput := self newTextInput text: (WS2DRectangularGridConfig straightTileWeight) asString.
-
-	cornerTileWeightInput := self newTextInput text: (WS2DRectangularGridConfig  cornerTileWeight) asString.
-
-	gridSafetyInput := self newTextInput text: (WS2DRectangularGridConfig  gridSafetyMooreRadius) asString.
+	pathBoostInput := self newNumberInput number: WSConfig pathBoost.
+	emptyTileWeightInput := self newNumberInput number: WSConfig emptyTileWeight.
+	straightTileWeightInput := self newNumberInput number: WS2DRectangularGridConfig straightTileWeight.
+	cornerTileWeightInput := self newNumberInput number: WS2DRectangularGridConfig cornerTileWeight.
+	gridSafetyInput := self newNumberInput number: WS2DRectangularGridConfig gridSafetyMooreRadius.
 
 	backtrackingDropList := self newDropList
 		items: { 
@@ -124,7 +136,16 @@ pathTargetDropList := self newDropList
 		};
 		display: [ :aClass | self labelForBacktrackingStrategy: aClass ];
 		selectItem: WSBacktrackingConfig backtrackingStrategy;
-	yourself.
+		yourself.
+	
+	fixedStepsInput := self newNumberInput number: WSFixedStepsBacktrackingConfig numberOfFixedSteps.
+	numerousTilesInput := self newNumberInput number: WSNumerousTilesBacktrackingConfig tileCountThreshold.
+	percentageInput := self newNumberInput number: WSPercentageBacktrackingConfig percentage.
+
+	dynamicStrategyContainer := self newPresenter.
+	dynamicStrategyContainer layout: SpBoxLayout newVertical.
+	
+	self updateDynamicConfigurationFor: backtrackingDropList selectedItem
 ]
 
 { #category : 'label' }
@@ -170,44 +191,29 @@ WSConfigPresenter >> labelForPathTargetStrategy: aClass [
 	^ labels at: aClass ifAbsent: [ aClass name ]
 ]
 
-{ #category : 'saving' }
-WSConfigPresenter >> saveConfiguration [
-	| json file backtrackingNode topoNode rectNode tileNode |
+{ #category : 'as yet unclassified' }
+WSConfigPresenter >> updateDynamicConfigurationFor: aStrategy [
+	| newLayout |
+	newLayout := SpBoxLayout newVertical spacing: 5.
+	aStrategy = WSFixedStepsBacktracking ifTrue: [ 
+		newLayout 
+			add: (self newLabel label: 'Number of Steps:') expand: false;
+			add: fixedStepsInput expand: false ].
+	aStrategy = WSNumerousTilesBacktracking ifTrue: [ 
+		newLayout 
+			add: (self newLabel label: 'Tile Threshold:') expand: false;
+			add: numerousTilesInput expand: false ].
+
+	aStrategy = WSPercentageBacktracking ifTrue: [ 
+		newLayout 
+			add: (self newLabel label: 'Backtracking Percentage (0 - 100):') expand: false;
+			add: percentageInput expand: false ].
+
+	aStrategy = WSSimilarWeightBacktracking ifTrue: [ 
+		dynamicStrategyContainer layout: nil
+	].
+
+	aStrategy = WSRestartFromScratchBacktracking ifTrue: [ ].
 	
-	"1. Recuperiamo il JSON in memoria"
-	json := WSConfig configFile.
-	
-	"2. Aggiorniamo i campi di base"
-	json at: 'heapType' put: heapTypeDropList selectedItem.
-	json at: 'classPlacingOrder' put: classPlacingDropList selectedItem.
-	json at: 'pathTargetStrategy' put: pathTargetDropList selectedItem.
-	json at: 'pathBoost' put: pathBoostInput number.
-	
-	"3. Aggiorniamo i campi annidati (creando i dizionari se per caso mancano)"
-	(json at: 'WSTile' ifAbsentPut: [ Dictionary new ])
-		at: 'emptyTileWeight' put: emptyTileWeightInput number.
-		
-	backtrackingNode := json at: 'WSBacktracking' ifAbsentPut: [ Dictionary new ].
-	backtrackingNode at: 'backtrackingStrategy' put: backtrackingDropList selectedItem.
-	
-	topoNode := json at: 'WS2DGridTopology' ifAbsentPut: [ Dictionary new ].
-	topoNode at: 'gridSafetyMooreRadius' put: gridSafetyInput number.
-	
-	rectNode := topoNode at: 'WS2DRectangularGridTopology' ifAbsentPut: [ Dictionary new ].
-	tileNode := rectNode at: 'WS2DSquareTile' ifAbsentPut: [ Dictionary new ].
-	
-	tileNode at: 'straightTilesWeight' put: straightTileWeightInput number.
-	tileNode at: 'cornerTilesWeight' put: cornerTileWeightInput number.
-	
-	"4. Scriviamo su file fisso"
-	file := (WSObject resourcesRootPath / 'config.json') asFileReference.
-	file writeStreamDo: [ :stream |
-		(NeoJSONWriter on: stream)
-			prettyPrint: true;
-			nextPut: json ].
-			
-	"5. Pialliamo la cache di WSConfig per forzare la ricarica al prossimo avvio"
-	WSConfig reset.
-	
-	UIManager default inform: 'Configuration saved successfully!'.
+	dynamicStrategyContainer layout: newLayout
 ]
