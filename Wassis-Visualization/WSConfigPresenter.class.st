@@ -20,7 +20,10 @@ Class {
 		'percentageInput',
 		'stepsGroup',
 		'percentageGroup',
-		'tilesGroup'
+		'tilesGroup',
+		'similarWeightGroup',
+		'minSimilarTilesPercentage',
+		'weightDifferencePercentage'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -135,6 +138,8 @@ WSConfigPresenter >> initializePresenters [
 	fixedStepsInput := self newNumberInput number: WSFixedStepsBacktrackingConfig numberOfFixedSteps.
 	numerousTilesInput := self newNumberInput number: WSNumerousTilesBacktrackingConfig tileCountThreshold.
 	percentageInput := self newNumberInput number: WSPercentageBacktrackingConfig percentage.
+	minSimilarTilesPercentage := self newNumberInput number: WSSimilarWeightBacktrackingConfig minSimilarTilesPercentage.
+	weightDifferencePercentage := self newNumberInput number: WSSimilarWeightBacktrackingConfig weightDifferencePercentage.
 
 	stepsGroup := self newPresenter
 		layout: (SpBoxLayout newVertical
@@ -156,7 +161,21 @@ WSConfigPresenter >> initializePresenters [
 			add: percentageInput expand: false;
 			yourself);
 		yourself.
-
+		
+similarWeightGroup := self newPresenter
+	layout: (SpBoxLayout newHorizontal
+		spacing: 10;
+		add: (SpBoxLayout newVertical
+			add: (self newLabel label: 'Tile to Consider:') expand: false;
+			add: minSimilarTilesPercentage expand: false;
+			yourself);
+		add: (SpBoxLayout newVertical
+			add: (self newLabel label: 'Max % difference:') expand: false;
+			add: weightDifferencePercentage expand: false;
+			yourself);
+		yourself);
+	yourself.
+	
    dynamicStrategyContainer := self newPresenter.
 	dynamicStrategyContainer layout: SpBoxLayout newVertical.
 
@@ -223,6 +242,9 @@ WSConfigPresenter >> updateDynamicConfigurationFor: aStrategy [
 
 	aStrategy = WSPercentageBacktracking ifTrue: [ 
 		newLayout add: percentageGroup expand: false ].
+	
+	aStrategy = WSSimilarWeightBacktracking ifTrue: [ 
+		newLayout add: similarWeightGroup expand: false ].
 
 	dynamicStrategyContainer layout: newLayout
 ]
