@@ -10,14 +10,14 @@ Class {
 }
 
 { #category : 'creation' }
-WSSubclassesCollector >> createNodesFor: aClass [
+WSSubclassesCollector >> createNodes [
 	"Create a Dictionary with all the super and subclasses of aClass"
 	
 	| dict id | 
 	dict := Dictionary new.
 	id := 1.
 	
-	aClass withAllSubclassesDo: 
+	originClass withAllSubclassesDo: 
 		[ :eachClass | 
 			dict at: eachClass put: (WSClass new id: id; name: eachClass name).
 			id := id + 1 ].
