@@ -96,20 +96,19 @@ WSClassSelectionPresenter >> labelForStrategy: aClass [
 
 { #category : 'running' }
 WSClassSelectionPresenter >> runVisualization [
-	| swSystem classCount confirm adaptiveSolver |
+	| swSystem confirm adaptiveSolver |
 	
 	selectedClass ifNil: [ 
 		UIManager default inform: 'No class selected.'.
 		^ self ].
 
 	swSystem := WSSoftwareSystem usingStrategy: (strategyDropList selectedItem withOriginClass: selectedClass).
-	classCount := swSystem classes size.
 
 	confirm := UIManager default confirm: 
-		('Found ', classCount asString, ' classes for ', selectedClass name, '.', String cr, 'Do you want to run WFC?').
+		('Found ', swSystem classes size asString, ' classes for ', selectedClass name, '.', String cr, 'Do you want to run WFC?').
 	confirm ifFalse: [ ^ self ].
 
-	Transcript open.
+	WSWorldUI isTranscriptOpen ifFalse: [ Transcript open ].
 
 	adaptiveSolver := WSAdaptive2DGridSolver 
 		withTopology: WS2DRectangularGridTopology 

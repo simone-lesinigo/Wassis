@@ -9,7 +9,7 @@ Class {
 	#tag : 'WorldMenu'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'world menu' }
 WSWorldUI class >> buildWorldMenuOn: aBuilder [
 	<worldMenu>
 
@@ -33,7 +33,17 @@ WSWorldUI class >> buildWorldMenuOn: aBuilder [
 		order: 200.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
+WSWorldUI class >> isTranscriptOpen [
+
+	^ self currentWorld submorphs anySatisfy: [ :aMorph | 
+		(aMorph isKindOf: SystemWindow) 
+			and: [ aMorph isCollapsed not 
+				and: [ aMorph label notNil 
+					and: [ aMorph label asString = 'Transcript' ] ] ] ]
+]
+
+{ #category : 'opening' }
 WSWorldUI class >> openSolution [
 
 	| file adaptiveSolver |
