@@ -11,7 +11,8 @@ Class {
 		'selectClassButton',
 		'strategyDropList',
 		'runButton',
-		'configButton'
+		'configButton',
+		'instanceCountInput'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -41,6 +42,12 @@ WSClassSelectionPresenter >> defaultLayout [
 			vAlignCenter;
 			add: (self newLabel label: 'Strategy:') expand: false;
 			add: strategyDropList expand: true;
+			yourself) expand: false;	
+		add: (SpBoxLayout newHorizontal 
+			spacing: 8;
+			vAlignCenter; 
+			add: (self newLabel label: 'N of Instances:') expand: false;
+			add: instanceCountInput expand: true;
 			yourself) expand: false;
 		add: (SpBoxLayout newHorizontal 
 			spacing: 8;
@@ -84,6 +91,8 @@ WSClassSelectionPresenter >> initializePresenters [
 		iconName: #play;
 		action: [ self runVisualization ];
 		yourself.
+		
+	instanceCountInput := self newNumberInput number: 1; yourself.
 	
 	self update.
 ]
@@ -93,7 +102,7 @@ WSClassSelectionPresenter >> initializeWindow: aWindowPresenter [
 
 	aWindowPresenter
 		title: 'Pharo Hierarchy Visualization';
-		initialExtent: 420 @ 150;
+		initialExtent: 420 @ 200;
 		beNotResizable
 ]
 
@@ -107,19 +116,15 @@ WSClassSelectionPresenter >> labelForStrategy: aClass [
 	^ aClass name
 ]
 
+{ #category : 'as yet unclassified' }
+WSClassSelectionPresenter >> runFromPharoScriptPath [
+
+	^ WSObject resourcesRootPath / 'script' / 'runFromPharo.sh'
+]
+
 { #category : 'running' }
-WSClassSelectionPresenter >> runVisualization [
-	| swSystem confirm adaptiveSolver |
-	
-	selectedClass ifNil: [ 
-		UIManager default inform: 'No class selected.'.
-		^ self ].
-
-	swSystem := WSSoftwareSystem usingStrategy: (strategyDropList selectedItem withOriginClass: selectedClass).
-
-	confirm := UIManager default confirm: 
-		('Found ', swSystem classes size asString, ' classes for ', selectedClass name, '.', String cr, 'Do you want to run WFC?').
-	confirm ifFalse: [ ^ self ].
+WSClassSelectionPresenter >> runInImage: swSystem [
+	| adaptiveSolver |
 
 	WSWorldUI isTranscriptOpen ifFalse: [ Transcript open ].
 
@@ -128,6 +133,51 @@ WSClassSelectionPresenter >> runVisualization [
 		andSwSystem: swSystem.
 
 	adaptiveSolver run.
+]
+
+{ #category : 'running' }
+WSClassSelectionPresenter >> runInParallel: instances [
+	| solverSource solverFile |
+
+	solverSource := self solverSourceFor: selectedClass strategy: strategyDropList selectedItem.
+	
+	solverFile := self solverScriptPath asFileReference.
+	solverFile ensureDelete.
+	solverFile writeStreamDo: [ :stream |
+		stream nextPutAll: solverSource ].
+
+	OSSUnixSubprocess new
+		command: '/bin/bash';
+		arguments: { 
+			self runFromPharoScriptPath asFileReference fullName . 
+			instances printString .
+			Smalltalk vm binary asFileReference fullName .
+			Smalltalk image imagePath asFileReference fullName .
+			solverFile fullName
+		};
+		run.
+]
+
+{ #category : 'running' }
+WSClassSelectionPresenter >> runVisualization [
+	| swSystem confirm instances |
+
+	selectedClass ifNil: [ 
+		UIManager default inform: 'No class selected.'.
+		^ self ].
+
+	instances := instanceCountInput text asInteger max: 1.
+
+	swSystem := WSSoftwareSystem usingStrategy: (strategyDropList selectedItem withOriginClass: selectedClass).
+
+	confirm := UIManager default confirm: 
+		('Found ', swSystem classes size asString, ' classes for ', selectedClass name, '.', String cr, 'Do you want to run WFC?').
+	confirm ifFalse: [ ^ self ].
+
+	instances = 1
+		ifTrue: [ self runInImage: swSystem ]
+		ifFalse: [ self runInParallel: instances ].
+
 	self window close.
 ]
 
@@ -148,6 +198,31 @@ WSClassSelectionPresenter >> selectClass [
 		presenter selectedItem ifNotNil: [ :pickedClass | 
 			selectedClass := pickedClass.
 			self update ] ]
+]
+
+{ #category : 'as yet unclassified' }
+WSClassSelectionPresenter >> solverScriptPath [
+
+	^ WSObject resourcesRootPath / 'script' / 'solver.st'
+]
+
+{ #category : 'as yet unclassified' }
+WSClassSelectionPresenter >> solverSourceFor: aClass strategy: aStrategyClass [
+
+	^ String streamContents: [ :s |
+		s
+			nextPutAll: '| swSystem adaptiveSolver |'; cr;
+			nextPutAll: 'swSystem := WSSoftwareSystem'; cr;
+			tab; nextPutAll: 'usingStrategy: ('.
+		s
+			nextPutAll: aStrategyClass name;
+			nextPutAll: ' withOriginClass: ';
+			nextPutAll: aClass name;
+			nextPutAll: ').'; cr;
+			nextPutAll: 'adaptiveSolver := WSAdaptive2DGridSolver'; cr;
+			tab; nextPutAll: 'withTopology: WS2DRectangularGridTopology'; cr;
+			tab; nextPutAll: 'andSwSystem: swSystem.'; cr;
+			nextPutAll: 'adaptiveSolver run.' ]
 ]
 
 { #category : 'update' }
