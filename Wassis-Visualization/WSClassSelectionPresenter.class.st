@@ -138,7 +138,7 @@ WSClassSelectionPresenter >> runInImage: swSystem [
 { #category : 'running' }
 WSClassSelectionPresenter >> runInParallel: instances [
 	| solverSource solverFile |
-
+	Smalltalk snapshot: true andQuit: false.
 	solverSource := self solverSourceFor: selectedClass strategy: strategyDropList selectedItem.
 	
 	solverFile := self solverScriptPath asFileReference.

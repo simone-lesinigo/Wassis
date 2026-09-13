@@ -96,7 +96,11 @@ WSAdaptive2DGridSolver >> run [
 
     WSConfig isHeadless 
         ifTrue: [ self executeRun ]
-        ifFalse: [ [ self executeRun ] forkNamed: 'WaveFunctionCollapse' ]
+        ifFalse: [ 
+			[ 
+			WSWorldUI isTranscriptOpen ifFalse: [ Transcript open ].
+			self executeRun ] 
+		forkNamed: 'WaveFunctionCollapse' ]
 ]
 
 { #category : 'running' }
