@@ -349,6 +349,52 @@ WSConfig class >> reset [
 		subclass classPool keysAndValuesDo: [ :varName :value | subclass classPool at: varName put: nil ] ]
 ]
 
+{ #category : 'as yet unclassified' }
+WSConfig class >> saveConfiguration: aDictionary [
+
+	| json backtracking squareTile |
+	json := self configFile.
+
+	json at: 'heapType' put: (aDictionary at: 'heapType').
+	json at: 'classPlacingOrder' put: (aDictionary at: 'classPlacingOrder').
+	json at: 'pathTargetStrategy' put: (aDictionary at: 'pathTargetStrategy').
+	json at: 'pathBoost' put: (aDictionary at: 'pathBoost').
+
+	(json at: 'WSTile' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'emptyTileWeight' put: (aDictionary at: 'emptyTileWeight').
+
+	(json at: 'WS2DGridTopology' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'gridSafetyMooreRadius' put: (aDictionary at: 'gridSafetyMooreRadius').
+
+	squareTile := ((json at: 'WS2DGridTopology')
+		at: 'WS2DRectangularGridTopology' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'WS2DSquareTile' ifAbsentPut: [ NeoJSONObject new ].
+
+	squareTile
+		at: 'straightTilesWeight' put: (aDictionary at: 'straightTilesWeight');
+		at: 'cornerTilesWeight' put: (aDictionary at: 'cornerTilesWeight').
+
+	"4. Backtracking Configuration"
+	backtracking := json at: 'WSBacktracking' ifAbsentPut: [ NeoJSONObject new ].
+	backtracking at: 'backtrackingStrategy' put: (aDictionary at: 'backtrackingStrategy').
+
+	(backtracking at: 'WSFixedStepsBacktracking' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'numberOfFixedSteps' put: (aDictionary at: 'numberOfFixedSteps').
+
+	(backtracking at: 'WSNumerousTilesBacktracking' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'tileCountThreshold' put: (aDictionary at: 'tileCountThreshold').
+
+	(backtracking at: 'WSPercentageBacktracking' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'percentage' put: (aDictionary at: 'percentage').
+
+	(backtracking at: 'WSSimilarWeightBacktracking' ifAbsentPut: [ NeoJSONObject new ])
+		at: 'minSimilarTilesPercentage' put: (aDictionary at: 'minSimilarTilesPercentage');
+		at: 'weightDifferencePercentage' put: (aDictionary at: 'weightDifferencePercentage').
+
+	self writeConfigFile.
+	self reset
+]
+
 { #category : 'accessing' }
 WSConfig class >> saveFailedExecution [
 
@@ -370,4 +416,16 @@ WSConfig class >> saveFailedExecution: anObject [
 WSConfig class >> secondPathSymbol [
 	
 	^ 'secondPath'
+]
+
+{ #category : 'writing' }
+WSConfig class >> writeConfigFile [
+
+	| file |
+	file := (WSObject resourcesRootPath / 'config.json') asFileReference.
+	file ensureDelete. 
+	file writeStreamDo: [ :stream |
+		(NeoJSONWriter on: stream)
+			prettyPrint: true;
+			nextPut: self configFile ]
 ]
