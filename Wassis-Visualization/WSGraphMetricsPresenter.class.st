@@ -42,7 +42,7 @@ WSGraphMetricsPresenter >> updatePresenter [
 		'Class Nodes' -> Metrics graphMetrics numberOfClassNodes printString.
 		'Path Nodes' -> Metrics graphMetrics numberOfPathNodes printString.
 		'Empty Nodes' -> Metrics graphMetrics numberOfEmptyNodes printString.
-		'Overlaps' -> Metrics graphMetrics numberOfOverlaps printString
+		'Overlaps' -> (Metrics graphMetrics numberOfOverlaps ifNil: [ 0 ]) printString
 	}.
 	bar updatePresenter
 ]
