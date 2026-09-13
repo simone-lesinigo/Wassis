@@ -119,6 +119,12 @@ WSResultPresenter >> openMDSPositionPresenter [
 	newVisualizer visualizeMDSPositionFor: adaptiveSolver solver.
 ]
 
+{ #category : 'presenter opening' }
+WSResultPresenter >> openMetricsPresenter [
+	
+	WSMetricPresenter openWithMetrics: adaptiveSolver metrics
+]
+
 { #category : 'initialization-menuBar' }
 WSResultPresenter >> saveItem [
 
@@ -138,6 +144,7 @@ WSResultPresenter >> visualizationSubMenu [
 
     ^ SpMenuPresenter new
         addItem: [ :sub | sub name: 'Animation'; action: [ self openAnimationPresenter ] ];
+		  addItem: [ :sub | sub name: 'Metrics'; action: [ self openMetricsPresenter ] ];
         addItem: [ :sub | sub name: 'Classes Graph'; action: [ self openClassesGraphPresenter ] ];
         addItem: [ :sub | sub name: 'Class Distances'; action: [ self openClassDistancesPresenter ] ];
         addItem: [ :sub | sub name: 'MDS Positioning'; action: [ self openMDSPositionPresenter ] ];

@@ -8,32 +8,32 @@ Class {
 { #category : 'baselines' }
 BaselineOfWassis >> baseline: spec [
     <baseline>
-	 
-	 self loadZION.
-		
+
+    self loadZION.
+
     spec for: #common do: [
         spec
             baseline: 'PolyMath'
-            with: [ spec repository: 'github://PolyMathOrg/PolyMath' ].
+            with: [ spec repository: 'github://PolyMathOrg/PolyMath' ];
 
-		  spec 
-				baseline: 'NeoJSON'
-				 with: [ spec repository: 'github://svenvc/NeoJSON/repository' ].
+            baseline: 'NeoJSON'
+            with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
 
-		  spec
+            baseline: 'OSSubprocess'
+            with: [ spec repository: 'github://pharo-contributions/OSSubprocess:master/repository' ];
+
             baseline: 'Roassal'
             with: [
-            		spec
-                	repository: (self classNamed: #BaselineOfPharo) roassalRepository;
-                	loads: #( 'Full' ) ].	
-	
-		 	spec 
-				baseline: 'RoassalExporters'
-				with: [ spec repository: 'github://pharo-graphics/RoassalExporters' ].
+                spec
+                    repository: (self classNamed: #BaselineOfPharo) roassalRepository;
+                    loads: #( 'Full' ) ];	
+
+            baseline: 'RoassalExporters'
+            with: [ spec repository: 'github://pharo-graphics/RoassalExporters' ].
 
         spec 
             package: 'Wassis' 
-            with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON') ];
+            with: [ spec requires: #('PolyMath' 'Roassal' 'NeoJSON' 'OSSubprocess') ];
 
             package: 'Wassis-Visualization'
             with: [ spec requires: #('Wassis' 'RoassalExporters') ];

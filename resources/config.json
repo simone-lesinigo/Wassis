@@ -1,5 +1,5 @@
 {
-    "isHeadless": true,
+    "isHeadless": false,
     "saveFailedExecution": false,
     "heapType": "maxHeap",
     "placementStrategy": "metricMDS",
