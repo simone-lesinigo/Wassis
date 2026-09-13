@@ -27,16 +27,36 @@ WSPlacementMetricsPresenter >> initializePresenters [
 
 	avgTable := self newTable.
 	avgTable
-		addColumn: (SpStringTableColumn new title: 'Class'; evaluated: [ :e | e key ]; yourself);
-		addColumn: (SpStringTableColumn new title: 'Avg Distance from Connected Classes'; evaluated: [ :e | e value ]; yourself);
+		addColumn: (SpStringTableColumn new
+			title: 'Class';
+			evaluated: [ :row | row first ];
+			sortFunction: [ :row | row first ] ascending;
+			yourself);
+		addColumn: (SpStringTableColumn new
+			title: 'Avg Distance from Connected Classes';
+			evaluated: [ :row | row second printShowingDecimalPlaces: 1 ];
+			sortFunction: [ :row | row second ] ascending;
+			yourself);
 		beResizable;
 		showColumnHeaders.
-
+		
 	pairsTable := self newTable.
 	pairsTable
-		addColumn: (SpStringTableColumn new title: 'Source Class'; evaluated: [ :row | row first ]; yourself);
-		addColumn: (SpStringTableColumn new title: 'Desination Class'; evaluated: [ :row | row second ]; yourself);
-		addColumn: (SpStringTableColumn new title: 'Distance'; evaluated: [ :row | row third ]; yourself);
+		addColumn: (SpStringTableColumn new
+			title: 'Source Class';
+			evaluated: [ :row | row first ];
+			sortFunction: [ :row | row first ] ascending;
+			yourself);
+		addColumn: (SpStringTableColumn new
+			title: 'Destination Class';
+			evaluated: [ :row | row second ];
+			sortFunction: [ :row | row second ] ascending;
+			yourself);
+		addColumn: (SpStringTableColumn new
+			title: 'Distance';
+			evaluated: [ :row | row third printString ];
+			sortFunction: [ :row | row third ] ascending;
+			yourself);
 		beResizable;
 		showColumnHeaders.
 ]
@@ -46,12 +66,12 @@ WSPlacementMetricsPresenter >> updateAvgTable [
 
 	| avgDict rows overall |
 	avgDict := Metrics placementMetrics avgConnectedClassesDistance.
-	rows := (avgDict associations asSortedCollection: [ :a :b | a key name <= b key name ])
-		        collect: [ :assoc | assoc key name -> (assoc value asFloat printShowingDecimalPlaces: 1) ].
+	rows := avgDict associations
+		        collect: [ :assoc | Array with: assoc key name with: assoc value asFloat ].
 	overall := avgDict isEmpty
 		           ifTrue: [ 0 ]
 		           ifFalse: [ (avgDict values inject: 0 into: [ :sum :v | sum + v ]) / avgDict size asFloat ].
-	avgTable items: rows asOrderedCollection , { 'Average' -> (overall asFloat printShowingDecimalPlaces: 1) }
+	avgTable items: rows asOrderedCollection , { Array with: 'Average Distance' with: overall asFloat }
 ]
 
 { #category : 'as yet unclassified' }
@@ -64,8 +84,8 @@ WSPlacementMetricsPresenter >> updatePairsTable [
 			        Array
 				        with: assoc key key name
 				        with: assoc key value name
-				        with: assoc value printString ].
-	pairsTable items: (rows asSortedCollection: [ :a :b | a third asNumber >= b third asNumber ]) asOrderedCollection
+				        with: assoc value ].
+	pairsTable items: rows asOrderedCollection
 ]
 
 { #category : 'initialization' }

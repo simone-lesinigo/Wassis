@@ -5,7 +5,8 @@ Class {
 		'notebook',
 		'graphPage',
 		'performancePage',
-		'placementPage'
+		'placementPage',
+		'softwarePage'
 	],
 	#classVars : [
 		'Metrics'
@@ -36,11 +37,13 @@ WSMetricPresenter >> initializePresenters [
 	graphPage := self instantiate: WSGraphMetricsPresenter.
 	performancePage := self instantiate: WSPerformanceMetricsPresenter.
 	placementPage := self instantiate: WSPlacementMetricsPresenter.
+	softwarePage := self instantiate: WSSoftwareSystemPresenter.
 
 	notebook
 		addPage: (SpNotebookPage title: 'Graph' provider: [ graphPage ]);
 		addPage: (SpNotebookPage title: 'Performance' provider: [ performancePage ]);
-		addPage: (SpNotebookPage title: 'Placement' provider: [ placementPage ]).
+		addPage: (SpNotebookPage title: 'Placement' provider: [ placementPage ]);
+		addPage: (SpNotebookPage title: 'System' provider: [ softwarePage ]).
 ]
 
 { #category : 'initialization' }
@@ -78,4 +81,5 @@ WSMetricPresenter >> updatePresenter [
 	graphPage ifNotNil: [ graphPage updatePresenter ].
 	performancePage ifNotNil: [ performancePage updatePresenter ].
 	placementPage ifNotNil: [ placementPage updatePresenter ].
+	softwarePage ifNotNil: [ softwarePage updatePresenter ]
 ]
