@@ -27,7 +27,6 @@ WSGraphMetricsPresenter >> initializePresenters [
 	(table
 		addColumn: (SpStringTableColumn new title: 'Metric'; evaluated: [ :e | e key ]; yourself);
 		addColumn: (SpStringTableColumn new title: 'Value'; evaluated: [ :e | e value ]; yourself); yourself)
-		beResizeable;
 		showColumnHeaders.
 	bar := self instantiate: WSStackedBarPresenter.
 ]
