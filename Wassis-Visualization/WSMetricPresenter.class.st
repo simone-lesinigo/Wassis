@@ -1,6 +1,12 @@
 Class {
 	#name : 'WSMetricPresenter',
 	#superclass : 'SpPresenter',
+	#instVars : [
+		'notebook',
+		'graphPage',
+		'performancePage',
+		'placementPage'
+	],
 	#classVars : [
 		'Metrics'
 	],
@@ -13,6 +19,37 @@ Class {
 WSMetricPresenter class >> openWithMetrics: aMetrics [
 
 	^ (self on: aMetrics) open
+]
+
+{ #category : 'layout' }
+WSMetricPresenter >> defaultLayout [
+
+	^ SpBoxLayout newVertical
+		  add: notebook;
+		  yourself
+]
+
+{ #category : 'initialization' }
+WSMetricPresenter >> initializePresenters [
+
+	notebook := self newNotebook.
+	graphPage := self instantiate: WSGraphMetricsPresenter.
+	performancePage := self instantiate: WSPerformanceMetricsPresenter.
+	placementPage := self instantiate: WSPlacementMetricsPresenter.
+
+	notebook
+		addPage: (SpNotebookPage title: 'Graph' provider: [ graphPage ]);
+		addPage: (SpNotebookPage title: 'Performance' provider: [ performancePage ]);
+		addPage: (SpNotebookPage title: 'Placement' provider: [ placementPage ]).
+]
+
+{ #category : 'initialization' }
+WSMetricPresenter >> initializeWindow: aWindowPresenter [
+
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter
+		title: 'Wassis - Metrics';
+		initialExtent: 700 @ 600
 ]
 
 { #category : 'accessing - structure variables' }
@@ -31,4 +68,14 @@ WSMetricPresenter >> metrics: anObject [
 WSMetricPresenter >> setModelBeforeInitialization: aMetrics [
 
 	Metrics := aMetrics
+]
+
+{ #category : 'initialization' }
+WSMetricPresenter >> updatePresenter [
+
+	super updatePresenter.
+	Metrics ifNil: [ ^ self ].
+	graphPage ifNotNil: [ graphPage updatePresenter ].
+	performancePage ifNotNil: [ performancePage updatePresenter ].
+	placementPage ifNotNil: [ placementPage updatePresenter ].
 ]

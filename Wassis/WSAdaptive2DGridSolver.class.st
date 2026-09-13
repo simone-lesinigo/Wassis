@@ -74,6 +74,12 @@ WSAdaptive2DGridSolver >> logGridSize: size [
 	WSLogger log: ('New grid with size: {1} * {2}' format: { size . size }).
 ]
 
+{ #category : 'accessing' }
+WSAdaptive2DGridSolver >> metrics [
+
+	^ metrics
+]
+
 { #category : 'cleanup' }
 WSAdaptive2DGridSolver >> resetEnvironment [
 	

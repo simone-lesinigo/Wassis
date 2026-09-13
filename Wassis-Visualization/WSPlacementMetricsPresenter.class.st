@@ -34,8 +34,8 @@ WSPlacementMetricsPresenter >> initializePresenters [
 
 	pairsTable := self newTable.
 	pairsTable
-		addColumn: (SpStringTableColumn new title: 'Class A'; evaluated: [ :row | row first ]; yourself);
-		addColumn: (SpStringTableColumn new title: 'Class B'; evaluated: [ :row | row second ]; yourself);
+		addColumn: (SpStringTableColumn new title: 'Source Class'; evaluated: [ :row | row first ]; yourself);
+		addColumn: (SpStringTableColumn new title: 'Desination Class'; evaluated: [ :row | row second ]; yourself);
 		addColumn: (SpStringTableColumn new title: 'Distance'; evaluated: [ :row | row third ]; yourself);
 		beResizable;
 		showColumnHeaders.
