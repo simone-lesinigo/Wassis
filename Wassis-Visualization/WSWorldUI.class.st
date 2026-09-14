@@ -43,6 +43,21 @@ WSWorldUI class >> isTranscriptOpen [
 					and: [ aMorph label asString = 'Transcript' ] ] ] ]
 ]
 
+{ #category : 'world menu' }
+WSWorldUI class >> menuCommandOn: aBuilder [
+	<worldMenu>
+	(aBuilder group: #Vissoft2026)
+		order: 100;
+		with: [
+			(aBuilder item: #'Run JetUML')
+				order: 1;
+				action: [ WSExamples runJetUml ].
+				
+			(aBuilder item: #'Reset JetUML Cache')
+				order: 2;
+				action: [ WSExamples resetSwSystemCache ] ]
+]
+
 { #category : 'opening' }
 WSWorldUI class >> openSolution [
 

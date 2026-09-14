@@ -4,10 +4,26 @@ Provides examples of use
 Class {
 	#name : 'WSExamples',
 	#superclass : 'WSObject',
+	#classVars : [
+		'SystemCache'
+	],
 	#category : 'Wassis-Examples',
 	#package : 'Wassis',
 	#tag : 'Examples'
 }
+
+{ #category : 'vissoft2026' }
+WSExamples class >> cachedSwSystem [
+	^ SystemCache ifNil: [ 
+		SystemCache := WSSoftwareSystem 
+			usingStrategy: 
+				(WSJavaCollector 
+					jsonFile: 'jetuml.json' 
+					forPackage: 'org.jetuml.diagram'     
+					using: { 
+						[ :cls | cls superclass ] -> WSRelationType inheritance.
+						[ :cls | cls outgoingRelationships select: #isJavaFieldReadEdge thenCollect: [ :e | e target parent ] ] -> WSRelationType usage }) ]
+]
 
 { #category : 'WSEdge' }
 WSExamples class >> exampleCreateEdge [
@@ -114,32 +130,6 @@ WSExamples class >> exampleRunHexagonalGrid [
 		createVisualization.
 		
 	solver run.
-]
-
-{ #category : 'WSSolver' }
-WSExamples class >> exampleRunJetUml [
-"InstructionClient" "MCReader" "TaAbstractComposition"
-	| swSystem adaptiveSolver |
-
-	swSystem := WSSoftwareSystem 
-		usingStrategy: 
-			(WSJavaCollector 
-				jsonFile: 'jetuml.json' 
-				forPackage: 'org.jetuml.diagram'     
-				using: { 
-				    [ :cls | cls superclass ] -> WSRelationType inheritance.
-				    [ :cls | cls outgoingRelationships select: #isJavaFieldReadEdge thenCollect: [ :e | e target parent ] ] -> WSRelationType usage
-				}).
-
-	adaptiveSolver := 
-		WSAdaptive2DGridSolver 
-			withTopology: WS2DRectangularGridTopology 
-			andSwSystem: swSystem.
-
-	adaptiveSolver run.
-	
-		
-
 ]
 
 { #category : 'WSSolver' }
@@ -267,4 +257,36 @@ WSExamples class >> methodsWithToDo [
 	(Pragma allNamed: #toDo) 
 	    select: [ :p | p methodClass name beginsWith: 'WS' ]
 	    thenCollect: [ :p | p method ].
+]
+
+{ #category : 'vissoft2026' }
+WSExamples class >> resetSwSystemCache [
+	<script>
+	SystemCache := nil.
+	UIManager default inform: 'Cache cleaned'
+	
+]
+
+{ #category : 'vissoft2026' }
+WSExamples class >> runJetUml [
+	<script>
+	| swSystem adaptiveSolver |
+
+	swSystem := self cachedSwSystem.
+
+	(UIManager default confirm: 'You have selected: ' , swSystem classes size asString , ' classes, do you want to proceed?')
+		ifTrue: [
+			adaptiveSolver := 
+				WSAdaptive2DGridSolver 
+					withTopology: WS2DRectangularGridTopology 
+					andSwSystem: swSystem.
+			adaptiveSolver run ]
+]
+
+{ #category : 'vissoft2026' }
+WSExamples class >> visualizeJetUmlPackages [
+	
+	<script>
+	(ZNJavaGraph fromJsonAt: WSJavaCollector jsonsFolder / 'jetuml.json') modelPackages inspect
+	
 ]
