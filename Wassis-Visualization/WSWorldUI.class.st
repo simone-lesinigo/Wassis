@@ -49,6 +49,10 @@ WSWorldUI class >> menuCommandOn: aBuilder [
 	(aBuilder group: #Vissoft2026)
 		order: 100;
 		with: [
+			(aBuilder item: #'Visualize JetUML packages')
+				order: 1;
+				action: [ WSExamples visualizeJetUmlPackages ].
+			
 			(aBuilder item: #'Run JetUML')
 				order: 1;
 				action: [ WSExamples runJetUml ].

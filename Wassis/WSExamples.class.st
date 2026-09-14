@@ -5,6 +5,7 @@ Class {
 	#name : 'WSExamples',
 	#superclass : 'WSObject',
 	#classVars : [
+		'JetUMLCache',
 		'SystemCache'
 	],
 	#category : 'Wassis-Examples',
@@ -14,6 +15,7 @@ Class {
 
 { #category : 'vissoft2026' }
 WSExamples class >> cachedSwSystem [
+
 	^ SystemCache ifNil: [ 
 		SystemCache := WSSoftwareSystem 
 			usingStrategy: 
@@ -238,6 +240,13 @@ WSExamples class >> garbageCollect10 [
 	10 timesRepeat: [ Smalltalk garbageCollect ]
 ]
 
+{ #category : 'vissoft2026' }
+WSExamples class >> jetUMLCache [
+
+	^ JetUMLCache ifNil: [ 
+		JetUMLCache := (ZNJavaGraph fromJsonAt: WSJavaCollector jsonsFolder / 'jetuml.json') ]
+]
+
 { #category : 'WSAdaptiveSolver' }
 WSExamples class >> loadSolutionFromFile [
 "solution-27-05-2026_14h09m18s.fuel"
@@ -287,6 +296,7 @@ WSExamples class >> runJetUml [
 WSExamples class >> visualizeJetUmlPackages [
 	
 	<script>
-	(ZNJavaGraph fromJsonAt: WSJavaCollector jsonsFolder / 'jetuml.json') modelPackages inspect
+	
+	self jetUMLCache modelPackages inspect.
 	
 ]
