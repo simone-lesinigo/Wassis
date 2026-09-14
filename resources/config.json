@@ -6,13 +6,13 @@
     "classPlacingOrder": "BFSmax",
     "connectionAssignmentStrategy": "grouped",
     "pathTargetStrategy": "closest-exit",
-    "pathBoost": 50,
+    "pathBoost": 80,
     "WSBacktracking": {
         "backtrackingStrategy": "percentage",
         "maxNumberOfBacktrackPerGraph": 5,
-        "maxRegenerationsPerGridSize": 10,
+        "maxRegenerationsPerGridSize": 1000,
         "retryWithSameClassPlacement": {
-            "enabled": true,
+            "enabled": false,
             "maxNumberOfRetries": 3
         },
         "WSFixedStepsBacktracking": {
