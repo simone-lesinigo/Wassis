@@ -23,7 +23,10 @@ Class {
 		'tilesGroup',
 		'similarWeightGroup',
 		'minSimilarTilesPercentage',
-		'weightDifferencePercentage'
+		'weightDifferencePercentage',
+		'sameGraphRetriesInput',
+		'sameClassPlacingRetriesInput',
+		'sameGridSizeRetriesInput'
 	],
 	#category : 'Wassis-Visualization-WorldMenu',
 	#package : 'Wassis-Visualization',
@@ -113,7 +116,27 @@ WSConfigPresenter >> defaultLayout [
 
 		add: (SpBoxLayout newVertical
 			spacing: 5;
-			add: (self newLabel label: 'Backtracking Strategy') expand: false;
+			add: (self newLabel label: 'Backtracking') expand: false;
+			add: (SpBoxLayout newHorizontal
+				spacing: 15;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Same Graph Retries:') expand: false;
+					add: sameGraphRetriesInput expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Same Class Placing Retries:') expand: false;
+					add: sameClassPlacingRetriesInput expand: false;
+					yourself) expand: false;
+
+				add: (SpBoxLayout newVertical
+					add: (self newLabel label: 'Same Grid Size Retries:') expand: false;
+					add: sameGridSizeRetriesInput expand: false;
+					yourself) expand: false;
+
+				yourself) expand: false;
+			add: (self newLabel label: 'Select a Strategy:') expand: false;
 			add: (SpBoxLayout newHorizontal
 				add: backtrackingDropList expand: false;
 				add: SpBoxLayout new;
@@ -183,6 +206,15 @@ WSConfigPresenter >> initializePresenters [
 
 	cornerTileWeightInput := self newNumberInput
 		number: WS2DRectangularGridConfig cornerTileWeight.
+		
+	sameGraphRetriesInput := self newNumberInput
+		number: WSBacktrackingConfig maxNumberOfBacktrackPerGraph .
+
+	sameClassPlacingRetriesInput := self newNumberInput
+		number: WSBacktrackingConfig maxRetriesForSameClassPlacement.
+
+	sameGridSizeRetriesInput := self newNumberInput
+		number: WSBacktrackingConfig maxRegenerationsPerGridSize.
 
 	backtrackingDropList := self newDropList
 		items: {
