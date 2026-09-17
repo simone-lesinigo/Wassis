@@ -76,7 +76,7 @@ WSConfigPresenter >> defaultLayout [
 				spacing: 15;
 
 				add: (SpBoxLayout newVertical
-					add: (self newLabel label: 'Path Target Strategy:') expand: false;
+					add: (self newLabel label: 'Select a Strategy:') expand: false;
 					add: pathTargetDropList expand: false;
 					yourself) expand: false;
 
@@ -116,7 +116,7 @@ WSConfigPresenter >> defaultLayout [
 
 		add: (SpBoxLayout newVertical
 			spacing: 5;
-			add: (self newLabel label: 'Backtracking') expand: false;
+			add: (self newLabel label: 'Backtracking Configuration') expand: false;
 			add: (SpBoxLayout newHorizontal
 				spacing: 15;
 
@@ -141,8 +141,10 @@ WSConfigPresenter >> defaultLayout [
 				add: backtrackingDropList expand: false;
 				add: SpBoxLayout new;
 				yourself) expand: false;
-			add: dynamicStrategyContainer expand: false;
-			yourself) expand: false;
+			
+			add: dynamicStrategyContainer;
+			
+			yourself) expand: true;
 
 		yourself
 ]
@@ -153,7 +155,7 @@ WSConfigPresenter >> initializeDialogWindow: aDialogPresenter [
 	super initializeWindow: aDialogPresenter.
 	aDialogPresenter
 		title: 'Wassis Configuration Settings';
-		initialExtent: 500 @ 420;
+		initialExtent: 550 @ 500;
 		addButton: 'Cancel' do: [ :dialog | dialog close ];
 		addButton: 'Save' do: [ :dialog | 
 			self saveConfiguration.
@@ -391,7 +393,7 @@ WSConfigPresenter >> updateDynamicConfigurationFor: aStrategy [
 		newLayout add: (SpBoxLayout newHorizontal
 			spacing: 20;
 			add: (SpBoxLayout newVertical
-				add: (self newLabel label: 'Tile to Consider:') expand: false;
+				add: (self newLabel label: 'Tile % to Consider:') expand: false;
 				add: minSimilarTilesPercentage expand: false;
 				yourself) expand: false;
 			add: (SpBoxLayout newVertical

@@ -37,7 +37,7 @@ WSGraphMetricsPresenter >> updatePresenter [
 	super updatePresenter.
 	Metrics ifNil: [ ^ self ].
 	table items: {
-		'Dimension' -> Metrics graphMetrics dimension printString.
+		'Dimension' -> (' x ' join: (Metrics graphMetrics dimension collect: #asString)).
 		'Total Nodes' -> Metrics graphMetrics totalNumberOfNodes printString.
 		'Class Nodes' -> Metrics graphMetrics numberOfClassNodes printString.
 		'Path Nodes' -> Metrics graphMetrics numberOfPathNodes printString.

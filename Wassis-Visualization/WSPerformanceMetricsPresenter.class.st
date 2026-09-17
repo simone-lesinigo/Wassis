@@ -14,7 +14,6 @@ WSPerformanceMetricsPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  spacing: 8;
-		  add: (self newLabel label: 'Performance Metrics' asText) expand: false;
 		  add: table expand: true;
 		  yourself
 ]

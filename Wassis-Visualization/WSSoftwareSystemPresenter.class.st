@@ -16,7 +16,6 @@ WSSoftwareSystemPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  spacing: 8;
-		  add: (self newLabel label: 'Software System Metrics' asText) expand: false;
 		  add: (SpBoxLayout newHorizontal
 				   add: (self newLabel label: 'Number of Classes:') expand: false;
 				   add: numberOfClassesLabel expand: false;
