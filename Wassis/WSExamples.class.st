@@ -135,13 +135,39 @@ WSExamples class >> exampleRunHexagonalGrid [
 ]
 
 { #category : 'WSSolver' }
+WSExamples class >> exampleRunJetUml [
+"InstructionClient" "MCReader" "TaAbstractComposition"
+	| swSystem adaptiveSolver |
+
+	swSystem := WSSoftwareSystem 
+		usingStrategy: 
+			(WSJavaCollector 
+				jsonFile: 'jetuml.json' 
+				forPackage: 'org.jetuml.diagram'     
+				using: { 
+				    [ :cls | cls superclass ] -> WSRelationType inheritance.
+				    [ :cls | cls outgoingRelationships select: #isJavaCallableInvocationEdge thenCollect: [ :e | e target parent ] ] -> WSRelationType usage
+				}).
+
+	adaptiveSolver := 
+		WSAdaptive2DGridSolver 
+			withTopology: WS2DRectangularGridTopology 
+			andSwSystem: swSystem.
+
+	adaptiveSolver run.
+	
+		
+
+]
+
+{ #category : 'WSSolver' }
 WSExamples class >> exampleRunRectangularGrid [
 "InstructionClient" "MCReader" "TaAbstractComposition"
 	| swSystem adaptiveSolver |
 
 	swSystem := WSSoftwareSystem 
 		usingStrategy: 
-			(WSFullHierarchyCollector withOriginClass: MCReader).
+			(WSFullHierarchyCollector withOriginClass: File).
 
 	adaptiveSolver := 
 		WSAdaptive2DGridSolver 

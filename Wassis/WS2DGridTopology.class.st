@@ -318,10 +318,12 @@ WS2DGridTopology >> emptyMatrixCheckpoint: anObject [
 { #category : 'collapse' }
 WS2DGridTopology >> footprintSizeFor: aClass [
 	 "Return the side length N of the NxN footprint needed for aClass"
+	| connectionsSize outSize inSize |
 	
-	| connectionsSize |
-	
-	connectionsSize := (self swSystem allConnectionsOf: aClass) size. 
+	outSize := aClass outgoingConnections sumNumbers: [ :each | each relations size ].
+	inSize := aClass  incomingConnections sumNumbers: [ :each | each relations size ].
+	connectionsSize := outSize + inSize.
+
 	connectionsSize isZero ifTrue: [ ^ 1 ].
 	^ (connectionsSize / 4) ceiling
 ]

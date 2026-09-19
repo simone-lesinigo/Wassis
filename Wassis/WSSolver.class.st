@@ -299,7 +299,7 @@ WSSolver >> createTemporaryVisualization [
 	uncollapsedTile := self topology createUncollapsedTile.
 	copyOfSelf := self veryDeepCopy.
 	copyOfSelf graph nodes do: [ :eachNode |
-			eachNode isNotCollapsed ifTrue: [
+			eachNode tileInWhichCollapsed ifNil: [
 					eachNode hasZeroPossibleTiles
 						ifTrue: [ eachNode tileInWhichCollapsed: self topology createErrorTile ]
 						ifFalse: [ eachNode tileInWhichCollapsed: uncollapsedTile ] ] ].

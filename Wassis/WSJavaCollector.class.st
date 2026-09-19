@@ -24,22 +24,26 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses [
 WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: someFilters [
 
 	| validClasses |
-	validClasses := aCollectionOfClasses reject: [ :each |
-		                each isLikelyTest or: [ each isException ] ].
-	validClasses := validClasses first: (2 min: validClasses size).
+	validClasses := (aCollectionOfClasses select: [ :each | self isValidClass: each ])
+		first: (1 min: aCollectionOfClasses size).
 
-	^ (validClasses flatCollect: [ :eachClass |
-			   | related |
-			   related := someFilters flatCollect: [ :assoc |
-					              | result |
-					              result := assoc key value: eachClass.
-					              result ifNil: [ {  } ] ifNotNil: [
-							              result isCollection
-								              ifTrue: [ result ]
-								              ifFalse: { result } ] ].
-			   related isEmpty
-				   ifTrue: [ {  } ]
-				   ifFalse: [ { eachClass } , related ] ]) asSet
+	^ ((validClasses flatCollect: [ :eachClass |
+		| related |
+		related := someFilters flatCollect: [ :assoc |
+			| result |
+			result := assoc key value: eachClass.
+			result 
+				ifNil: [ { } ] 
+				ifNotNil: [ 
+					result isCollection
+						ifTrue: [ result ]
+						ifFalse: { result } ] ].
+		
+		related := related select: [ :each | self isValidClass: each ].
+		
+		related isEmpty
+			ifTrue: [ { } ]
+			ifFalse: [ { eachClass } , related ] ]) select: [ :each | self isValidClass: each ]) asSet
 ]
 
 { #category : 'deprecated' }
@@ -95,6 +99,14 @@ WSJavaCollector class >> hasOutgoingInvocations: aClass within: aClassCollection
 
 	^ aClass outgoingInvocations anySatisfy: [ :eachInvoc | 
 		aClassCollection includes: eachInvoc target parent ]
+]
+
+{ #category : 'testing' }
+WSJavaCollector class >> isValidClass: aClass [
+	^ (aClass isLikelyTest 
+		or: [ aClass isException 
+		or: [ aClass isJavaEnum 
+		or: [ aClass isJavaInterface ] ] ]) not
 ]
 
 { #category : 'deprecated' }

@@ -103,8 +103,8 @@ WSClassSelectionPresenter >> initializePresenters [
 WSClassSelectionPresenter >> initializeWindow: aWindowPresenter [
 
 	aWindowPresenter
-		title: 'Pharo Hierarchy Visualization';
-		initialExtent: 420 @ 200;
+		title: 'Class Selection';
+		initialExtent: 420 @ 180;
 		beNotResizable
 ]
 
