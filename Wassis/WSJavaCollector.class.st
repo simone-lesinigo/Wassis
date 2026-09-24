@@ -25,7 +25,7 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: some
 
 	| validClasses |
 	validClasses := (aCollectionOfClasses select: [ :each | self isValidClass: each ])
-		first: (3 min: aCollectionOfClasses size).
+		first: (6 min: aCollectionOfClasses size).
 
 	^ ((validClasses flatCollect: [ :eachClass |
 		| related |
@@ -103,10 +103,14 @@ WSJavaCollector class >> hasOutgoingInvocations: aClass within: aClassCollection
 
 { #category : 'testing' }
 WSJavaCollector class >> isValidClass: aClass [
-	^ (aClass isLikelyTest 
+	"^ (aClass isLikelyTest 
 		or: [ aClass isException 
 		or: [ aClass isJavaEnum 
 		or: [ aClass isJavaInterface ] ] ]) not
+"
+	^ (aClass isLikelyTest 
+		or: [ aClass isException 
+		or: [ aClass isJavaInterface ] ] ) not
 ]
 
 { #category : 'deprecated' }
