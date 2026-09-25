@@ -25,7 +25,7 @@ WSJavaCollector class >> filterAndLimitClasses: aCollectionOfClasses using: some
 
 	| validClasses |
 	validClasses := (aCollectionOfClasses select: [ :each | self isValidClass: each ])
-		first: (6 min: aCollectionOfClasses size).
+		first: (5 min: aCollectionOfClasses size).
 
 	^ ((validClasses flatCollect: [ :eachClass |
 		| related |
